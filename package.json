@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
     "@prisma/client": "^6.16.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@stripe/react-stripe-js": "^4.0.2",
