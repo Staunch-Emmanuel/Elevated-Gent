@@ -17,17 +17,35 @@ export interface Product {
 }
 
 export interface OutfitLook {
-  id: string
-  title: string
-  description: string
-  heroImage: string
-  occasion: string
-  season: string
-  styleType: string
-  products: Product[]
-  totalPrice: number
-  featured: boolean
+  id: string;
+  title: string;
+  description: string;
+
+  // NEW — required for CMS
+  heroImage: string;
+  gallery?: string[]; // multi-image support
+  slug?: string;
+
+  occasion: string;
+  season: string;
+  styleType: string;
+
+  products: Product[];
+  totalPrice: number;
+  featured: boolean;
+
+  // NEW — CMS meta fields
+  createdAt?: string;
+  updatedAt?: string;
+  sortWeight?: number;
+
+  // NEW — analytics
+  viewCount?: number;
+  clickCount?: number;
+  lastViewedAt?: string;
+  lastClickedAt?: string;
 }
+
 
 export interface ProductCategory {
   id: string

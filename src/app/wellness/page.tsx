@@ -1,49 +1,73 @@
-'use client'
+// src/app/wellness/page.tsx
+import Link from "next/link";
+import { PagePadding, Container } from "@/components/layout";
+import StructuredData from "@/components/seo/StructuredData";
 
-import { PagePadding, Container } from '@/components/layout'
-import { articles } from '@/lib/articles/data'
-import { ArticleCard } from '@/components/articles/ArticleCard'
-import { StructuredData } from '@/components/seo/StructuredData'
-import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import type { ArticleDocument } from "@/lib/types/articles";
+import { getWellnessArticles } from "@/lib/firebase/wellness";
 
-export default function WellnessPage() {
+interface CombinedWellness extends ArticleDocument {
+  source: "cms";
+  normalizedDate: number;
+}
+
+export default async function WellnessListingPage() {
+  const cmsRaw = await getWellnessArticles();
+
+  const merged: CombinedWellness[] = cmsRaw
+    .map((item) => ({
+      ...item,
+      source: "cms" as const,
+      normalizedDate: item.createdAt
+        ? new Date(item.createdAt).getTime()
+        : Date.now(),
+    }))
+    .sort((a, b) => b.normalizedDate - a.normalizedDate);
 
   return (
-    <ProtectedRoute>
-      <StructuredData pageKey="wellness" />
+    <section>
+      <StructuredData
+        title="Wellness"
+        description="Wellness guides for the modern gentleman."
+        type="collection"
+        slug="/wellness"
+      />
 
-      {/* Hero Section */}
-      <section className="py-16">
-        <PagePadding>
-          <Container>
-            <div className="text-center space-y-8">
-              <div className="overflow-hidden px-4">
-                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
-                  GROOMING, HEALTH & WELLNESS
-                </h1>
-              </div>
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                Build the foundation for timeless style. Expert advice on grooming, fitness,
-                and wellness essentials that complement your elevated wardrobe—because
-                confidence starts from within.
-              </p>
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
+      <PagePadding>
+        <Container>
+          <h1 className="text-4xl font-bold mb-8">Wellness</h1>
 
-      {/* Articles Grid */}
-      <section className="py-16">
-        <PagePadding>
-          <Container>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {articles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
-    </ProtectedRoute>
-  )
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {merged.map((article) => (
+              <article
+                key={article.id}
+                className="border rounded-xl p-6 flex flex-col gap-3"
+              >
+                <p className="text-xs uppercase tracking-wide text-gray-500">
+                  wellness
+                </p>
+                <h2 className="text-xl font-semibold">
+                  <Link href={`/wellness/${article.slug}`}>
+                    {article.title ?? "Untitled"}
+                  </Link>
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {article.excerpt ?? ""}
+                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs text-gray-500">CMS</span>
+                  <Link
+                    href={`/wellness/${article.slug}`}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Read
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </Container>
+      </PagePadding>
+    </section>
+  );
 }

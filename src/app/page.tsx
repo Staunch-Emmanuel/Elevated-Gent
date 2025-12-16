@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/firebase/auth'
 
+
 export default function Home() {
   const { user, loading } = useAuth()
   const router = useRouter()

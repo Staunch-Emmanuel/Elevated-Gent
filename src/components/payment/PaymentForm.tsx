@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { stripePromise, SERVICE_PRICES, ServiceType } from '@/lib/stripe/client'
 import { Button } from '@/components/ui'
@@ -23,9 +23,7 @@ function CheckoutForm({ serviceType, onSuccess, onCancel }: PaymentFormProps) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!stripe || !elements) {
-      return
-    }
+    if (!stripe || !elements) return
 
     setIsProcessing(true)
     setErrorMessage(null)
@@ -42,7 +40,6 @@ function CheckoutForm({ serviceType, onSuccess, onCancel }: PaymentFormProps) {
       if (error) {
         setErrorMessage(error.message || 'An error occurred during payment')
       } else {
-        // Payment succeeded
         onSuccess()
       }
     } catch {
@@ -61,7 +58,7 @@ function CheckoutForm({ serviceType, onSuccess, onCancel }: PaymentFormProps) {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800 text-sm font-serif">
-            💡 After completing your payment, you&apos;ll be able to schedule your session immediately using our booking calendar.
+            💡 After completing your payment, you&apos;ll be able to access the full site immediately.
           </p>
         </div>
       </div>
@@ -85,11 +82,7 @@ function CheckoutForm({ serviceType, onSuccess, onCancel }: PaymentFormProps) {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="flex-1"
-          >
+          <Button type="submit" disabled={!stripe || isProcessing} className="flex-1">
             {isProcessing ? 'Processing...' : `Pay $${(service.price / 100).toFixed(2)}`}
           </Button>
         </div>
@@ -107,17 +100,15 @@ export function PaymentForm({ serviceType, onSuccess, onCancel }: PaymentFormPro
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onCancel()
-      }
+      if (e.key === 'Escape') onCancel()
     }
 
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onCancel])
 
-  const initializePayment = async () => {
-    if (clientSecret) return // Already initialized
+  const initializePayment = useCallback(async () => {
+    if (clientSecret) return
 
     setLoading(true)
     setError(null)
@@ -130,7 +121,8 @@ export function PaymentForm({ serviceType, onSuccess, onCancel }: PaymentFormPro
         },
         body: JSON.stringify({
           serviceType,
-          customerEmail: user?.email,
+          customerEmail: user?.email || null,
+          firebaseUid: user?.uid || null,
         }),
       })
 
@@ -145,12 +137,13 @@ export function PaymentForm({ serviceType, onSuccess, onCancel }: PaymentFormPro
     } finally {
       setLoading(false)
     }
-  }
+  }, [clientSecret, serviceType, user?.email, user?.uid])
 
-  // Initialize payment on component mount
-  if (!clientSecret && !loading && !error) {
-    initializePayment()
-  }
+  useEffect(() => {
+    if (!clientSecret && !loading && !error) {
+      initializePayment()
+    }
+  }, [clientSecret, loading, error, initializePayment])
 
   if (loading) {
     return (
@@ -181,9 +174,7 @@ export function PaymentForm({ serviceType, onSuccess, onCancel }: PaymentFormPro
     )
   }
 
-  if (!clientSecret) {
-    return null
-  }
+  if (!clientSecret) return null
 
   const stripeOptions = {
     clientSecret,
@@ -200,11 +191,7 @@ export function PaymentForm({ serviceType, onSuccess, onCancel }: PaymentFormPro
 
   return (
     <Elements stripe={stripePromise} options={stripeOptions}>
-      <CheckoutForm
-        serviceType={serviceType}
-        onSuccess={onSuccess}
-        onCancel={onCancel}
-      />
+      <CheckoutForm serviceType={serviceType} onSuccess={onSuccess} onCancel={onCancel} />
     </Elements>
   )
 }

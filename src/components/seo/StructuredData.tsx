@@ -1,29 +1,47 @@
-import { generateStructuredData } from '@/lib/seo/metadata'
+// src/components/seo/StructuredData.tsx
+import Head from "next/head";
 
 interface StructuredDataProps {
-  pageKey: string
-  additionalData?: object
+  title: string;
+  description: string;
+  type: "article" | "collection" | "website";
+  slug: string;
+  image?: string;
 }
 
-export function StructuredData({ pageKey, additionalData }: StructuredDataProps) {
-  const structuredData = generateStructuredData(pageKey)
-
-  if (!structuredData && !additionalData) {
-    return null
-  }
-
-  let jsonLd = structuredData ? JSON.parse(structuredData) : {}
-
-  if (additionalData) {
-    jsonLd = { ...jsonLd, ...additionalData }
-  }
+export default function StructuredData({
+  title,
+  description,
+  type,
+  slug,
+  image,
+}: StructuredDataProps) {
+  const jsonLd =
+    type === "article"
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: title,
+          description,
+          image: image ? [image] : undefined,
+          mainEntityOfPage: slug,
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: title,
+          description,
+          url: slug,
+        };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(jsonLd),
-      }}
-    />
-  )
+    <Head>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
+    </Head>
+  );
 }

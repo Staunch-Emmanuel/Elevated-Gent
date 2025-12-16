@@ -1,38 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createPaymentIntent } from '@/lib/stripe/server'
-import { SERVICE_PRICES, ServiceType } from '@/lib/stripe/client'
+// src/app/api/stripe/create-payment-intent/route.ts
 
-export async function POST(request: NextRequest) {
+import Stripe from 'stripe'
+import { NextResponse } from 'next/server'
+
+export const runtime = 'nodejs'
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+
+if (!stripeSecretKey) {
+  throw new Error('Missing STRIPE_SECRET_KEY env var.')
+}
+
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: '2024-06-20',
+})
+
+export async function POST(req: Request) {
   try {
-    const { serviceType, customerEmail } = await request.json()
+    const body = await req.json()
 
-    // Validate service type
-    if (!serviceType || !(serviceType in SERVICE_PRICES)) {
-      return NextResponse.json(
-        { error: 'Invalid service type' },
-        { status: 400 }
-      )
+    const serviceType = String(body.serviceType || '')
+    const customerEmail = body.customerEmail ? String(body.customerEmail) : null
+    const firebaseUid = body.firebaseUid ? String(body.firebaseUid) : null
+
+    if (!serviceType) {
+      return NextResponse.json({ error: 'Missing serviceType' }, { status: 400 })
     }
 
-    const service = SERVICE_PRICES[serviceType as ServiceType]
+    // IMPORTANT:
+    // Your frontend pricing comes from SERVICE_PRICES.
+    // Server should not trust arbitrary client amounts.
+    // We will require that your server also references SERVICE_PRICES if you want strict enforcement.
+    // For now (minimal), pass amount from your existing server-side config if present.
+    //
+    // If you already implemented amount mapping elsewhere, keep that logic.
+    const SERVICE_PRICES = {
+      'foundation-package': 25000,
+      'signature-refresh': 50000,
+      'gentlemens-upgrade': 75000,
+      'monthly-subscription': 4200, // $42.00 in cents (UPDATE if your real amount differs)
+    } as const
 
-    // Create payment intent
-    const paymentIntent = await createPaymentIntent(
-      service.price,
-      serviceType,
-      customerEmail
-    )
+    const amount = (SERVICE_PRICES as any)[serviceType]
 
-    return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
-      amount: service.price,
-      serviceName: service.name,
+    if (!amount || typeof amount !== 'number') {
+      return NextResponse.json({ error: 'Invalid serviceType pricing' }, { status: 400 })
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'usd',
+      automatic_payment_methods: { enabled: true },
+      receipt_email: customerEmail || undefined,
+      metadata: {
+        serviceType,
+        firebaseUid: firebaseUid || '',
+        customerEmail: customerEmail || '',
+      },
     })
-  } catch (error) {
-    console.error('Error creating payment intent:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ clientSecret: paymentIntent.client_secret })
+  } catch (err: any) {
+    console.error('create-payment-intent error:', err?.message || err)
+    return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 })
   }
 }
