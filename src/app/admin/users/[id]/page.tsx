@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getUserById, updateUser, UserRecord } from "@/lib/firebase/users";
+import {
+  getUserById,
+  updateUser,
+  UserRecord,
+  SubscriptionStatus,
+  UserRole,
+} from "@/lib/firebase/users";
 
 export default function EditUserPage() {
   const params = useParams();
   const id = params.id as string;
-
   const router = useRouter();
 
   const [user, setUser] = useState<UserRecord | null>(null);
@@ -22,7 +27,7 @@ export default function EditUserPage() {
     load();
   }, [id]);
 
-  async function handleSave(e: any) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
 
@@ -47,7 +52,9 @@ export default function EditUserPage() {
         <input
           className="w-full border p-3"
           value={user.email}
-          onChange={(e) => setUser({ ...user, email: e.target.value })}
+          onChange={(e) =>
+            setUser({ ...user, email: e.target.value })
+          }
         />
 
         <div>
@@ -55,11 +62,17 @@ export default function EditUserPage() {
           <select
             className="w-full border p-3"
             value={user.role}
-            onChange={(e) => setUser({ ...user, role: e.target.value as any })}
+            onChange={(e) =>
+              setUser({
+                ...user,
+                role: e.target.value as UserRole,
+              })
+            }
           >
             <option value="user">User</option>
             <option value="editor">Editor</option>
             <option value="admin">Admin</option>
+            <option value="tester">Tester</option>
           </select>
         </div>
 
@@ -71,17 +84,23 @@ export default function EditUserPage() {
             onChange={(e) =>
               setUser({
                 ...user,
-                subscriptionStatus: e.target.value as any,
+                subscriptionStatus: e.target.value as SubscriptionStatus,
               })
             }
           >
             <option value="inactive">Inactive</option>
             <option value="active">Active</option>
             <option value="blocked">Blocked</option>
+            <option value="trial">Trial</option>
+            <option value="expired">Expired</option>
           </select>
         </div>
 
-        <button type="submit" disabled={saving} className="bg-black text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-black text-white px-4 py-2 rounded"
+        >
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>

@@ -10,7 +10,18 @@ import { getOutfitById, updateOutfit } from "@/lib/firebase/outfits";
 import { getWeeklyProducts } from "@/lib/firebase/weekly";
 import type { OutfitDocument } from "@/lib/firebase/outfits";
 
-export default function AdminEditOutfitPage({ params }: any) {
+type AdminEditOutfitPageProps = {
+  params: {
+    id: string;
+  };
+};
+
+type WeeklyProduct = {
+  id: string;
+  title: string;
+};
+
+export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps) {
   const outfitId = params.id;
   const router = useRouter();
 
@@ -18,7 +29,7 @@ export default function AdminEditOutfitPage({ params }: any) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<WeeklyProduct[]>([]);
 
   // FORM STATE
   const [form, setForm] = useState<Partial<OutfitDocument>>({});
@@ -30,7 +41,7 @@ export default function AdminEditOutfitPage({ params }: any) {
         const outfit = await getOutfitById(outfitId);
         const productsList = await getWeeklyProducts();
 
-        setProducts(productsList);
+        setProducts(productsList as WeeklyProduct[]);
 
         if (outfit) {
           setForm({
@@ -64,7 +75,7 @@ export default function AdminEditOutfitPage({ params }: any) {
     setError("");
 
     try {
-      const payload = {
+      const payload: Partial<OutfitDocument> = {
         ...form,
         galleryImages: (form.galleryImages || []).map((x) => x.trim()),
         products: form.products || [],
@@ -115,9 +126,7 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 className="input"
                 value={form.title || ""}
-                onChange={(e) =>
-                  setForm({ ...form, title: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
             </div>
 
@@ -128,9 +137,7 @@ export default function AdminEditOutfitPage({ params }: any) {
                 className="input"
                 rows={3}
                 value={form.description || ""}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </div>
 
@@ -140,15 +147,15 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 className="input"
                 value={form.heroImage || ""}
-                onChange={(e) =>
-                  setForm({ ...form, heroImage: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, heroImage: e.target.value })}
               />
             </div>
 
             {/* GALLERY */}
             <div>
-              <label className="block font-medium mb-1">Gallery Images (one per line)</label>
+              <label className="block font-medium mb-1">
+                Gallery Images (one per line)
+              </label>
               <textarea
                 className="input"
                 rows={4}
@@ -171,9 +178,7 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 className="input"
                 value={form.occasion || ""}
-                onChange={(e) =>
-                  setForm({ ...form, occasion: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, occasion: e.target.value })}
               />
             </div>
 
@@ -183,9 +188,7 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 className="input"
                 value={form.season || ""}
-                onChange={(e) =>
-                  setForm({ ...form, season: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, season: e.target.value })}
               />
             </div>
 
@@ -195,15 +198,15 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 className="input"
                 value={form.styleType || ""}
-                onChange={(e) =>
-                  setForm({ ...form, styleType: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, styleType: e.target.value })}
               />
             </div>
 
             {/* PRODUCTS SELECTOR */}
             <div>
-              <label className="block font-medium mb-2">Products in this Outfit</label>
+              <label className="block font-medium mb-2">
+                Products in this Outfit
+              </label>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {products.map((p) => (
@@ -242,9 +245,7 @@ export default function AdminEditOutfitPage({ params }: any) {
               <input
                 type="checkbox"
                 checked={form.featured || false}
-                onChange={(e) =>
-                  setForm({ ...form, featured: e.target.checked })
-                }
+                onChange={(e) => setForm({ ...form, featured: e.target.checked })}
               />
             </div>
 
@@ -265,10 +266,7 @@ export default function AdminEditOutfitPage({ params }: any) {
             </div>
 
             {/* SUBMIT */}
-            <button
-              disabled={saving}
-              className="button-primary mt-6"
-            >
+            <button disabled={saving} className="button-primary mt-6">
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>

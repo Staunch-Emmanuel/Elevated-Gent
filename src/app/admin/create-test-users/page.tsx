@@ -1,67 +1,77 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui'
-import { PagePadding, Container } from '@/components/layout'
-import { createTestUsers } from '@/lib/firebase/create-test-users'
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase/config";
 
-export default function CreateTestUsersPage() {
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+type TestUser = {
+  email: string;
+  password: string;
+  displayName: string;
+};
 
-  const handleCreateUsers = async () => {
-    setLoading(true)
-    setMessage('')
+const TEST_USERS: TestUser[] = [
+  {
+    email: "john.doe@test.com",
+    password: "password123",
+    displayName: "John Doe",
+  },
+  {
+    email: "michael.smith@test.com",
+    password: "password123",
+    displayName: "Michael Smith",
+  },
+  {
+    email: "david.johnson@test.com",
+    password: "password123",
+    displayName: "David Johnson",
+  },
+];
 
+async function createTestUsers() {
+  for (const user of TEST_USERS) {
     try {
-      await createTestUsers()
-      setMessage('✅ Test users created successfully!')
-    } catch (error: unknown) {
-      setMessage(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`)
-    } finally {
-      setLoading(false)
+      const cred = await createUserWithEmailAndPassword(
+        auth,
+        user.email,
+        user.password
+      );
+
+      await updateProfile(cred.user, {
+        displayName: user.displayName,
+      });
+
+      await setDoc(doc(db, "users", cred.user.uid), {
+        uid: cred.user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        role: "user",
+        subscriptionStatus: "inactive",
+        createdAt: serverTimestamp(),
+      });
+    } catch (err: any) {
+      if (err.code !== "auth/email-already-in-use") {
+        throw err;
+      }
     }
   }
+}
 
+export default function CreateTestUsersPage() {
   return (
-    <PagePadding>
-      <Container size="small">
-        <div className="py-24 text-center">
-          <h1 className="text-4xl font-semibold font-sans mb-8">
-            Create Test Users
-          </h1>
-
-          <div className="space-y-6">
-            <p className="font-serif text-muted">
-              This will create test user accounts for development and testing purposes.
-            </p>
-
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold font-sans mb-4">Test Accounts:</h3>
-              <div className="space-y-2 text-sm font-serif">
-                <div>John Doe - john.doe@test.com</div>
-                <div>Michael Smith - michael.smith@test.com</div>
-                <div>David Johnson - david.johnson@test.com</div>
-                <div className="text-gray-500 mt-2">Password: password123</div>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleCreateUsers}
-              disabled={loading}
-              className="px-8"
-            >
-              {loading ? 'Creating Users...' : 'Create Test Users'}
-            </Button>
-
-            {message && (
-              <div className="mt-4 p-4 bg-white border rounded-lg">
-                <p className="font-serif">{message}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </Container>
-    </PagePadding>
-  )
+    <div style={{ padding: 24 }}>
+      <h1>Create Test Users</h1>
+      <button
+        onClick={createTestUsers}
+        style={{
+          marginTop: 16,
+          padding: "8px 16px",
+          background: "black",
+          color: "white",
+        }}
+      >
+        Create Users
+      </button>
+    </div>
+  );
 }

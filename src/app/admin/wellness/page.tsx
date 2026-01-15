@@ -1,4 +1,3 @@
-// src/app/admin/wellness/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,24 +6,27 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
-import type { ArticleDocument } from "@/lib/types/articles";
+
+import type { WellnessItem } from "@/lib/firebase/wellness";
 import {
-  getWellnessArticles,
+  getWellnessItems,
   deleteWellness,
 } from "@/lib/firebase/wellness";
 
 export default function AdminWellnessPage() {
   const router = useRouter();
-  const [articles, setArticles] = useState<ArticleDocument[]>([]);
+
+  const [articles, setArticles] = useState<WellnessItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const cms = await getWellnessArticles();
-      setArticles(cms);
+      const data = await getWellnessItems();
+      setArticles(data);
       setLoading(false);
     }
+
     load();
   }, []);
 
@@ -34,66 +36,54 @@ export default function AdminWellnessPage() {
     setArticles((prev) => prev.filter((a) => a.id !== id));
   }
 
+  if (loading) return <p className="p-6">Loading…</p>;
+
   return (
     <ProtectedRoute>
       <PagePadding>
         <Container>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Wellness (Admin)</h1>
-            <button
-              onClick={() => router.push("/admin/wellness/new")}
-              className="px-4 py-2 rounded-md bg-black text-white text-sm"
-            >
-              New Wellness Article
-            </button>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-semibold">Wellness</h1>
+            <Link href="/admin/wellness/new" className="button-primary">
+              + New Article
+            </Link>
           </div>
 
-          {loading && <p>Loading...</p>}
-
-          {!loading && (
+          {articles.length === 0 ? (
+            <p>No wellness articles yet.</p>
+          ) : (
             <div className="space-y-4">
-              {articles.map((article) => (
+              {articles.map((item) => (
                 <div
-                  key={article.id}
-                  className="border rounded-lg px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                  key={item.id}
+                  className="border rounded-lg p-4 flex justify-between items-center"
                 >
                   <div>
-                    <p className="font-medium">
-                      {article.title ?? "Untitled article"}
-                    </p>
-                    <p className="text-xs text-gray-500 line-clamp-1">
-                      {article.excerpt ?? ""}
-                    </p>
+                    <h3 className="font-medium">{item.title}</h3>
+                    {item.slug && (
+                      <p className="text-sm text-muted">{item.slug}</p>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/wellness/${article.slug}`}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      href={`/admin/wellness/${article.id}`}
-                      className="text-sm text-gray-700 hover:underline"
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() =>
+                        router.push(`/admin/wellness/${item.id}`)
+                      }
+                      className="text-sm underline"
                     >
                       Edit
-                    </Link>
+                    </button>
+
                     <button
-                      onClick={() => handleDelete(article.id)}
-                      className="text-sm text-red-600"
+                      onClick={() => handleDelete(item.id)}
+                      className="text-sm text-red-600 underline"
                     >
                       Delete
                     </button>
                   </div>
                 </div>
               ))}
-
-              {articles.length === 0 && (
-                <p className="text-sm text-gray-500">
-                  No wellness articles yet.
-                </p>
-              )}
             </div>
           )}
         </Container>

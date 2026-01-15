@@ -12,39 +12,39 @@ import {
   increment,
 } from 'firebase/firestore';
 
-import { db } from './firebase';
+import { db } from '@/lib/firebase/config';
 
 const COLLECTION = 'outfits';
 
 /**
  * Input type when creating/updating an outfit from Admin
- * (what your forms work with)
  */
 export interface OutfitInput {
   title: string;
   description: string;
   heroImage: string;
-  gallery?: string[];        // multiple images (optional)
+
+  /** admin form uses this */
+  galleryImages?: string[];
+
   occasion: string;
   season: string;
   styleType: string;
-  products: string[];        // array of product IDs (Weekly products)
+  products: string[];
   totalPrice: number;
   featured?: boolean;
 
-  // slug + ordering
   slug?: string;
   sortWeight?: number;
 }
 
 /**
- * What is actually stored in Firestore
+ * Firestore document shape
  */
 export interface OutfitDocument extends OutfitInput {
   id: string;
   createdAt?: string;
   updatedAt?: string;
-  sortWeight?: number;
 
   viewCount?: number;
   clickCount?: number;
@@ -52,7 +52,7 @@ export interface OutfitDocument extends OutfitInput {
   lastClickedAt?: string;
 }
 
-/* Helpers */
+/* ------------------ helpers ------------------ */
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -67,7 +67,8 @@ function slugify(text: string): string {
 }
 
 /**
- * Map Firestore → OutfitDocument (always safe + filled)
+ * Map Firestore → OutfitDocument
+ * 🔑 gallery (db) → galleryImages (app)
  */
 function mapDocToOutfit(id: string, data: any): OutfitDocument {
   const createdAt = data.createdAt || nowIso();
@@ -78,15 +79,21 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
     title: data.title || '',
     description: data.description || '',
     heroImage: data.heroImage || '',
-    gallery: Array.isArray(data.gallery) ? data.gallery : [],
+
+    galleryImages: Array.isArray(data.gallery)
+      ? data.gallery
+      : [],
+
     occasion: data.occasion || '',
     season: data.season || '',
     styleType: data.styleType || '',
     products: Array.isArray(data.products) ? data.products : [],
     totalPrice: typeof data.totalPrice === 'number' ? data.totalPrice : 0,
     featured: !!data.featured,
+
     slug: data.slug || slugify(data.title || id),
     sortWeight: typeof data.sortWeight === 'number' ? data.sortWeight : 0,
+
     createdAt,
     updatedAt,
     viewCount: typeof data.viewCount === 'number' ? data.viewCount : 0,
@@ -96,17 +103,19 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
   };
 }
 
-/* CREATE */
+/* ------------------ CREATE ------------------ */
 
 export async function createOutfit(input: OutfitInput): Promise<string> {
-  const colRef = collection(db, COLLECTION);
   const now = nowIso();
 
-  const payload: Omit<OutfitDocument, 'id'> = {
+  const payload = {
     title: input.title,
     description: input.description,
     heroImage: input.heroImage,
-    gallery: input.gallery ?? [],
+
+    /** store as gallery in Firestore */
+    gallery: input.galleryImages ?? [],
+
     occasion: input.occasion,
     season: input.season,
     styleType: input.styleType,
@@ -119,98 +128,85 @@ export async function createOutfit(input: OutfitInput): Promise<string> {
     updatedAt: now,
     viewCount: 0,
     clickCount: 0,
-    lastViewedAt: undefined,
-    lastClickedAt: undefined,
   };
 
-  const res = await addDoc(colRef, payload as any);
+  const res = await addDoc(collection(db, COLLECTION), payload);
   return res.id;
 }
 
-/* READ – admin list */
+/* ------------------ READ ------------------ */
 
 export async function getAllOutfits(): Promise<OutfitDocument[]> {
-  const colRef = collection(db, COLLECTION);
-  const snap = await getDocs(colRef);
+  const snap = await getDocs(collection(db, COLLECTION));
   return snap.docs.map((d) => mapDocToOutfit(d.id, d.data()));
 }
 
-/* READ – public list (same as admin but kept separate if you ever want filters) */
-
-export async function getAllOutfitsPublic(): Promise<OutfitDocument[]> {
-  return getAllOutfits();
-}
-
-/* READ – by ID (admin edit) */
-
 export async function getOutfitById(id: string): Promise<OutfitDocument | null> {
-  const ref = doc(db, COLLECTION, id);
-  const snap = await getDoc(ref);
+  const snap = await getDoc(doc(db, COLLECTION, id));
   if (!snap.exists()) return null;
   return mapDocToOutfit(snap.id, snap.data());
 }
 
-/* READ – by slug (public detail page) */
-
 export async function getOutfitBySlug(slug: string): Promise<OutfitDocument | null> {
-  const colRef = collection(db, COLLECTION);
-  const snap = await getDocs(colRef);
+  const snap = await getDocs(collection(db, COLLECTION));
 
-  for (const docSnap of snap.docs) {
-    const data: any = docSnap.data();
-    const docSlug = data.slug || slugify(data.title || docSnap.id);
+  for (const d of snap.docs) {
+    const data: any = d.data();
+    const docSlug = data.slug || slugify(data.title || d.id);
     if (docSlug === slug) {
-      return mapDocToOutfit(docSnap.id, data);
+      return mapDocToOutfit(d.id, data);
     }
   }
 
   return null;
 }
 
-/* UPDATE */
+/* ------------------ UPDATE ------------------ */
 
 export async function updateOutfit(
   id: string,
   input: Partial<OutfitInput>
 ): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-
   const payload: any = {
-    ...input,
     updatedAt: nowIso(),
   };
 
-  if (input.title && !input.slug) {
+  if (input.title) {
+    payload.title = input.title;
     payload.slug = slugify(input.title);
   }
 
-  if (input.gallery && !Array.isArray(input.gallery)) {
-    payload.gallery = [input.gallery];
-  }
+  if (input.description !== undefined) payload.description = input.description;
+  if (input.heroImage !== undefined) payload.heroImage = input.heroImage;
+  if (input.galleryImages !== undefined) payload.gallery = input.galleryImages;
+  if (input.occasion !== undefined) payload.occasion = input.occasion;
+  if (input.season !== undefined) payload.season = input.season;
+  if (input.styleType !== undefined) payload.styleType = input.styleType;
+  if (input.products !== undefined) payload.products = input.products;
+  if (input.totalPrice !== undefined) payload.totalPrice = input.totalPrice;
+  if (input.featured !== undefined) payload.featured = input.featured;
+  if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight;
 
-  await updateDoc(ref, payload);
+  await updateDoc(doc(db, COLLECTION, id), payload);
 }
 
-/* DELETE */
+/* ------------------ DELETE ------------------ */
 
 export async function deleteOutfit(id: string): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-  await deleteDoc(ref);
+  await deleteDoc(doc(db, COLLECTION, id));
 }
 
-/* ANALYTICS HELPERS */
+/* ------------------ ANALYTICS ------------------ */
 
 export async function incrementOutfitView(id: string): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-  await updateDoc(ref, {
+  await updateDoc(doc(db, COLLECTION, id), {
     viewCount: increment(1),
     lastViewedAt: nowIso(),
   });
 }
 
 export async function incrementOutfitClick(id: string): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-  await updateDoc(ref, {
+  await updateDoc(doc(db, COLLECTION, id), {
     clickCount: increment(1),
     lastClickedAt: nowIso(),
   });

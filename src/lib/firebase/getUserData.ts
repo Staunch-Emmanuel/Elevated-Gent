@@ -1,7 +1,15 @@
-import { db } from "./firestore";
 import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 
-export async function getUserData(uid: string) {
+export type UserRole = "user" | "admin";
+export type SubscriptionStatus = "active" | "inactive";
+
+export interface UserData {
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+}
+
+export async function getUserData(uid: string): Promise<UserData> {
   const ref = doc(db, "users", uid);
   const snap = await getDoc(ref);
 
@@ -12,8 +20,11 @@ export async function getUserData(uid: string) {
     };
   }
 
+  const data = snap.data();
+
   return {
-    role: snap.data().role ?? "user",
-    subscriptionStatus: snap.data().subscriptionStatus ?? "inactive",
+    role: data.role === "admin" ? "admin" : "user",
+    subscriptionStatus:
+      data.subscriptionStatus === "active" ? "active" : "inactive",
   };
 }

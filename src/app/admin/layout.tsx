@@ -1,7 +1,8 @@
+// src/app/admin/layout.tsx
 "use client";
 
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminGuard from "@/components/auth/AdminGuard";
 
 export default function AdminLayout({
   children,
@@ -9,16 +10,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminGuard>
+    <ProtectedRoute requireAdmin>
       <div className="flex min-h-screen">
-        {/* LEFT SIDEBAR */}
         <AdminSidebar />
-
-        {/* RIGHT CONTENT AREA */}
-        <div className="flex-1 p-10 bg-gray-50 min-h-screen">
-          {children}
-        </div>
+        <main className="flex-1">{children}</main>
       </div>
-    </AdminGuard>
+    </ProtectedRoute>
   );
 }

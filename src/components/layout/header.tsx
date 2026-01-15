@@ -19,9 +19,12 @@ export default function Header() {
           <Link href="/personal-styling">Styling</Link>
 
           {user ? (
-            <Button onClick={logout} variant="outline">
-              Logout
-            </Button>
+            <>
+              <Link href="/account">Account</Link>
+              <Button onClick={logout} variant="outline">
+                Logout
+              </Button>
+            </>
           ) : (
             <Link href="/auth/signin">
               <Button variant="default">Sign In</Button>

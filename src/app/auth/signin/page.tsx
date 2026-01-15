@@ -1,7 +1,8 @@
+// src/app/auth/signin/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase/auth";
@@ -13,8 +14,19 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const { signIn } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const nextPath = useMemo(() => {
+    const next = searchParams.get("next");
+    if (!next) return "/personal-styling";
+
+    // Safety: only allow internal redirects
+    if (!next.startsWith("/")) return "/personal-styling";
+    return next;
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +35,7 @@ export default function SignInPage() {
 
     try {
       await signIn(email, password);
-      router.push("/personal-styling");
+      router.push(nextPath);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Failed to sign in");
     } finally {
@@ -33,7 +45,6 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Background Image Section */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image
           src="/images/Image-10.jpeg"
@@ -55,12 +66,10 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* Form Section */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center">
         <PagePadding>
           <Container size="small">
             <div className="flex flex-col items-center justify-center min-h-screen py-12">
-              {/* Sign In Form */}
               <div className="w-full max-w-md">
                 <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-lg lg:shadow-xl">
                   <h1 className="text-3xl font-semibold font-sans text-center mb-2">
@@ -113,11 +122,7 @@ export default function SignInPage() {
                       />
                     </div>
 
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full py-3"
-                    >
+                    <Button type="submit" disabled={loading} className="w-full py-3">
                       {loading ? "Signing in..." : "Sign In"}
                     </Button>
                   </form>
@@ -144,11 +149,9 @@ export default function SignInPage() {
                   </div>
                 </div>
 
-                {/* Additional Info */}
                 <div className="mt-8 text-center">
                   <p className="text-sm text-gray-500 font-serif">
-                    Access your personalized styling services, appointments, and
-                    order history.
+                    Access your personalized styling services, appointments, and order history.
                   </p>
                 </div>
               </div>

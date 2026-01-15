@@ -1,4 +1,3 @@
-// src/app/admin/articles/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,10 +9,13 @@ import { PagePadding, Container } from "@/components/layout";
 
 import staticArticles from "@/lib/articles/data";
 import type { ArticleDocument } from "@/lib/types/articles";
+
 import {
   getAllArticlesCMS,
   deleteArticle,
 } from "@/lib/firebase/articles";
+
+import { reslugAllArticles } from "@/lib/firebase/articles.reslug";
 
 type CombinedArticle = ArticleDocument & {
   source: "static" | "cms";
@@ -23,17 +25,18 @@ type CombinedArticle = ArticleDocument & {
 export default function AdminArticlesPage() {
   const router = useRouter();
 
-  const [cmsArticles, setCmsArticles] = useState<ArticleDocument[]>([]);
   const [combined, setCombined] = useState<CombinedArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState("all");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+
       const cms = await getAllArticlesCMS();
-      setCmsArticles(cms);
 
       const cmsMapped: CombinedArticle[] = cms.map((item) => ({
         ...item,
@@ -82,11 +85,29 @@ export default function AdminArticlesPage() {
     load();
   }, []);
 
+  async function handleReslugAll() {
+    if (!confirm("Reslug ALL CMS articles from their titles?")) return;
+
+    setBusy(true);
+    try {
+      const result = await reslugAllArticles();
+      alert(
+        `Reslug complete.\nUpdated ${result.updated} of ${result.total} articles.`
+      );
+      location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Reslug failed. Check console.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const filtered = combined.filter((article) => {
     const matchesSearch =
       !search ||
-      (article.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (article.excerpt ?? "").toLowerCase().includes(search.toLowerCase());
+      article.title?.toLowerCase().includes(search.toLowerCase()) ||
+      article.excerpt?.toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory =
       filterCategory === "all" ||
@@ -95,30 +116,29 @@ export default function AdminArticlesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  async function handleDelete(id: string, source: "static" | "cms") {
-    if (source === "static") {
-      alert("Static articles cannot be deleted from the admin.");
-      return;
-    }
-    if (!confirm("Delete this CMS article?")) return;
-
-    await deleteArticle(id);
-    setCmsArticles((prev) => prev.filter((a) => a.id !== id));
-    setCombined((prev) => prev.filter((a) => a.id !== id));
-  }
-
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap gap-4 justify-between mb-6">
             <h1 className="text-3xl font-bold">Articles (Admin)</h1>
-            <button
-              onClick={() => router.push("/admin/articles/new")}
-              className="px-4 py-2 rounded-md bg-black text-white text-sm"
-            >
-              New Article
-            </button>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleReslugAll}
+                disabled={busy}
+                className="px-4 py-2 rounded-md border text-sm disabled:opacity-50"
+              >
+                {busy ? "Reslugging..." : "Reslug All Articles"}
+              </button>
+
+              <button
+                onClick={() => router.push("/admin/articles/new")}
+                className="px-4 py-2 rounded-md bg-black text-white text-sm"
+              >
+                New Article
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-4 mb-6">
@@ -128,6 +148,7 @@ export default function AdminArticlesPage() {
               placeholder="Search..."
               className="border rounded-md px-3 py-2 text-sm w-full max-w-xs"
             />
+
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
@@ -149,57 +170,34 @@ export default function AdminArticlesPage() {
               {filtered.map((article) => (
                 <div
                   key={article.id}
-                  className="border rounded-lg px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                  className="border rounded-lg px-4 py-3 flex justify-between items-center"
                 >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">
-                        {article.title ?? "Untitled article"}
-                      </p>
-                      <span className="text-xs px-2 py-0.5 rounded-full border">
-                        {article.source === "static" ? "Static" : "CMS"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {(article.category ?? "general").toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 line-clamp-1">
-                      {article.excerpt ?? ""}
+                    <p className="font-medium">{article.title}</p>
+                    <p className="text-xs text-gray-500">
+                      /articles/{article.slug}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex gap-3">
                     <Link
-                      href={`/article/${article.slug}`}
-                      className="text-sm text-blue-600 hover:underline"
+                      href={`/articles/${article.slug}`}
+                      className="text-sm text-blue-600 underline"
                     >
                       View
                     </Link>
+
                     {article.source === "cms" && (
                       <Link
                         href={`/admin/articles/${article.id}`}
-                        className="text-sm text-gray-700 hover:underline"
+                        className="text-sm underline"
                       >
                         Edit
                       </Link>
                     )}
-                    <button
-                      onClick={() =>
-                        handleDelete(article.id, article.source!)
-                      }
-                      className="text-sm text-red-600"
-                    >
-                      Delete
-                    </button>
                   </div>
                 </div>
               ))}
-
-              {filtered.length === 0 && (
-                <p className="text-sm text-gray-500">
-                  No articles match your filters yet.
-                </p>
-              )}
             </div>
           )}
         </Container>

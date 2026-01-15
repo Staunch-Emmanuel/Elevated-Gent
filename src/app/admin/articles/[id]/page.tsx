@@ -1,4 +1,3 @@
-// src/app/admin/articles/[id]/page.tsx
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
@@ -6,15 +5,29 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+
 import {
   getArticleById,
   updateArticle,
   deleteArticle,
 } from "@/lib/firebase/articles";
+
 import type { ArticleDocument } from "@/lib/types/articles";
 
 interface PageProps {
   params: { id: string };
+}
+
+/**
+ * Title → Slug (canonical)
+ */
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }
 
 export default function AdminEditArticlePage({ params }: PageProps) {
@@ -27,7 +40,6 @@ export default function AdminEditArticlePage({ params }: PageProps) {
   const [error, setError] = useState("");
 
   const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [category, setCategory] = useState("general");
   const [heroImage, setHeroImage] = useState("");
@@ -37,6 +49,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
     async function load() {
       setLoading(true);
       const doc = await getArticleById(articleId);
+
       if (!doc) {
         setError("Article not found");
         setLoading(false);
@@ -45,9 +58,8 @@ export default function AdminEditArticlePage({ params }: PageProps) {
 
       setArticle(doc);
       setTitle(doc.title ?? "");
-      setSlug(doc.slug ?? "");
       setExcerpt(doc.excerpt ?? "");
-      setCategory((doc.category as string) ?? "general");
+      setCategory(doc.category ?? "general");
       setHeroImage(doc.heroImage ?? "");
       setContent(doc.content ?? "");
       setLoading(false);
@@ -63,15 +75,24 @@ export default function AdminEditArticlePage({ params }: PageProps) {
     setSaving(true);
     setError("");
 
+    const slug = slugify(title);
+
+    if (!slug) {
+      setError("Invalid title. Slug could not be generated.");
+      setSaving(false);
+      return;
+    }
+
     try {
       await updateArticle(articleId, {
         title,
-        slug,
+        slug, // 🔒 ALWAYS MATCH TITLE
         excerpt,
         category,
         heroImage,
         content,
       });
+
       router.push("/admin/articles");
     } catch (err) {
       console.error(err);
@@ -139,16 +160,12 @@ export default function AdminEditArticlePage({ params }: PageProps) {
                 className="w-full border rounded-md px-3 py-2 text-sm"
                 required
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                required
-              />
+              <p className="text-xs text-gray-500 mt-1">
+                URL slug will be:
+                <span className="ml-1 font-mono">
+                  /articles/{slugify(title)}
+                </span>
+              </p>
             </div>
 
             <div>

@@ -1,136 +1,115 @@
-// src/app/admin/wellness/new/page.tsx
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  serverTimestamp,
+} from "firebase/firestore";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
-import { createWellness } from "@/lib/firebase/wellness";
+import { db } from "@/lib/firebase/config";
 
-export default function AdminNewWellnessPage() {
-  const router = useRouter();
+/* =======================
+   TYPES
+======================= */
 
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [heroImage, setHeroImage] = useState("");
-  const [content, setContent] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+export interface WellnessItem {
+  id: string;
 
-  function handleTitleChange(value: string) {
-    setTitle(value);
-    if (!slug) {
-      setSlug(
-        value
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "")
-      );
-    }
-  }
+  title: string;
+  slug: string;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
+  excerpt?: string;
+  content?: string;
 
-    try {
-      await createWellness({
-        title,
-        slug,
-        excerpt,
-        category: "wellness",
-        heroImage,
-        content,
-      });
+  category?: string;
+  heroImage?: string;
 
-      router.push("/admin/wellness");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to create wellness article. Please try again.");
-      setSaving(false);
-    }
-  }
+  published?: boolean;
 
-  return (
-    <ProtectedRoute>
-      <PagePadding>
-        <Container className="max-w-2xl">
-          <h1 className="text-3xl font-bold mb-6">New Wellness Article</h1>
+  createdAt?: any;
+  updatedAt?: any;
+}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <p className="text-sm text-red-600 border border-red-200 rounded-md px-3 py-2">
-                {error}
-              </p>
-            )}
+/* =======================
+   PUBLIC (READ)
+======================= */
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                value={title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Excerpt</label>
-              <textarea
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Hero image URL
-              </label>
-              <input
-                value={heroImage}
-                onChange={(e) => setHeroImage(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Content (HTML)
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm font-mono"
-                rows={12}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 rounded-md bg-black text-white text-sm disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Create Wellness Article"}
-            </button>
-          </form>
-        </Container>
-      </PagePadding>
-    </ProtectedRoute>
+export async function getWellnessItems(): Promise<WellnessItem[]> {
+  const q = query(
+    collection(db, "wellness"),
+    where("published", "==", true)
   );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...(docSnap.data() as Omit<WellnessItem, "id">),
+  }));
+}
+
+/* =======================
+   ADMIN (READ)
+======================= */
+
+export async function getWellnessById(
+  id: string
+): Promise<WellnessItem | null> {
+  const ref = doc(db, "wellness", id);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return null;
+
+  return {
+    id: snap.id,
+    ...(snap.data() as Omit<WellnessItem, "id">),
+  };
+}
+
+/* =======================
+   ADMIN (CREATE)
+======================= */
+
+export async function createWellness(
+  data: Omit<WellnessItem, "id">
+): Promise<string> {
+  const ref = await addDoc(collection(db, "wellness"), {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return ref.id;
+}
+
+/* =======================
+   ADMIN (UPDATE)
+======================= */
+
+export async function updateWellness(
+  id: string,
+  data: Partial<WellnessItem>
+): Promise<void> {
+  const ref = doc(db, "wellness", id);
+
+  await updateDoc(ref, {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/* =======================
+   ADMIN (DELETE)
+======================= */
+
+export async function deleteWellness(id: string): Promise<void> {
+  const ref = doc(db, "wellness", id);
+  await deleteDoc(ref);
 }

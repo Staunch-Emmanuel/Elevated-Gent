@@ -38,7 +38,7 @@ export default function SignUpPage() {
     try {
       const displayName = `${firstName} ${lastName}`.trim()
       await signUp(email, password, displayName)
-      router.push('/personal-styling')
+      router.push('/account')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'Failed to create account')
     } finally {
@@ -51,7 +51,6 @@ export default function SignUpPage() {
       <PagePadding>
         <Container size="small">
           <div className="flex flex-col items-center justify-center min-h-screen py-12">
-            {/* Company Logo */}
             <div className="mb-12">
               <Image
                 src="/images/The Elevated gentleman.svg"
@@ -62,7 +61,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Sign Up Form */}
             <div className="w-full max-w-md">
               <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
                 <h1 className="text-3xl font-semibold font-sans text-center mb-2">
@@ -171,11 +169,7 @@ export default function SignUpPage() {
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3"
-                  >
+                  <Button type="submit" disabled={loading} className="w-full py-3">
                     {loading ? 'Creating Account...' : 'Create Account'}
                   </Button>
                 </form>
@@ -183,17 +177,13 @@ export default function SignUpPage() {
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <p className="text-center text-sm text-gray-600 font-serif">
                     Already have an account?{' '}
-                    <Link
-                      href="/auth/signin"
-                      className="text-black hover:underline font-medium"
-                    >
+                    <Link href="/auth/signin" className="text-black hover:underline font-medium">
                       Sign In
                     </Link>
                   </p>
                 </div>
               </div>
 
-              {/* Additional Info */}
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-500 font-serif">
                   Create your account to access personalized styling services and curated products.

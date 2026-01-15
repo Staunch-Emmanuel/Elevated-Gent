@@ -1,72 +1,94 @@
+'use client';
+
 import {
   collection,
-  addDoc,
   getDocs,
   getDoc,
+  doc,
+  addDoc,
   updateDoc,
   deleteDoc,
-  doc,
   serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "./firestore";
+import { db } from '../firebase';
+
+/* =======================
+   TYPES
+======================= */
+
+export type UserRole = 'user' | 'editor' | 'admin';
+export type SubscriptionStatus = 'active' | 'inactive' | 'blocked';
 
 export interface UserRecord {
-  id: string;          // Firestore doc ID == Firebase Auth UID when available
+  uid: string;
   email: string;
-  role: "admin" | "editor" | "user";
-  subscriptionStatus: "active" | "inactive" | "blocked";
-  createdAt: any;
-  updatedAt: any;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
-const colRef = collection(db, "users");
+/* =======================
+   READ
+======================= */
 
-// Get all users
 export async function getAllUsers(): Promise<UserRecord[]> {
-  const snapshot = await getDocs(colRef);
-  return snapshot.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  })) as UserRecord[];
+  const snap = await getDocs(collection(db, 'users'));
+
+  return snap.docs.map((d) => ({
+    uid: d.id,
+    ...(d.data() as Omit<UserRecord, 'uid'>),
+  }));
 }
 
-// Get one user
-export async function getUserById(id: string): Promise<UserRecord | null> {
-  const ref = doc(db, "users", id);
-  const snap = await getDoc(ref);
+export async function getUserById(uid: string): Promise<UserRecord | null> {
+  const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
 
   return {
-    id: snap.id,
-    ...snap.data(),
-  } as UserRecord;
+    uid: snap.id,
+    ...(snap.data() as Omit<UserRecord, 'uid'>),
+  };
 }
 
-// Create user manually (test user)
-export async function createUser(data: Omit<UserRecord, "id" | "createdAt" | "updatedAt">) {
-  const newRef = doc(colRef); // Firestore auto-ID (not Firebase Auth)
-  await setDoc(newRef, {
-    ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
+/* =======================
+   CREATE
+======================= */
 
-  return newRef.id;
-}
+export async function createUser(input: {
+  email: string;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+}) {
+  const ref = doc(collection(db, 'users'));
 
-// Update role / subscription
-export async function updateUser(id: string, data: Partial<UserRecord>) {
-  const ref = doc(db, "users", id);
   await updateDoc(ref, {
+    email: input.email,
+    role: input.role,
+    subscriptionStatus: input.subscriptionStatus,
+    createdAt: serverTimestamp(),
+  });
+}
+
+/* =======================
+   UPDATE
+======================= */
+
+export async function updateUser(
+  uid: string,
+  data: Partial<UserRecord>
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), {
     ...data,
     updatedAt: serverTimestamp(),
   });
 }
 
-// Delete user
-export async function deleteUser(id: string) {
-  const ref = doc(db, "users", id);
-  await deleteDoc(ref);
+/* =======================
+   DELETE
+======================= */
+
+export async function deleteUser(uid: string): Promise<void> {
+  await deleteDoc(doc(db, 'users', uid));
 }

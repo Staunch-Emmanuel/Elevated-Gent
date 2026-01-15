@@ -1,9 +1,27 @@
 // src/lib/types/index.ts
 
-// DO NOT re-export "./articles" or "./content" here – they both
-// define "Article" and clash. Import them directly where needed.
+// =========================
+// SUBSCRIPTION
+// =========================
 
-// Product Types
+export type SubscriptionStatus = "active" | "inactive" | "past_due" | null;
+
+// =========================
+// WELLNESS
+// =========================
+
+export interface WellnessItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+}
+
+// =========================
+// PRODUCTS
+// =========================
+
 export interface Product {
   id: string;
   name: string;
@@ -18,13 +36,16 @@ export interface Product {
   updatedAt: Date;
 }
 
-// Service Types
+// =========================
+// SERVICES
+// =========================
+
 export interface Service {
   id: string;
   name: string;
   description: string;
   price: number;
-  duration: number; // in minutes
+  duration: number;
   category: "styling" | "consultation" | "wardrobe";
   features: string[];
   popular?: boolean;
@@ -43,66 +64,4 @@ export interface ServicePackage {
   features: string[];
   createdAt: Date;
   updatedAt: Date;
-}
-
-// User Types
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  image?: string;
-  role: "user" | "admin";
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Order Types
-export interface Order {
-  id: string;
-  userId: string;
-  items: OrderItem[];
-  total: number;
-  status: "pending" | "completed" | "cancelled";
-  stripePaymentIntentId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface OrderItem {
-  id: string;
-  type: "product" | "service" | "package";
-  itemId: string;
-  quantity: number;
-  price: number;
-  name: string;
-}
-
-// Cart Types
-export interface CartItem {
-  id: string;
-  type: "product" | "service" | "package";
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
-
-// Search and Filter Types
-export interface SearchFilters {
-  category?: string;
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  tags?: string[];
-  inStock?: boolean;
-  sortBy?: "price" | "name" | "created" | "popular";
-  sortOrder?: "asc" | "desc";
-}
-
-export interface SearchResults<T> {
-  items: T[];
-  total: number;
-  page: number;
-  totalPages: number;
 }

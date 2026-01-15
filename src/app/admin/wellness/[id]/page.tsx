@@ -1,4 +1,3 @@
-// src/app/admin/wellness/[id]/page.tsx
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
@@ -6,12 +5,20 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+
 import {
   getWellnessById,
   updateWellness,
   deleteWellness,
 } from "@/lib/firebase/wellness";
-import type { ArticleDocument } from "@/lib/types/articles";
+
+interface WellnessDocument {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+}
 
 interface PageProps {
   params: { id: string };
@@ -21,7 +28,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
   const router = useRouter();
   const wellnessId = params.id;
 
-  const [article, setArticle] = useState<ArticleDocument | null>(null);
+  const [article, setArticle] = useState<WellnessDocument | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -29,13 +36,14 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [heroImage, setHeroImage] = useState("");
   const [content, setContent] = useState("");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+
       const doc = await getWellnessById(wellnessId);
+
       if (!doc) {
         setError("Wellness article not found");
         setLoading(false);
@@ -46,8 +54,8 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
       setTitle(doc.title ?? "");
       setSlug(doc.slug ?? "");
       setExcerpt(doc.excerpt ?? "");
-      setHeroImage(doc.heroImage ?? "");
       setContent(doc.content ?? "");
+
       setLoading(false);
     }
 
@@ -66,9 +74,9 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
         title,
         slug,
         excerpt,
-        heroImage,
         content,
       });
+
       router.push("/admin/wellness");
     } catch (err) {
       console.error(err);
@@ -155,17 +163,6 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
                 onChange={(e) => setExcerpt(e.target.value)}
                 className="w-full border rounded-md px-3 py-2 text-sm"
                 rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Hero image URL
-              </label>
-              <input
-                value={heroImage}
-                onChange={(e) => setHeroImage(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
               />
             </div>
 

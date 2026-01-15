@@ -1,5 +1,6 @@
 // src/lib/firebase/wellness.ts
-import { db } from "./firestore";
+"use client";
+
 import {
   collection,
   getDocs,
@@ -8,98 +9,67 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
+  limit,
+  serverTimestamp,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 
-import type { ArticleDocument } from "@/lib/types/articles";
+export type WellnessItem = {
+  id: string;
+  title: string;
+  slug?: string;
+  content: string;
+  createdAt?: any;
+  updatedAt?: any;
+};
 
 const COLLECTION = "wellness";
 
-function mapDocToWellness(id: string, data: any): ArticleDocument {
-  return {
-    id,
-    slug: data.slug,
-    title: data.title,
-    excerpt: data.excerpt,
-    content: data.content,
-    heroImage: data.heroImage,
-    category: data.category ?? "wellness",
-    tag: data.tag,
-    datePublished: data.datePublished,
-    publishDate: data.publishDate,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-    occasion: data.occasion,
-  };
-}
-
-// LIST
-export async function getWellnessArticles(): Promise<ArticleDocument[]> {
+export async function getWellnessItems(): Promise<WellnessItem[]> {
   const snap = await getDocs(collection(db, COLLECTION));
-  return snap.docs.map((d) => mapDocToWellness(d.id, d.data()));
+  return snap.docs.map((d) => {
+    const data = d.data() as Omit<WellnessItem, "id">;
+    return { ...data, id: d.id };
+  });
 }
 
-// GET BY ID (admin)
-export async function getWellnessById(id: string): Promise<ArticleDocument | null> {
-  const ref = doc(db, COLLECTION, id);
-  const snap = await getDoc(ref);
+export async function getWellnessItemById(id: string): Promise<WellnessItem | null> {
+  const snap = await getDoc(doc(db, COLLECTION, id));
   if (!snap.exists()) return null;
-  return mapDocToWellness(snap.id, snap.data());
+  return { ...(snap.data() as Omit<WellnessItem, "id">), id: snap.id };
 }
 
-// GET BY SLUG (public)
-export async function getWellnessBySlug(
-  slug: string
-): Promise<ArticleDocument | null> {
-  const snap = await getDocs(collection(db, COLLECTION));
-  for (const d of snap.docs) {
-    const data = d.data();
-    if (data.slug === slug) {
-      return mapDocToWellness(d.id, data);
-    }
-  }
-  return null;
+export async function getWellnessItemBySlug(slug: string): Promise<WellnessItem | null> {
+  const q = query(collection(db, COLLECTION), where("slug", "==", slug), limit(1));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+
+  const d = snapshot.docs[0];
+  const data = d.data() as Omit<WellnessItem, "id">;
+  return { ...data, id: d.id };
 }
 
-// CREATE
-export async function createWellness(
-  data: Partial<ArticleDocument>
-): Promise<string> {
-  const now = new Date().toISOString();
-
-  const payload = {
-    slug: data.slug ?? "",
-    title: data.title ?? "",
-    excerpt: data.excerpt ?? "",
-    content: data.content ?? "",
-    heroImage: data.heroImage ?? "",
-    category: data.category ?? "wellness",
-    tag: data.tag ?? "",
-    datePublished: data.datePublished ?? now,
-    publishDate: data.publishDate ?? data.datePublished ?? now,
-    createdAt: now,
-    updatedAt: now,
-    occasion: data.occasion ?? "daily",
-  };
-
-  const ref = await addDoc(collection(db, COLLECTION), payload);
+export async function createWellness(data: Omit<WellnessItem, "id">): Promise<string> {
+  const ref = await addDoc(collection(db, COLLECTION), {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
   return ref.id;
 }
 
-// UPDATE
 export async function updateWellness(
   id: string,
-  data: Partial<ArticleDocument>
+  data: Partial<Omit<WellnessItem, "id">>
 ): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-  const payload = {
+  await updateDoc(doc(db, COLLECTION, id), {
     ...data,
-    updatedAt: new Date().toISOString(),
-  };
-  await updateDoc(ref, payload as any);
+    updatedAt: serverTimestamp(),
+  });
 }
 
-// DELETE
 export async function deleteWellness(id: string): Promise<void> {
-  const ref = doc(db, COLLECTION, id);
-  await deleteDoc(ref);
+  await deleteDoc(doc(db, COLLECTION, id));
 }

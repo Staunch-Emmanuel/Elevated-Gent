@@ -1,73 +1,55 @@
-import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil',
-})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
-    const { items, successUrl, cancelUrl, metadata } = await request.json()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-    if (!items || items.length === 0) {
-      return NextResponse.json(
-        { error: 'No items provided' },
-        { status: 400 }
-      )
+    if (!baseUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL is not defined");
     }
 
-    // Get the base URL from request headers or environment variable
-    const origin = request.headers.get('origin') ||
-                   request.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
-                   process.env.NEXT_PUBLIC_APP_URL ||
-                   'http://localhost:3001'
-
-    // Create line items for Stripe
-    interface CheckoutItem {
-      name: string
-      description?: string
-      images?: string[]
-      price: number
-      quantity?: number
-    }
-
-    const lineItems = items.map((item: CheckoutItem) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name,
-          description: item.description,
-          images: item.images || [],
-        },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
-      },
-      quantity: item.quantity || 1,
-    }))
-
-    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: successUrl || `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${origin}/cart`,
-      metadata: metadata || {},
-      allow_promotion_codes: true,
-      billing_address_collection: 'required',
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA'],
-      },
-    })
+      mode: "subscription",
+      payment_method_types: ["card"],
 
-    return NextResponse.json({
-      sessionId: session.id,
-      url: session.url
-    })
-  } catch (error) {
-    console.error('Stripe checkout error:', error)
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: 200, // $2
+            recurring: {
+              interval: "month",
+            },
+            product_data: {
+              name: "Elevated Gentleman Subscription",
+            },
+          },
+          quantity: 1,
+        },
+      ],
+
+      // ✅ FIXED PATH — MATCHES YOUR PROJECT
+      success_url: `${baseUrl}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/subscribe`,
+    });
+
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Stripe did not return a checkout URL" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ url: session.url });
+  } catch (error: any) {
+    console.error("STRIPE CHECKOUT ERROR:", error);
+
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: error.message || "Unable to start checkout" },
       { status: 500 }
-    )
+    );
   }
 }
