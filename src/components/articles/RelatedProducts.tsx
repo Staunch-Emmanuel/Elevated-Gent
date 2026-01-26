@@ -1,8 +1,20 @@
 'use client'
 
 import Image from 'next/image'
-import { AffiliateProduct } from '@/lib/articles/types'
 import { Button } from '@/components/ui'
+
+type AffiliateProduct = {
+  id: string
+  tier: string
+  price: string
+  priceValue: number
+  image: string
+  name: string
+  brand: string
+  description: string
+  retailer: string
+  affiliateLink: string
+}
 
 interface RelatedProductsProps {
   products: {
@@ -13,11 +25,9 @@ interface RelatedProductsProps {
 }
 
 export function RelatedProducts({ products }: RelatedProductsProps) {
-  const productArray = [
-    products.budget,
-    products.signature,
-    products.upgrade
-  ].filter(Boolean) as AffiliateProduct[]
+  const productArray = [products.budget, products.signature, products.upgrade].filter(
+    Boolean
+  ) as AffiliateProduct[]
 
   if (productArray.length === 0) return null
 
@@ -79,11 +89,11 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
                 onClick={() => {
                   // Track affiliate click (analytics)
                   if (typeof window !== 'undefined' && (window as any).gtag) {
-                    (window as any).gtag('event', 'affiliate_click', {
+                    ;(window as any).gtag('event', 'affiliate_click', {
                       product_id: product.id,
                       product_name: product.name,
                       retailer: product.retailer,
-                      price: product.priceValue
+                      price: product.priceValue,
                     })
                   }
                   // Open affiliate link

@@ -1,7 +1,11 @@
 'use client'
 
 import { createContext, useContext, useReducer, useEffect } from 'react'
-import { Product } from '@/lib/firebase/firestore'
+
+type Product = {
+  id: string
+  price: number
+}
 
 interface CartItem {
   product: Product
@@ -21,15 +25,24 @@ type CartAction =
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; payload: CartItem[] }
 
+const calculateTotals = (items: CartItem[]): CartState => {
+  const total = items.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  )
+  const itemCount = items.reduce((count, item) => count + item.quantity, 0)
+  return { items, total, itemCount }
+}
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
       const { product, quantity = 1 } = action.payload
-      const existingItem = state.items.find(item => item.product.id === product.id)
+      const existingItem = state.items.find((item) => item.product.id === product.id)
 
       let newItems: CartItem[]
       if (existingItem) {
-        newItems = state.items.map(item =>
+        newItems = state.items.map((item) =>
           item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
@@ -42,7 +55,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     }
 
     case 'REMOVE_ITEM': {
-      const newItems = state.items.filter(item => item.product.id !== action.payload.productId)
+      const newItems = state.items.filter(
+        (item) => item.product.id !== action.payload.productId
+      )
       return calculateTotals(newItems)
     }
 
@@ -52,7 +67,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         return cartReducer(state, { type: 'REMOVE_ITEM', payload: { productId } })
       }
 
-      const newItems = state.items.map(item =>
+      const newItems = state.items.map((item) =>
         item.product.id === productId ? { ...item, quantity } : item
       )
       return calculateTotals(newItems)
@@ -69,12 +84,6 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     default:
       return state
   }
-}
-
-const calculateTotals = (items: CartItem[]): CartState => {
-  const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0)
-  const itemCount = items.reduce((count, item) => count + item.quantity, 0)
-  return { items, total, itemCount }
 }
 
 interface CartContextType extends CartState {
@@ -95,7 +104,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     itemCount: 0,
   })
 
-  // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY)
     if (savedCart) {
@@ -108,7 +116,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Save cart to localStorage when it changes
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items))
   }, [state.items])
@@ -129,7 +136,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'CLEAR_CART' })
   }
 
-  const value = {
+  const value: CartContextType = {
     ...state,
     addItem,
     removeItem,
@@ -137,11 +144,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     clearCart,
   }
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  )
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
 
 export function useCart() {

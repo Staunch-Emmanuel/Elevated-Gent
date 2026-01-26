@@ -6,11 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import { PRODUCT_CATEGORIES } from '@/lib/products/types'
-import {
-  getWeeklyById,
-  updateWeekly,
-  type WeeklyItem,
-} from '@/lib/firebase/weekly'
+import { getWeeklyById, updateWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
 
 export default function EditWeeklyPage() {
   const router = useRouter()
@@ -69,7 +65,11 @@ export default function EditWeeklyPage() {
         setTagsInput((data.tags || []).join(', '))
         setSizesInput((data.sizes || []).join(', '))
         setColorsInput((data.colors || []).join(', '))
-        setImagesInput((data.images || []).join(', '))
+
+        // WeeklyItem only has `image` (singular). Keep the "Additional Images" UI,
+        // but treat it as a helper input that defaults to empty.
+        // If you later add `images` to the type/schema, you can wire it back.
+        setImagesInput('')
       } catch (err) {
         console.error(err)
         alert('Failed to load item.')
@@ -105,7 +105,10 @@ export default function EditWeeklyPage() {
       .map((t) => t.trim())
       .filter(Boolean)
 
-    const images = imagesInput
+    // WeeklyItem does not support `images`. If the admin entered extra URLs,
+    // we won't persist them (no schema/type support).
+    // Keep parsing to avoid unused-state lint issues in the future if you add it back.
+    void imagesInput
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean)
@@ -126,7 +129,6 @@ export default function EditWeeklyPage() {
         tags,
         sizes,
         colors,
-        images,
       })
 
       router.push('/admin/weekly')
@@ -200,6 +202,7 @@ export default function EditWeeklyPage() {
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
                 className="border p-2 rounded w-full min-h-[80px]"
+                placeholder="(Not saved yet — WeeklyItem schema currently supports only a single image URL.)"
               />
             </div>
 
@@ -265,9 +268,7 @@ export default function EditWeeklyPage() {
 
             {/* Tags / Sizes / Colors */}
             <div>
-              <label className="block text-sm mb-1">
-                Tags (comma-separated)
-              </label>
+              <label className="block text-sm mb-1">Tags (comma-separated)</label>
               <input
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
@@ -277,9 +278,7 @@ export default function EditWeeklyPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-1">
-                  Sizes (comma-separated)
-                </label>
+                <label className="block text-sm mb-1">Sizes (comma-separated)</label>
                 <input
                   value={sizesInput}
                   onChange={(e) => setSizesInput(e.target.value)}
@@ -288,9 +287,7 @@ export default function EditWeeklyPage() {
               </div>
 
               <div>
-                <label className="block text-sm mb-1">
-                  Colors (comma-separated)
-                </label>
+                <label className="block text-sm mb-1">Colors (comma-separated)</label>
                 <input
                   value={colorsInput}
                   onChange={(e) => setColorsInput(e.target.value)}

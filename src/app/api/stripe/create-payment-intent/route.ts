@@ -12,7 +12,7 @@ if (!stripeSecretKey) {
 }
 
 const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-08-27.basil',
 })
 
 export async function POST(req: Request) {
@@ -27,13 +27,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing serviceType' }, { status: 400 })
     }
 
-    // IMPORTANT:
-    // Your frontend pricing comes from SERVICE_PRICES.
-    // Server should not trust arbitrary client amounts.
-    // We will require that your server also references SERVICE_PRICES if you want strict enforcement.
-    // For now (minimal), pass amount from your existing server-side config if present.
-    //
-    // If you already implemented amount mapping elsewhere, keep that logic.
     const SERVICE_PRICES = {
       'foundation-package': 25000,
       'signature-refresh': 50000,
@@ -62,6 +55,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ clientSecret: paymentIntent.client_secret })
   } catch (err: any) {
     console.error('create-payment-intent error:', err?.message || err)
-    return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to create payment intent' },
+      { status: 500 }
+    )
   }
 }

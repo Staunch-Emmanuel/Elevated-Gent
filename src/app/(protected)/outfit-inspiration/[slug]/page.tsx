@@ -1,4 +1,4 @@
-// src/app/outfit-inspiration/[slug]/page.tsx
+// src/app/(protected)/outfit-inspiration/[slug]/page.tsx
 
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -21,9 +21,9 @@ import type { Product, OutfitLook } from "@/lib/products/types";
 export default async function OutfitPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const slug = params.slug;
+  const { slug } = await params;
 
   // 1) Load CMS outfit
   const cmsDoc: OutfitDocument | null = await getOutfitBySlug(slug);
@@ -128,6 +128,7 @@ export default async function OutfitPage({
                   href={product.affiliateLink || product.productLink}
                   target="_blank"
                   className="flex gap-4 p-4 border rounded-lg hover:bg-gray-50 transition"
+                  rel="noreferrer"
                 >
                   <Image
                     src={product.image}
@@ -150,9 +151,7 @@ export default async function OutfitPage({
           {/* TOTAL PRICE */}
           <div className="bg-gray-100 rounded-lg p-6">
             <h3 className="text-xl font-semibold">Total Price</h3>
-            <p className="text-3xl font-bold mt-2">
-              ${finalOutfit.totalPrice}
-            </p>
+            <p className="text-3xl font-bold mt-2">${finalOutfit.totalPrice}</p>
           </div>
         </Container>
       </PagePadding>

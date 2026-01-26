@@ -36,27 +36,15 @@ export default function NewWeeklyPage() {
     e.preventDefault()
     setSaving(true)
 
-    const tags = tagsInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean)
+    const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
+    const sizes = sizesInput.split(',').map(t => t.trim()).filter(Boolean)
+    const colors = colorsInput.split(',').map(t => t.trim()).filter(Boolean)
 
-    const sizes = sizesInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean)
+    // UI-only for now — schema supports single image
+    void imagesInput
 
-    const colors = colorsInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean)
-
-    const images = imagesInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean)
-
-    const payload: Omit<WeeklyItem, 'id'> = {
+    const payload: WeeklyItem = {
+      id: '', // required by type, replaced by Firestore
       title,
       brand,
       description,
@@ -64,14 +52,13 @@ export default function NewWeeklyPage() {
       price,
       originalPrice,
       category,
-      tags,
       productLink,
       affiliateLink,
       featured,
       inStock,
+      tags,
       sizes,
       colors,
-      images,
     }
 
     try {
@@ -92,7 +79,6 @@ export default function NewWeeklyPage() {
           <h1 className="text-2xl font-semibold mb-6">New Weekly Item</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
             <div>
               <label className="block text-sm mb-1">Title</label>
               <input
@@ -103,7 +89,6 @@ export default function NewWeeklyPage() {
               />
             </div>
 
-            {/* Brand */}
             <div>
               <label className="block text-sm mb-1">Brand</label>
               <input
@@ -114,7 +99,6 @@ export default function NewWeeklyPage() {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm mb-1">Description</label>
               <textarea
@@ -125,7 +109,6 @@ export default function NewWeeklyPage() {
               />
             </div>
 
-            {/* Main Image */}
             <div>
               <label className="block text-sm mb-1">Main Image URL</label>
               <input
@@ -136,20 +119,17 @@ export default function NewWeeklyPage() {
               />
             </div>
 
-            {/* Additional Images */}
             <div>
               <label className="block text-sm mb-1">
-                Additional Image URLs (comma-separated)
+                Additional Image URLs (not saved yet)
               </label>
               <textarea
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
                 className="border p-2 rounded w-full min-h-[80px]"
-                placeholder="https://img1.jpg, https://img2.jpg"
               />
             </div>
 
-            {/* Price */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Price</label>
@@ -167,12 +147,10 @@ export default function NewWeeklyPage() {
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
                   className="border p-2 rounded w-full"
-                  placeholder="Optional"
                 />
               </div>
             </div>
 
-            {/* Category */}
             <div>
               <label className="block text-sm mb-1">Category</label>
               <select
@@ -188,7 +166,6 @@ export default function NewWeeklyPage() {
               </select>
             </div>
 
-            {/* Product Link */}
             <div>
               <label className="block text-sm mb-1">Product Link</label>
               <input
@@ -199,75 +176,13 @@ export default function NewWeeklyPage() {
               />
             </div>
 
-            {/* Affiliate Link */}
             <div>
               <label className="block text-sm mb-1">Affiliate Link</label>
               <input
                 value={affiliateLink}
                 onChange={(e) => setAffiliateLink(e.target.value)}
                 className="border p-2 rounded w-full"
-                placeholder="Optional"
               />
-            </div>
-
-            {/* Tags / Sizes / Colors */}
-            <div>
-              <label className="block text-sm mb-1">
-                Tags (comma-separated)
-              </label>
-              <input
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                className="border p-2 rounded w-full"
-                placeholder="denim, premium, italian"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-1">
-                  Sizes (comma-separated)
-                </label>
-                <input
-                  value={sizesInput}
-                  onChange={(e) => setSizesInput(e.target.value)}
-                  className="border p-2 rounded w-full"
-                  placeholder="S, M, L, XL"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm mb-1">
-                  Colors (comma-separated)
-                </label>
-                <input
-                  value={colorsInput}
-                  onChange={(e) => setColorsInput(e.target.value)}
-                  className="border p-2 rounded w-full"
-                  placeholder="Black, White"
-                />
-              </div>
-            </div>
-
-            {/* Flags */}
-            <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={featured}
-                  onChange={(e) => setFeatured(e.target.checked)}
-                />
-                Featured
-              </label>
-
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={inStock}
-                  onChange={(e) => setInStock(e.target.checked)}
-                />
-                In Stock
-              </label>
             </div>
 
             <button

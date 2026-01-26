@@ -2,29 +2,38 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Article } from '@/lib/articles/types'
 import { Button, Label } from '@/components/ui'
+
+type Article = {
+  slug: string
+  title: string
+  excerpt: string
+  heroImage: string
+  category: string
+  publishDate: string | number | Date
+  readTime: number
+  featured?: boolean
+  occasion?: string
+}
 
 interface ArticleCardProps {
   article: Article
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
-  // Format publish date
   const publishDate = new Date(article.publishDate).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 
-  // Get category display name
   const getCategoryName = (category: string) => {
     const categoryMap: Record<string, string> = {
       blueprint: 'Grooming Blueprint',
       confidence: 'Confidence & Wellness',
       occasion: 'By Occasion',
       products: 'Product Review',
-      lifestyle: 'Lifestyle'
+      lifestyle: 'Lifestyle',
     }
     return categoryMap[category] || category
   }
@@ -74,7 +83,9 @@ export function ArticleCard({ article }: ArticleCardProps) {
 
         {/* Metadata */}
         <div className="flex items-center justify-between text-xs font-serif text-muted">
-          <span>{article.readTime} min read • {publishDate}</span>
+          <span>
+            {article.readTime} min read • {publishDate}
+          </span>
         </div>
 
         {/* CTA */}

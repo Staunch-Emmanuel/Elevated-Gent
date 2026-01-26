@@ -11,9 +11,9 @@ import { getWeeklyProducts } from "@/lib/firebase/weekly";
 import type { OutfitDocument } from "@/lib/firebase/outfits";
 
 type AdminEditOutfitPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 type WeeklyProduct = {
@@ -22,8 +22,9 @@ type WeeklyProduct = {
 };
 
 export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps) {
-  const outfitId = params.id;
   const router = useRouter();
+
+  const [outfitId, setOutfitId] = useState<string>("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,9 +35,32 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
   // FORM STATE
   const [form, setForm] = useState<Partial<OutfitDocument>>({});
 
+  // unwrap params (Next 16 types may provide params as a Promise)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const resolved = await params;
+        if (!mounted) return;
+        setOutfitId(resolved.id);
+      } catch (e) {
+        console.error(e);
+        if (!mounted) return;
+        setError("Invalid route params.");
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
+
   // Load outfit + products
   useEffect(() => {
     async function load() {
+      if (!outfitId) return;
+
       try {
         const outfit = await getOutfitById(outfitId);
         const productsList = await getWeeklyProducts();

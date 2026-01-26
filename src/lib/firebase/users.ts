@@ -1,94 +1,159 @@
-'use client';
-
+// src/lib/firebase/users.ts
+import { db } from "@/lib/firebase/config";
 import {
   collection,
   getDocs,
   getDoc,
   doc,
+  setDoc,
   addDoc,
   updateDoc,
   deleteDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
+  query,
+  where,
+  limit,
+} from "firebase/firestore";
 
-import { db } from '../firebase';
+/**
+ * IMPORTANT:
+ * These unions must match the values used across admin + app UI.
+ * Your admin screens currently use:
+ * - role: "subscriber"
+ * - subscriptionStatus: "trialing", "active", and "inactive"
+ */
 
-/* =======================
-   TYPES
-======================= */
+export type UserRole = "admin" | "subscriber";
 
-export type UserRole = 'user' | 'editor' | 'admin';
-export type SubscriptionStatus = 'active' | 'inactive' | 'blocked';
+export type SubscriptionStatus =
+  | "trialing"
+  | "active"
+  | "inactive"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "paused"
+  | "none";
 
-export interface UserRecord {
-  uid: string;
-  email: string;
-  role: UserRole;
-  subscriptionStatus: SubscriptionStatus;
-  createdAt?: any;
-  updatedAt?: any;
-}
+export type UserRecord = {
+  id: string; // usually Firebase Auth uid or Firestore doc id (test users)
 
-/* =======================
-   READ
-======================= */
+  email?: string;
+  name?: string;
 
-export async function getAllUsers(): Promise<UserRecord[]> {
-  const snap = await getDocs(collection(db, 'users'));
+  role?: UserRole;
 
-  return snap.docs.map((d) => ({
-    uid: d.id,
-    ...(d.data() as Omit<UserRecord, 'uid'>),
-  }));
-}
+  subscriptionStatus?: SubscriptionStatus;
+  isSubscribed?: boolean;
 
-export async function getUserById(uid: string): Promise<UserRecord | null> {
-  const snap = await getDoc(doc(db, 'users', uid));
-  if (!snap.exists()) return null;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  priceId?: string;
+  currentPeriodEnd?: string;
 
+  createdAt?: string;
+  updatedAt?: string;
+
+  [key: string]: any;
+};
+
+const COLLECTION = "users";
+
+function mapDocToUser(id: string, data: any): UserRecord {
   return {
-    uid: snap.id,
-    ...(snap.data() as Omit<UserRecord, 'uid'>),
+    id,
+    email: data?.email,
+    name: data?.name,
+    role: data?.role,
+    subscriptionStatus: data?.subscriptionStatus ?? data?.subscription_status,
+    isSubscribed: data?.isSubscribed ?? data?.subscribed ?? false,
+    stripeCustomerId: data?.stripeCustomerId,
+    stripeSubscriptionId: data?.stripeSubscriptionId,
+    priceId: data?.priceId,
+    currentPeriodEnd: data?.currentPeriodEnd,
+    createdAt: data?.createdAt,
+    updatedAt: data?.updatedAt,
+    ...data,
   };
 }
 
-/* =======================
-   CREATE
-======================= */
-
-export async function createUser(input: {
-  email: string;
-  role: UserRole;
-  subscriptionStatus: SubscriptionStatus;
-}) {
-  const ref = doc(collection(db, 'users'));
-
-  await updateDoc(ref, {
-    email: input.email,
-    role: input.role,
-    subscriptionStatus: input.subscriptionStatus,
-    createdAt: serverTimestamp(),
-  });
+// LIST ALL USERS
+export async function getAllUsers(): Promise<UserRecord[]> {
+  const snap = await getDocs(collection(db, COLLECTION));
+  return snap.docs.map((d) => mapDocToUser(d.id, d.data()));
 }
 
-/* =======================
-   UPDATE
-======================= */
+// GET BY ID
+export async function getUserById(id: string): Promise<UserRecord | null> {
+  const snap = await getDoc(doc(db, COLLECTION, id));
+  if (!snap.exists()) return null;
+  return mapDocToUser(snap.id, snap.data());
+}
 
-export async function updateUser(
-  uid: string,
-  data: Partial<UserRecord>
-): Promise<void> {
-  await updateDoc(doc(db, 'users', uid), {
+// GET BY EMAIL
+export async function getUserByEmail(email: string): Promise<UserRecord | null> {
+  const q = query(collection(db, COLLECTION), where("email", "==", email), limit(1));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return mapDocToUser(d.id, d.data());
+}
+
+// CREATE / UPSERT (usually for real users where doc id = auth uid)
+export async function createUser(id: string, data: Partial<UserRecord>): Promise<void> {
+  const now = new Date().toISOString();
+
+  // Put data first, then set timestamps so they don't get overwritten.
+  const payload: Partial<UserRecord> = {
     ...data,
-    updatedAt: serverTimestamp(),
+    createdAt: data.createdAt ?? now,
+    updatedAt: now,
+  };
+
+  await setDoc(doc(db, COLLECTION, id), payload, { merge: true });
+}
+
+// CREATE TEST USER (Firestore-only record)
+export async function createTestUser(
+  data: Partial<UserRecord> & { email: string }
+): Promise<string> {
+  const now = new Date().toISOString();
+
+  /**
+   * Fix: avoid "email specified more than once"
+   * - Spread first
+   * - Then set email once at the end
+   */
+  const payload: Partial<UserRecord> = {
+    ...data,
+    role: (data.role ?? "subscriber") as UserRole,
+    subscriptionStatus: (data.subscriptionStatus ?? "trialing") as SubscriptionStatus,
+    isSubscribed: data.isSubscribed ?? false,
+    createdAt: data.createdAt ?? now,
+    updatedAt: now,
+    email: data.email,
+  };
+
+  const ref = await addDoc(collection(db, COLLECTION), payload);
+  return ref.id;
+}
+
+// UPDATE BY ID
+export async function updateUserById(id: string, data: Partial<UserRecord>): Promise<void> {
+  const now = new Date().toISOString();
+  await updateDoc(doc(db, COLLECTION, id), {
+    ...data,
+    updatedAt: now,
   });
 }
 
-/* =======================
-   DELETE
-======================= */
+/**
+ * Alias for admin pages that import `updateUser`
+ */
+export const updateUser = updateUserById;
 
-export async function deleteUser(uid: string): Promise<void> {
-  await deleteDoc(doc(db, 'users', uid));
+// DELETE
+export async function deleteUser(id: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTION, id));
 }

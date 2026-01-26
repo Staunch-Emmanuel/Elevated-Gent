@@ -21,12 +21,13 @@ interface WellnessDocument {
 }
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function AdminEditWellnessPage({ params }: PageProps) {
   const router = useRouter();
-  const wellnessId = params.id;
+
+  const [wellnessId, setWellnessId] = useState<string>("");
 
   const [article, setArticle] = useState<WellnessDocument | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,8 +39,31 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
 
+  // unwrap params (Next 16 types may provide params as a Promise)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const resolved = await params;
+        if (!mounted) return;
+        setWellnessId(resolved.id);
+      } catch (e) {
+        console.error(e);
+        if (!mounted) return;
+        setError("Invalid route params.");
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
+
   useEffect(() => {
     async function load() {
+      if (!wellnessId) return;
+
       setLoading(true);
 
       const doc = await getWellnessById(wellnessId);
@@ -50,11 +74,19 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
         return;
       }
 
-      setArticle(doc);
-      setTitle(doc.title ?? "");
-      setSlug(doc.slug ?? "");
-      setExcerpt(doc.excerpt ?? "");
-      setContent(doc.content ?? "");
+      const normalized: WellnessDocument = {
+        id: (doc as any).id ?? wellnessId,
+        title: doc.title ?? "",
+        slug: doc.slug ?? "",
+        excerpt: doc.excerpt ?? "",
+        content: doc.content ?? "",
+      };
+
+      setArticle(normalized);
+      setTitle(normalized.title);
+      setSlug(normalized.slug);
+      setExcerpt(normalized.excerpt ?? "");
+      setContent(normalized.content ?? "");
 
       setLoading(false);
     }

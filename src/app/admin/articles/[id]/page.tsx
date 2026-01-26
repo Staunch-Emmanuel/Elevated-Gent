@@ -15,7 +15,7 @@ import {
 import type { ArticleDocument } from "@/lib/types/articles";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -32,7 +32,8 @@ function slugify(title: string): string {
 
 export default function AdminEditArticlePage({ params }: PageProps) {
   const router = useRouter();
-  const articleId = params.id;
+
+  const [articleId, setArticleId] = useState<string>("");
 
   const [article, setArticle] = useState<ArticleDocument | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,8 +46,30 @@ export default function AdminEditArticlePage({ params }: PageProps) {
   const [heroImage, setHeroImage] = useState("");
   const [content, setContent] = useState("");
 
+  // unwrap params (Next 16 types may provide params as a Promise)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const resolved = await params;
+        if (!mounted) return;
+        setArticleId(resolved.id);
+      } catch (e) {
+        console.error(e);
+        if (!mounted) return;
+        setError("Invalid route params.");
+        setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
+
   useEffect(() => {
     async function load() {
+      if (!articleId) return;
+
       setLoading(true);
       const doc = await getArticleById(articleId);
 
@@ -162,9 +185,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               />
               <p className="text-xs text-gray-500 mt-1">
                 URL slug will be:
-                <span className="ml-1 font-mono">
-                  /articles/{slugify(title)}
-                </span>
+                <span className="ml-1 font-mono">/articles/{slugify(title)}</span>
               </p>
             </div>
 
