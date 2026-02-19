@@ -24,7 +24,7 @@ export const SERVICE_PRICES = {
   },
   'monthly-subscription': {
     name: 'Monthly Subscription',
-    price: 200, // $2.00
+    price: 700, // $7.00
     description: 'Access to all styling services, curated collections, and exclusive content',
   },
 } as const

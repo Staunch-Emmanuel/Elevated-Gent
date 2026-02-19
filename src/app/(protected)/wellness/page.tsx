@@ -1,10 +1,50 @@
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import WellnessClient from "./WellnessClient";
+// src/app/(protected)/wellness/page.tsx
+'use client'
+
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import StructuredData from '@/components/seo/StructuredData'
+import { PagePadding, Container } from '@/components/layout'
+
+import staticArticles from '@/lib/articles/data'
+import ArticleCard from '@/components/articles/ArticleCard'
 
 export default function WellnessPage() {
   return (
     <ProtectedRoute>
-      <WellnessClient />
+      <StructuredData pageKey="wellness" />
+
+      {/* Hero Section */}
+      <section className="py-16">
+        <PagePadding>
+          <Container>
+            <div className="text-center space-y-8">
+              <div className="overflow-hidden px-4">
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
+                  GROOMING, HEALTH & WELLNESS
+                </h1>
+              </div>
+              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
+                Build the foundation for timeless style. Expert advice on grooming, fitness,
+                and wellness essentials that complement your elevated wardrobe because
+                confidence starts from within.
+              </p>
+            </div>
+          </Container>
+        </PagePadding>
+      </section>
+
+      {/* Articles Grid */}
+      <section className="py-16">
+        <PagePadding>
+          <Container>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(staticArticles as any[]).map((article) => (
+                <ArticleCard key={article.id ?? article.slug} article={article} />
+              ))}
+            </div>
+          </Container>
+        </PagePadding>
+      </section>
     </ProtectedRoute>
-  );
+  )
 }

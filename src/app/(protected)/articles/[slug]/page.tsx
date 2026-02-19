@@ -1,67 +1,109 @@
-import { notFound } from "next/navigation";
-import { PagePadding, Container } from "@/components/layout";
-import { StructuredData } from "@/components/seo/StructuredData";
+// src/app/(protected)/articles/[slug]/page.tsx
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 
-import staticArticles from "@/lib/articles/data";
-import { getArticleBySlugCMS } from "@/lib/firebase/articles";
-import type { ArticleDocument } from "@/lib/types/articles";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import StructuredData from '@/components/seo/StructuredData'
+
+import staticArticles from '@/lib/articles/data'
+import type { ArticleDocument } from '@/lib/types/articles'
+import { getArticleBySlugCMS } from '@/lib/firebase/articles'
 
 type PageProps = {
   params: Promise<{
-    slug: string;
-  }>;
-};
+    slug: string
+  }>
+}
 
 function normalizeSlug(value: string): string {
-  return decodeURIComponent(value).trim().toLowerCase();
+  try {
+    return decodeURIComponent(value).trim().toLowerCase()
+  } catch {
+    return String(value).trim().toLowerCase()
+  }
 }
 
 export default async function ArticlePage({ params }: PageProps) {
-  const { slug } = await params;
-  const normalizedSlug = normalizeSlug(slug);
+  const { slug } = await params
+  const normalizedSlug = normalizeSlug(slug)
 
-  // 1️⃣ Try CMS
-  let article: ArticleDocument | null =
-    await getArticleBySlugCMS(normalizedSlug);
+  // 1) Try CMS
+  let article: ArticleDocument | null = await getArticleBySlugCMS(normalizedSlug)
 
-  // 2️⃣ Fallback to static
+  // 2) Fallback to static
   if (!article) {
     article =
-      staticArticles.find(
-        (a) => normalizeSlug(a.slug ?? "") === normalizedSlug
-      ) ?? null;
+      (staticArticles as ArticleDocument[]).find((a) => {
+        const s = a.slug ? normalizeSlug(String(a.slug)) : ''
+        return s === normalizedSlug
+      }) ?? null
   }
 
-  if (!article) {
-    notFound();
-  }
+  if (!article) notFound()
+
+  const title = article.title ?? 'Article'
+  const heroImage =
+    (article as any).heroImage ||
+    (article as any).seo?.ogImage ||
+    '/images/Image-10.jpeg'
 
   return (
-    <section>
+    <ProtectedRoute>
       <StructuredData pageKey="article" />
 
-      <PagePadding>
-        <Container className="max-w-3xl pb-24">
-          <h1 className="text-4xl font-bold mb-4">
-            {article.title}
-          </h1>
+      <section className="py-12">
+        <PagePadding>
+          <Container className="max-w-4xl">
+            <div className="mb-6">
+              <Link
+                href="/articles"
+                className="text-sm font-serif text-gray-500 hover:text-black"
+              >
+                ← Back to Articles
+              </Link>
+            </div>
 
-          {article.excerpt && (
-            <p className="text-lg text-gray-600 mb-8">
-              {article.excerpt}
-            </p>
-          )}
+            <div className="space-y-6 mb-10">
+              <h1 className="text-3xl md:text-5xl font-bold font-sans leading-tight">
+                {title}
+              </h1>
 
-          {article.content && (
-            <div
-              className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: article.content,
-              }}
-            />
-          )}
-        </Container>
-      </PagePadding>
-    </section>
-  );
+              {article.excerpt ? (
+                <p className="text-xl font-serif text-gray-600 leading-relaxed">
+                  {article.excerpt}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="aspect-video relative rounded-lg overflow-hidden border border-gray-200 mb-12">
+              <Image
+                src={heroImage}
+                alt={title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          </Container>
+        </PagePadding>
+      </section>
+
+      <section className="py-8">
+        <PagePadding>
+          <Container className="max-w-4xl">
+            {article.content ? (
+              <div
+                className="prose prose-lg max-w-none font-serif"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
+            ) : (
+              <p className="font-serif text-gray-600">No content yet.</p>
+            )}
+          </Container>
+        </PagePadding>
+      </section>
+    </ProtectedRoute>
+  )
 }

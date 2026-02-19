@@ -1,3 +1,4 @@
+// src/app/admin/wellness/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,32 +9,59 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
 
 import type { WellnessItem } from "@/lib/firebase/wellness";
-import {
-  getWellnessItems,
-  deleteWellness,
-} from "@/lib/firebase/wellness";
+import { getWellnessItems, deleteWellness } from "@/lib/firebase/wellness";
 
 export default function AdminWellnessPage() {
   const router = useRouter();
 
   const [articles, setArticles] = useState<WellnessItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    let mounted = true;
+
     async function load() {
       setLoading(true);
-      const data = await getWellnessItems();
-      setArticles(data);
-      setLoading(false);
+      setError("");
+
+      try {
+        const data = await getWellnessItems();
+        if (!mounted) return;
+        setArticles(data || []);
+      } catch (err: any) {
+        console.error("Failed to load wellness items:", err);
+        if (!mounted) return;
+
+        // This is the actual error you're seeing in production
+        setError(
+          err?.message ||
+            "Failed to load wellness items (missing permissions or network error)."
+        );
+        setArticles([]);
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
     }
 
     load();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this wellness article?")) return;
-    await deleteWellness(id);
-    setArticles((prev) => prev.filter((a) => a.id !== id));
+
+    try {
+      await deleteWellness(id);
+      setArticles((prev) => prev.filter((a) => a.id !== id));
+    } catch (err: any) {
+      console.error("Failed to delete wellness item:", err);
+      alert(err?.message || "Failed to delete wellness article.");
+    }
   }
 
   if (loading) return <p className="p-6">Loading…</p>;
@@ -49,9 +77,22 @@ export default function AdminWellnessPage() {
             </Link>
           </div>
 
-          {articles.length === 0 ? (
+          {error && (
+            <div className="border border-red-200 bg-red-50 rounded-lg p-4 mb-6">
+              <p className="text-sm text-red-700 font-medium">
+                Wellness failed to load
+              </p>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+              <p className="text-xs text-red-700 mt-3">
+                If this says “Missing or insufficient permissions”, your Firestore
+                rules are blocking this user/environment.
+              </p>
+            </div>
+          )}
+
+          {!error && articles.length === 0 ? (
             <p>No wellness articles yet.</p>
-          ) : (
+          ) : !error ? (
             <div className="space-y-4">
               {articles.map((item) => (
                 <div
@@ -67,9 +108,7 @@ export default function AdminWellnessPage() {
 
                   <div className="flex gap-4">
                     <button
-                      onClick={() =>
-                        router.push(`/admin/wellness/${item.id}`)
-                      }
+                      onClick={() => router.push(`/admin/wellness/${item.id}`)}
                       className="text-sm underline"
                     >
                       Edit
@@ -85,7 +124,7 @@ export default function AdminWellnessPage() {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </Container>
       </PagePadding>
     </ProtectedRoute>

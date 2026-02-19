@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       'foundation-package': 25000,
       'signature-refresh': 50000,
       'gentlemens-upgrade': 75000,
-      'monthly-subscription': 4200, // $42.00 in cents (UPDATE if your real amount differs)
+      'monthly-subscription': 700, // $42.00 in cents (UPDATE if your real amount differs)
     } as const
 
     const amount = (SERVICE_PRICES as any)[serviceType]

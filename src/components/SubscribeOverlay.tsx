@@ -19,7 +19,7 @@ export default function SubscribeOverlay() {
             {
               name: 'The Elevated Gentleman',
               description: 'Full access membership',
-              price: 2,
+              price: 7,
               quantity: 1,
             },
           ],

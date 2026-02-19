@@ -1,23 +1,82 @@
-import { getAuth } from 'firebase/auth'
+// src/lib/auth/ensureUserDoc.ts
+'use client'
 
-export async function ensureUserDoc() {
-  const user = getAuth().currentUser
-  if (!user) return { ok: false, reason: 'no-user' }
+import { auth, db } from '@/lib/firebase/config'
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore'
+import type { User } from 'firebase/auth'
+import type { SubscriptionStatus } from '@/lib/types'
 
-  const token = await user.getIdToken()
+type UserRole = 'admin' | 'subscriber'
 
-  const res = await fetch('/api/auth/ensure-user', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+type UserDoc = {
+  uid: string
+  email: string | null
+  displayName: string | null
+  role: UserRole
+  subscriptionStatus: SubscriptionStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  createdAt?: unknown
+  updatedAt?: unknown
+}
 
-  const data = await res.json().catch(() => ({}))
+/**
+ * Ensures Firestore has a users/{uid} doc.
+ * - Creates it if missing
+ * - Never overwrites role or subscriptionStatus if they already exist
+ * - Adds missing baseline fields safely
+ */
+export async function ensureUserDoc(passedUser?: User): Promise<void> {
+  const user = passedUser ?? auth.currentUser
+  if (!user) return
 
-  if (!res.ok) {
-    throw new Error(data?.error || 'Failed to create user profile document')
+  const ref = doc(db, 'users', user.uid)
+  const snap = await getDoc(ref)
+
+  if (!snap.exists()) {
+    const payload: UserDoc = {
+      uid: user.uid,
+      email: user.email ?? null,
+      displayName: user.displayName ?? null,
+      role: 'subscriber',
+      subscriptionStatus: null,
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }
+
+    await setDoc(ref, payload, { merge: true })
+    return
   }
 
-  return data
+  const data = snap.data() as Partial<UserDoc>
+
+  const updates: Partial<UserDoc> = {
+    updatedAt: serverTimestamp(),
+  }
+
+  if (!('uid' in data)) updates.uid = user.uid
+  if (!('email' in data)) updates.email = user.email ?? null
+  if (!('displayName' in data)) updates.displayName = user.displayName ?? null
+
+  if (!('role' in data) || !data.role) updates.role = 'subscriber'
+
+  if (!('subscriptionStatus' in data)) updates.subscriptionStatus = null
+
+  if (!('stripeCustomerId' in data)) updates.stripeCustomerId = null
+  if (!('stripeSubscriptionId' in data)) updates.stripeSubscriptionId = null
+
+  const keys = Object.keys(updates)
+  if (keys.length > 1) {
+    await updateDoc(ref, updates)
+  } else {
+    await updateDoc(ref, { updatedAt: serverTimestamp() })
+  }
 }

@@ -9,18 +9,18 @@ import { NAVIGATION_LINKS, SOCIAL_LINKS, APP_CONFIG } from '@/lib/constants'
 
 const footerLinks = {
   services: [
-    { name: 'Personal Styling', href: '/personal-styling' },
+    { name: 'All Services', href: '/personal-styling' },
+    { name: 'Personal Styling', href: '/personal-styling#consultation' },
+    { name: 'Wardrobe Consultation', href: '/personal-styling#audit' },
   ],
   collections: [
-    { name: 'Articles', href: '/articles' },
-    { name: 'Wellness', href: '/wellness' },
-    { name: 'Weekly Finds', href: '/weekly' },
     { name: 'Outfit Inspiration', href: '/outfit-inspiration' },
+    { name: 'Weekly Finds', href: '/weekly' },
+    { name: 'Wellness Articles', href: '/wellness' },
   ],
   company: [
-    { name: 'Account', href: '/account' },
-    { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Contact Us', href: 'mailto:Markkoob@outlook.com' },
+    { name: 'Privacy Policy', href: '/privacy' },
   ],
 }
 
@@ -224,3 +224,5 @@ export function Footer() {
     </footer>
   )
 }
+
+export default Footer

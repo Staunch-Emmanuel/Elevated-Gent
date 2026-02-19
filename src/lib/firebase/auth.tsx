@@ -1,12 +1,14 @@
-"use client";
+// src/lib/firebase/auth.tsx
+'use client'
 
 import {
   createContext,
   useContext,
   useEffect,
   useState,
-  ReactNode,
-} from "react";
+  type ReactNode,
+} from 'react'
+
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -14,108 +16,88 @@ import {
   signOut,
   sendPasswordResetEmail,
   updateProfile,
-  User,
-} from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase/config";
-import { ensureUserDoc } from "@/lib/auth/ensureUserDoc";
-import type { SubscriptionStatus } from "@/lib/types";
+  type User,
+} from 'firebase/auth'
 
-// ============================
-// CONTEXT TYPES
-// ============================
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '@/lib/firebase/config'
+import { ensureUserDoc } from '@/lib/auth/ensureUserDoc'
+import type { SubscriptionStatus } from '@/lib/types'
 
 interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  subscriptionStatus: SubscriptionStatus;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (
-    email: string,
-    password: string,
-    displayName?: string
-  ) => Promise<void>;
-  logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  user: User | null
+  loading: boolean
+  subscriptionStatus: SubscriptionStatus
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, displayName?: string) => Promise<void>
+  logout: () => Promise<void>
+  resetPassword: (email: string) => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// ============================
-// PROVIDER
-// ============================
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const [subscriptionStatus, setSubscriptionStatus] =
-    useState<SubscriptionStatus>(null);
+    useState<SubscriptionStatus>(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
+      setUser(firebaseUser)
 
       if (!firebaseUser) {
-        setSubscriptionStatus(null);
-        setLoading(false);
-        return;
+        setSubscriptionStatus(null)
+        setLoading(false)
+        return
       }
 
-      // Ensure user document exists
-      await ensureUserDoc();
+      try {
+        await ensureUserDoc(firebaseUser)
 
-      // Fetch subscription status from Firestore
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const snap = await getDoc(userRef);
+        const userRef = doc(db, 'users', firebaseUser.uid)
+        const snap = await getDoc(userRef)
 
-      if (snap.exists()) {
-        setSubscriptionStatus(
-          (snap.data().subscriptionStatus as SubscriptionStatus) ?? null
-        );
-      } else {
-        setSubscriptionStatus(null);
+        if (snap.exists()) {
+          setSubscriptionStatus(
+            (snap.data().subscriptionStatus as SubscriptionStatus) ?? null
+          )
+        } else {
+          setSubscriptionStatus(null)
+        }
+      } catch (e) {
+        console.error('Auth init error:', e)
+        setSubscriptionStatus(null)
+      } finally {
+        setLoading(false)
       }
+    })
 
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // ============================
-  // AUTH ACTIONS
-  // ============================
+    return () => unsubscribe()
+  }, [])
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-    await ensureUserDoc();
-  };
+    const credential = await signInWithEmailAndPassword(auth, email, password)
+    await ensureUserDoc(credential.user)
+  }
 
-  const signUp = async (
-    email: string,
-    password: string,
-    displayName?: string
-  ) => {
-    const credential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+  const signUp = async (email: string, password: string, displayName?: string) => {
+    const credential = await createUserWithEmailAndPassword(auth, email, password)
 
     if (displayName) {
-      await updateProfile(credential.user, { displayName });
+      await updateProfile(credential.user, { displayName })
     }
 
-    await ensureUserDoc();
-  };
+    await ensureUserDoc(credential.user)
+  }
 
   const logout = async () => {
-    await signOut(auth);
-  };
+    await signOut(auth)
+  }
 
   const resetPassword = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
-  };
+    await sendPasswordResetEmail(auth, email)
+  }
 
   return (
     <AuthContext.Provider
@@ -131,17 +113,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
 
-// ============================
-// HOOK
-// ============================
-
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider')
   }
-  return context;
+  return context
 }

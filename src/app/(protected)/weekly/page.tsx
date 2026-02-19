@@ -1,17 +1,23 @@
+// src/app/(protected)/weekly/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PagePadding, Container } from '@/components/layout'
 import { Button, Label } from '@/components/ui'
+
 import {
   weeklyProducts as staticWeeklyProducts,
   outfitLooks,
 } from '@/lib/products/data'
+
 import { PRODUCT_CATEGORIES, type Product } from '@/lib/products/types'
+
 import { ProductCard } from '@/components/products/ProductCard'
-import OutfitCard from '@/components/products/OutfitCard'
+import { OutfitCard } from '@/components/products/OutfitCard'
+
 import { StructuredData } from '@/components/seo/StructuredData'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+
 import { getWeeklyProducts } from '@/lib/firebase/weekly'
 
 const categoryOptions = [
@@ -22,6 +28,7 @@ const categoryOptions = [
 export default function WeeklyPage() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [showOutfits, setShowOutfits] = useState(false)
+
   const [cmsProducts, setCmsProducts] = useState<Product[]>([])
   const [loadingCms, setLoadingCms] = useState(true)
 
@@ -40,46 +47,44 @@ export default function WeeklyPage() {
     load()
   }, [])
 
-  const allProducts: Product[] = [...cmsProducts, ...staticWeeklyProducts]
+  const allProducts: Product[] = useMemo(() => {
+    return [...staticWeeklyProducts, ...cmsProducts]
+  }, [cmsProducts])
 
-  const filteredProducts =
-    activeCategory === 'all'
-      ? allProducts
-      : allProducts.filter(
-          (product) =>
-            product.category.toLowerCase().replace(/\s+/g, '-') ===
-            activeCategory
-        )
+  const filteredProducts = useMemo(() => {
+    if (activeCategory === 'all') return allProducts
+    return allProducts.filter(
+      (product) =>
+        product.category.toLowerCase().replace(/\s+/g, '-') === activeCategory
+    )
+  }, [activeCategory, allProducts])
 
-  const featuredProducts = allProducts.filter((product) => product.featured)
-  const featuredOutfits = outfitLooks.filter((outfit) => outfit.featured)
+  const featuredProducts = useMemo(() => {
+    return allProducts.filter((product) => product.featured)
+  }, [allProducts])
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Weekly Finds',
-    description:
-      'Curated weekly fashion finds including products, deals, and outfit inspiration for men.',
-    url: 'https://elevatedgent.com/weekly',
-  }
+  const featuredOutfits = useMemo(() => {
+    return outfitLooks.filter((outfit) => outfit.featured)
+  }, [])
 
   return (
     <ProtectedRoute>
-      <StructuredData data={structuredData} />
+      <StructuredData pageKey="weekly" />
 
       {/* Hero Section */}
       <section className="py-16">
         <PagePadding>
           <Container>
             <div className="text-center space-y-8">
-              <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold">
-                WEEKLY FINDS
-              </h1>
+              <div className="overflow-hidden px-4">
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
+                  WEEKLY FINDS
+                </h1>
+              </div>
 
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto">
-                Curated weekly selections featuring the best finds, deals,
-                budget-friendly options, luxury pieces, accessories, and
-                emerging brands in men&apos;s fashion.
+              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
+                Curated weekly selections featuring the best finds, deals, budget-friendly options,
+                luxury pieces, accessories, and emerging brands in men&apos;s fashion.
               </p>
 
               <div className="flex justify-center gap-4 pt-4">
@@ -89,6 +94,7 @@ export default function WeeklyPage() {
                 >
                   Weekly Products
                 </Button>
+
                 <Button
                   variant={showOutfits ? 'default' : 'outline'}
                   onClick={() => setShowOutfits(true)}
@@ -106,11 +112,10 @@ export default function WeeklyPage() {
         <PagePadding>
           <Container>
             <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-                {showOutfits
-                  ? 'Featured Outfit Looks'
-                  : 'Featured This Week'}
+              <h2 className="text-2xl md:text-3xl font-semibold font-sans mb-4">
+                {showOutfits ? 'Featured Outfit Looks' : 'Featured This Week'}
               </h2>
+
               <p className="text-gray-600 font-serif">
                 {showOutfits
                   ? 'Complete outfit inspiration with shoppable looks'
@@ -126,7 +131,7 @@ export default function WeeklyPage() {
                   {featuredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white rounded-lg p-6 border"
+                      className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 p-6"
                     >
                       <ProductCard product={product} />
                     </div>
@@ -144,7 +149,7 @@ export default function WeeklyPage() {
         </PagePadding>
       </section>
 
-      {/* Main Content */}
+      {/* Content Section */}
       {!showOutfits ? (
         <section className="py-16">
           <PagePadding>
@@ -154,11 +159,7 @@ export default function WeeklyPage() {
                   {categoryOptions.map((category) => (
                     <Label
                       key={category.id}
-                      variant={
-                        activeCategory === category.id
-                          ? 'inverse'
-                          : 'default'
-                      }
+                      variant={activeCategory === category.id ? 'inverse' : 'default'}
                       onClick={() => setActiveCategory(category.id)}
                       className="cursor-pointer"
                     >
@@ -168,6 +169,7 @@ export default function WeeklyPage() {
                 </div>
               </div>
 
+              {/* Products Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
@@ -180,6 +182,18 @@ export default function WeeklyPage() {
         <section className="py-16">
           <PagePadding>
             <Container>
+              <div className="text-center mb-12">
+                <h3 className="text-xl font-semibold font-sans mb-4">
+                  Complete Outfit Inspiration
+                </h3>
+
+                <p className="text-gray-600 font-serif max-w-2xl mx-auto">
+                  Browse curated outfit combinations with direct links to shop each piece.
+                  Perfect for effortless styling and wardrobe building.
+                </p>
+              </div>
+
+              {/* All Outfits Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {outfitLooks.map((outfit) => (
                   <OutfitCard key={outfit.id} outfit={outfit} />

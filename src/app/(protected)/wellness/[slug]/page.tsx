@@ -1,108 +1,50 @@
-"use client";
+// src/app/(protected)/wellness/page.tsx
+'use client'
 
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import { StructuredData } from '@/components/seo/StructuredData'
+import { ArticleCard } from '@/components/articles/ArticleCard'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
+import staticArticles from '@/lib/articles/data'
 
-import {
-  getWellnessItemBySlug,
-  type WellnessItem,
-} from "@/lib/firebase/wellness";
-
-export default function WellnessSlugPage() {
-  const params = useParams();
-  const slugParam = params?.slug;
-
-  const slug = useMemo(() => {
-    const raw = Array.isArray(slugParam) ? slugParam[0] : slugParam;
-    if (!raw) return "";
-
-    try {
-      return decodeURIComponent(String(raw)).trim().toLowerCase();
-    } catch {
-      return String(raw).trim().toLowerCase();
-    }
-  }, [slugParam]);
-
-  const [item, setItem] = useState<WellnessItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [missing, setMissing] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-
-    async function load() {
-      if (!slug) return;
-
-      setLoading(true);
-      setMissing(false);
-
-      try {
-        const doc = await getWellnessItemBySlug(slug);
-        if (!alive) return;
-
-        if (!doc) {
-          setItem(null);
-          setMissing(true);
-        } else {
-          setItem(doc);
-          setMissing(false);
-        }
-      } catch (e) {
-        console.error("Wellness load error:", e);
-        if (!alive) return;
-        setItem(null);
-        setMissing(true);
-      } finally {
-        if (!alive) return;
-        setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      alive = false;
-    };
-  }, [slug]);
-
+export default function WellnessPage() {
   return (
     <ProtectedRoute>
-      <section>
+      <StructuredData pageKey="wellness" />
+
+      {/* Hero Section */}
+      <section className="py-16">
         <PagePadding>
-          <Container className="max-w-3xl pb-24">
-            {loading ? (
-              <div className="min-h-[40vh] flex items-center justify-center">
-                <p className="text-sm text-gray-500">Loading…</p>
-              </div>
-            ) : missing ? (
-              <div className="min-h-[40vh] flex items-center justify-center">
-                <p className="text-sm text-gray-600">
-                  Wellness article not found.
-                </p>
-              </div>
-            ) : (
-              <>
-                <h1 className="text-4xl font-bold mb-4">
-                  {item?.title ?? "Wellness"}
+          <Container>
+            <div className="text-center space-y-8">
+              <div className="overflow-hidden px-4">
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
+                  GROOMING, HEALTH &amp; WELLNESS
                 </h1>
+              </div>
+              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
+                Build the foundation for timeless style. Expert advice on grooming, fitness,
+                and wellness essentials that complement your elevated wardrobe because
+                confidence starts from within.
+              </p>
+            </div>
+          </Container>
+        </PagePadding>
+      </section>
 
-                {item?.excerpt ? (
-                  <p className="text-lg text-gray-600 mb-8">{item.excerpt}</p>
-                ) : null}
-
-                {item?.content ? (
-                  <div
-                    className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: item.content }}
-                  />
-                ) : null}
-              </>
-            )}
+      {/* Articles Grid */}
+      <section className="py-16">
+        <PagePadding>
+          <Container>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(staticArticles ?? []).map((article: any) => (
+                <ArticleCard key={article.id ?? article.slug} article={article} />
+              ))}
+            </div>
           </Container>
         </PagePadding>
       </section>
     </ProtectedRoute>
-  );
+  )
 }
