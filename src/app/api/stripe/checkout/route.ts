@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -22,13 +23,46 @@ function resolveBaseUrl(request: NextRequest) {
   throw new Error("Unable to determine app URL");
 }
 
+function getBearerToken(request: NextRequest) {
+  const authorization = request.headers.get("authorization");
+
+  if (!authorization || !authorization.startsWith("Bearer ")) {
+    throw new Error("Missing or invalid authorization token");
+  }
+
+  return authorization.slice("Bearer ".length).trim();
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const token = getBearerToken(request);
+    const decoded = await adminAuth.verifyIdToken(token);
+
+    const userDoc = await adminDb.collection("users").doc(decoded.uid).get();
+    if (!userDoc.exists) {
+      throw new Error("User profile not found");
+    }
+
+    const userData = userDoc.data() || {};
+    const email =
+      decoded.email ||
+      (typeof userData.email === "string" ? userData.email : null);
+
+    if (!email) {
+      throw new Error("Authenticated user email is required");
+    }
+
     const baseUrl = resolveBaseUrl(request);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
+      customer_email: email,
+      client_reference_id: decoded.uid,
+      metadata: {
+        appUid: decoded.uid,
+        appEmail: email,
+      },
       line_items: [
         {
           price_data: {
