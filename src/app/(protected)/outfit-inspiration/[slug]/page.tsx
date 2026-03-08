@@ -52,6 +52,7 @@ export default async function OutfitPage({
     finalOutfit = {
       id: cmsDoc.slug || cmsDoc.id,
       title: cmsDoc.title,
+      slug: cmsDoc.slug || cmsDoc.id,
       description: cmsDoc.description,
       heroImage: cmsDoc.heroImage,
       gallery: cmsDoc.galleryImages ?? [],

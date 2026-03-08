@@ -15,15 +15,24 @@ type Props = {
 function toOutfitLook(input: Partial<OutfitLook> & { id: string; title: string }): OutfitLook {
   return {
     id: input.id,
+    slug: input.slug ?? input.id,
     title: input.title,
     description: input.description ?? '',
     heroImage: input.heroImage ?? '/images/placeholder-outfit.jpg',
+    gallery: input.gallery ?? [],
     occasion: input.occasion ?? '',
     season: input.season ?? '',
     styleType: input.styleType ?? '',
     products: input.products ?? [],
     totalPrice: typeof input.totalPrice === 'number' ? input.totalPrice : 0,
     featured: typeof input.featured === 'boolean' ? input.featured : false,
+    createdAt: input.createdAt,
+    updatedAt: input.updatedAt,
+    sortWeight: input.sortWeight,
+    viewCount: input.viewCount,
+    clickCount: input.clickCount,
+    lastViewedAt: input.lastViewedAt,
+    lastClickedAt: input.lastClickedAt,
   }
 }
 
@@ -55,7 +64,6 @@ export default function OutfitFilterClient({ outfits, filterMap }: Props) {
 
   return (
     <div className="space-y-10">
-      {/* Filters */}
       <div className="flex justify-center">
         <div className="flex gap-2 flex-wrap justify-center">
           {filterOptions.map((id) => (
@@ -71,14 +79,12 @@ export default function OutfitFilterClient({ outfits, filterMap }: Props) {
         </div>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredOutfits.map((outfit) => (
           <OutfitCard key={outfit.id} outfit={outfit} />
         ))}
       </div>
 
-      {/* Empty */}
       {filteredOutfits.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-sm text-gray-500">No outfits found yet.</p>
