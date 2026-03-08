@@ -1,25 +1,39 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+function resolveBaseUrl(request: NextRequest) {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
 
-    if (!baseUrl) {
-      throw new Error("NEXT_PUBLIC_APP_URL is not defined");
+  if (process.env.VERCEL_URL) {
+    if (process.env.VERCEL_URL.startsWith("http")) {
+      return process.env.VERCEL_URL;
     }
+
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) return origin;
+
+  throw new Error("Unable to determine app URL");
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const baseUrl = resolveBaseUrl(request);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
-
       line_items: [
         {
           price_data: {
             currency: "usd",
-            unit_amount: 1000, // $10.00 in cents
+            unit_amount: 1000,
             recurring: {
               interval: "month",
             },
@@ -30,8 +44,6 @@ export async function POST() {
           quantity: 1,
         },
       ],
-
-      // ✅ FIXED PATH — MATCHES YOUR PROJECT
       success_url: `${baseUrl}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/subscribe`,
     });
