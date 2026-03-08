@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase/admin";
 import { sendEmail } from "@/lib/auth/email/sendEmail";
 
@@ -33,35 +34,72 @@ export async function POST(req: Request) {
 
   try {
     switch (event.type) {
-      // ✅ SUBSCRIPTION CREATED
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        const email = session.customer_details?.email;
-        if (!email) break;
+        const uid =
+          typeof session.metadata?.appUid === "string"
+            ? session.metadata.appUid
+            : typeof session.client_reference_id === "string"
+              ? session.client_reference_id
+              : null;
 
-        await db.collection("stripeCheckoutSessions").doc(session.id).set({
-          email,
-          stripeCustomerId: session.customer,
-          stripeSubscriptionId: session.subscription,
-          subscriptionStatus: "active",
-          createdAt: StripeTimestamp(),
-        });
+        const email =
+          session.customer_details?.email ||
+          (typeof session.metadata?.appEmail === "string"
+            ? session.metadata.appEmail
+            : null);
 
-        await sendEmail({
-          to: email,
-          subject: "Your Elevated Gentleman subscription is active",
-          html: `
-            <h2>Welcome 🎉</h2>
-            <p>Your subscription to <strong>Elevated Gentleman</strong> is now active.</p>
-            <p>You can log in anytime to access premium content.</p>
-          `,
-        });
+        if (uid) {
+          await db.collection("users").doc(uid).set(
+            {
+              email: email ?? undefined,
+              role: "subscriber",
+              subscriptionStatus: "active",
+              stripeCustomerId:
+                typeof session.customer === "string" ? session.customer : null,
+              stripeSubscriptionId:
+                typeof session.subscription === "string"
+                  ? session.subscription
+                  : null,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              subscriptionLinkedAt: admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+          );
+        }
+
+        await db.collection("stripeCheckoutSessions").doc(session.id).set(
+          {
+            uid,
+            email,
+            stripeCustomerId:
+              typeof session.customer === "string" ? session.customer : null,
+            stripeSubscriptionId:
+              typeof session.subscription === "string"
+                ? session.subscription
+                : null,
+            subscriptionStatus: "active",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        if (email) {
+          await sendEmail({
+            to: email,
+            subject: "Your Elevated Gentleman subscription is active",
+            html: `
+              <h2>Welcome 🎉</h2>
+              <p>Your subscription to <strong>Elevated Gentleman</strong> is now active.</p>
+              <p>You can log in anytime to access premium content.</p>
+            `,
+          });
+        }
 
         break;
       }
 
-      // 🟠 PAYMENT FAILED
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
 
@@ -73,23 +111,26 @@ export async function POST(req: Request) {
         for (const doc of usersSnap.docs) {
           await doc.ref.update({
             subscriptionStatus: "past_due",
-            lastPaymentFailedAt: StripeTimestamp(),
+            lastPaymentFailedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
-          await sendEmail({
-            to: doc.data().email,
-            subject: "Payment failed – action required",
-            html: `
-              <p>We couldn’t process your latest subscription payment.</p>
-              <p>Please update your payment method to avoid losing access.</p>
-            `,
-          });
+          const userEmail = doc.data().email;
+          if (userEmail) {
+            await sendEmail({
+              to: userEmail,
+              subject: "Payment failed – action required",
+              html: `
+                <p>We couldn’t process your latest subscription payment.</p>
+                <p>Please update your payment method to avoid losing access.</p>
+              `,
+            });
+          }
         }
 
         break;
       }
 
-      // 🔴 SUBSCRIPTION CANCELLED
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
 
@@ -101,23 +142,27 @@ export async function POST(req: Request) {
         for (const doc of usersSnap.docs) {
           await doc.ref.update({
             subscriptionStatus: "inactive",
-            subscriptionCancelledAt: StripeTimestamp(),
+            subscriptionCancelledAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
-          await sendEmail({
-            to: doc.data().email,
-            subject: "Subscription cancelled",
-            html: `
-              <p>Your Elevated Gentleman subscription has been cancelled.</p>
-              <p>You’ll retain access until the end of the billing period.</p>
-            `,
-          });
+          const userEmail = doc.data().email;
+          if (userEmail) {
+            await sendEmail({
+              to: userEmail,
+              subject: "Subscription cancelled",
+              html: `
+                <p>Your Elevated Gentleman subscription has been cancelled.</p>
+                <p>You’ll retain access until the end of the billing period.</p>
+              `,
+            });
+          }
         }
 
         break;
       }
 
-      // 🟢 RENEWAL SUCCEEDED
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
 
@@ -129,7 +174,8 @@ export async function POST(req: Request) {
         for (const doc of usersSnap.docs) {
           await doc.ref.update({
             subscriptionStatus: "active",
-            lastPaymentAt: StripeTimestamp(),
+            lastPaymentAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
         }
 
@@ -145,12 +191,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
-
-function StripeTimestamp() {
-  // Firestore server timestamp without importing firebase-admin here
-  // (adminDb comes from the initialized Admin SDK module)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const firestoreAny = (adminDb as any);
-  return firestoreAny.constructor.FieldValue.serverTimestamp();
 }

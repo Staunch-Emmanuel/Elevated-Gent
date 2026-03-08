@@ -1,4 +1,3 @@
-// src/app/subscribe/page.tsx
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -6,9 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
 import { SERVICE_PRICES } from '@/lib/stripe/client'
+import { useAuth } from '@/lib/firebase/auth'
 
 export default function SubscribePage() {
   const [loading, setLoading] = useState(false)
+  const { user } = useAuth()
 
   const monthly = SERVICE_PRICES['monthly-subscription']
 
@@ -16,20 +17,27 @@ export default function SubscribePage() {
     const cents = typeof monthly?.price === 'number' ? monthly.price : 0
     const dollars = cents / 100
 
-    // Keep it simple so it matches Mark UI exactly
     if (!Number.isFinite(dollars) || dollars <= 0) return '$0'
     if (Number.isInteger(dollars)) return `$${dollars}`
     return `$${dollars.toFixed(2)}`
   }, [monthly?.price])
 
   const handleSubscribe = async () => {
+    if (!user) {
+      window.location.href = '/auth/signin?next=/subscribe'
+      return
+    }
+
     setLoading(true)
 
     try {
+      const token = await user.getIdToken()
+
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -55,7 +63,6 @@ export default function SubscribePage() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
       <div className="absolute inset-0">
         <Image
           src="/images/Image-10.jpeg"
@@ -67,11 +74,9 @@ export default function SubscribePage() {
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
-      {/* Modal (Mark style) */}
       <div className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
         <div className="bg-white rounded-lg max-w-md w-full p-8 shadow-xl relative">
           <div className="text-center space-y-6">
-            {/* Icon */}
             <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto">
               <svg
                 className="w-8 h-8 text-white"
@@ -88,18 +93,15 @@ export default function SubscribePage() {
               </svg>
             </div>
 
-            {/* Title */}
             <h1 className="text-3xl font-semibold font-sans">
               Welcome to The Elevated Gentleman
             </h1>
 
-            {/* Description */}
             <p className="font-serif text-gray-600">
               Subscribe for just {displayPrice}/month to unlock premium styling
               services, curated collections, and exclusive content.
             </p>
 
-            {/* Price */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <div className="text-4xl font-semibold mb-2">
                 {displayPrice}
@@ -109,7 +111,6 @@ export default function SubscribePage() {
               </div>
             </div>
 
-            {/* Benefits */}
             <ul className="text-left space-y-3 text-sm font-serif">
               <li className="flex items-start">
                 <svg
@@ -172,7 +173,6 @@ export default function SubscribePage() {
               </li>
             </ul>
 
-            {/* Button */}
             <div className="space-y-3">
               <Button
                 onClick={handleSubscribe}

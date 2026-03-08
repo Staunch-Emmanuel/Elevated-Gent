@@ -1,4 +1,3 @@
-// src/components/auth/ProtectedRoute.tsx
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
@@ -22,15 +21,21 @@ export default function ProtectedRoute({
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    if (loading) return;
+    let mounted = true;
 
-    if (!user) {
-      router.replace(`/auth/signin?next=${pathname}`);
-      return;
-    }
+    async function checkAccess() {
+      if (loading) return;
 
-    getUserData(user.uid)
-      .then((data) => {
+      if (!user) {
+        router.replace(`/auth/signin?next=${pathname}`);
+        return;
+      }
+
+      try {
+        const data = await getUserData(user.uid);
+
+        if (!mounted) return;
+
         if (requireAdmin && data.role !== "admin") {
           router.replace("/");
           return;
@@ -46,10 +51,17 @@ export default function ProtectedRoute({
         }
 
         setAllowed(true);
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error("ProtectedRoute access check failed:", error);
         router.replace("/");
-      });
+      }
+    }
+
+    checkAccess();
+
+    return () => {
+      mounted = false;
+    };
   }, [user, loading, requireAdmin, requireSubscription, router, pathname]);
 
   if (!allowed) {

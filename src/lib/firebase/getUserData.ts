@@ -1,8 +1,18 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 
-export type UserRole = "user" | "admin";
-export type SubscriptionStatus = "active" | "inactive";
+export type UserRole = "subscriber" | "admin";
+export type SubscriptionStatus =
+  | "active"
+  | "inactive"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "paused"
+  | "none";
 
 export interface UserData {
   role: UserRole;
@@ -15,7 +25,7 @@ export async function getUserData(uid: string): Promise<UserData> {
 
   if (!snap.exists()) {
     return {
-      role: "user",
+      role: "subscriber",
       subscriptionStatus: "inactive",
     };
   }
@@ -23,8 +33,10 @@ export async function getUserData(uid: string): Promise<UserData> {
   const data = snap.data();
 
   return {
-    role: data.role === "admin" ? "admin" : "user",
+    role: data.role === "admin" ? "admin" : "subscriber",
     subscriptionStatus:
-      data.subscriptionStatus === "active" ? "active" : "inactive",
+      typeof data.subscriptionStatus === "string"
+        ? (data.subscriptionStatus as SubscriptionStatus)
+        : "inactive",
   };
 }
