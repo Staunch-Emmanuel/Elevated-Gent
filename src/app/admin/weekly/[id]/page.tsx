@@ -5,8 +5,17 @@ import { useRouter, useParams } from 'next/navigation'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
+import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 import { PRODUCT_CATEGORIES } from '@/lib/products/types'
 import { getWeeklyById, updateWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
 
 export default function EditWeeklyPage() {
   const router = useRouter()
@@ -38,6 +47,8 @@ export default function EditWeeklyPage() {
   const [sizesInput, setSizesInput] = useState('')
   const [colorsInput, setColorsInput] = useState('')
 
+  const [error, setError] = useState('')
+
   useEffect(() => {
     async function load() {
       try {
@@ -66,9 +77,6 @@ export default function EditWeeklyPage() {
         setSizesInput((data.sizes || []).join(', '))
         setColorsInput((data.colors || []).join(', '))
 
-        // WeeklyItem only has `image` (singular). Keep the "Additional Images" UI,
-        // but treat it as a helper input that defaults to empty.
-        // If you later add `images` to the type/schema, you can wire it back.
         setImagesInput('')
       } catch (err) {
         console.error(err)
@@ -89,6 +97,7 @@ export default function EditWeeklyPage() {
     if (!item) return
 
     setSaving(true)
+    setError('')
 
     const tags = tagsInput
       .split(',')
@@ -105,9 +114,6 @@ export default function EditWeeklyPage() {
       .map((t) => t.trim())
       .filter(Boolean)
 
-    // WeeklyItem does not support `images`. If the admin entered extra URLs,
-    // we won't persist them (no schema/type support).
-    // Keep parsing to avoid unused-state lint issues in the future if you add it back.
     void imagesInput
       .split(',')
       .map((t) => t.trim())
@@ -115,6 +121,7 @@ export default function EditWeeklyPage() {
 
     try {
       await updateWeekly(id, {
+        slug: slugify(title),
         title,
         brand,
         description,
@@ -134,13 +141,22 @@ export default function EditWeeklyPage() {
       router.push('/admin/weekly')
     } catch (err) {
       console.error(err)
-      alert('Failed to save changes.')
-    } finally {
+      setError('Failed to save changes.')
       setSaving(false)
     }
   }
 
-  if (loading) return <p>Loading…</p>
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <PagePadding>
+          <Container>
+            <p>Loading…</p>
+          </Container>
+        </PagePadding>
+      </ProtectedRoute>
+    )
+  }
 
   return (
     <ProtectedRoute>
@@ -149,7 +165,12 @@ export default function EditWeeklyPage() {
           <h1 className="text-2xl font-semibold mb-6">Edit Weekly Item</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
+            {error ? (
+              <p className="text-sm text-red-600 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            ) : null}
+
             <div>
               <label className="block text-sm mb-1">Title</label>
               <input
@@ -158,9 +179,12 @@ export default function EditWeeklyPage() {
                 className="border p-2 rounded w-full"
                 required
               />
+              <p className="mt-1 text-xs text-gray-500">
+                URL slug will be:
+                <span className="ml-1 font-mono">/weekly/{slugify(title)}</span>
+              </p>
             </div>
 
-            {/* Brand */}
             <div>
               <label className="block text-sm mb-1">Brand</label>
               <input
@@ -171,7 +195,6 @@ export default function EditWeeklyPage() {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm mb-1">Description</label>
               <textarea
@@ -182,18 +205,17 @@ export default function EditWeeklyPage() {
               />
             </div>
 
-            {/* Main Image */}
-            <div>
-              <label className="block text-sm mb-1">Main Image URL</label>
-              <input
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className="border p-2 rounded w-full"
-                required
-              />
-            </div>
+            <CMSImageUploadField
+              label="Main Image"
+              folder="weekly"
+              documentSlug={slugify(title || brand || id)}
+              mode="single"
+              value={image}
+              onChange={(value) => setImage(typeof value === 'string' ? value : '')}
+              helpText="Replace or remove the saved weekly product image."
+              disabled={saving}
+            />
 
-            {/* Additional Images */}
             <div>
               <label className="block text-sm mb-1">
                 Additional Image URLs (comma-separated)
@@ -202,11 +224,10 @@ export default function EditWeeklyPage() {
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
                 className="border p-2 rounded w-full min-h-[80px]"
-                placeholder="(Not saved yet — WeeklyItem schema currently supports only a single image URL.)"
+                placeholder="Not saved yet — WeeklyItem schema currently supports only a single image URL."
               />
             </div>
 
-            {/* Price */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Price</label>
@@ -229,7 +250,6 @@ export default function EditWeeklyPage() {
               </div>
             </div>
 
-            {/* Category */}
             <div>
               <label className="block text-sm mb-1">Category</label>
               <select
@@ -245,7 +265,6 @@ export default function EditWeeklyPage() {
               </select>
             </div>
 
-            {/* Links */}
             <div>
               <label className="block text-sm mb-1">Product Link</label>
               <input
@@ -266,7 +285,6 @@ export default function EditWeeklyPage() {
               />
             </div>
 
-            {/* Tags / Sizes / Colors */}
             <div>
               <label className="block text-sm mb-1">Tags (comma-separated)</label>
               <input
@@ -296,7 +314,6 @@ export default function EditWeeklyPage() {
               </div>
             </div>
 
-            {/* Flags */}
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 text-sm">
                 <input

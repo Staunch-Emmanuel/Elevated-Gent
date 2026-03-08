@@ -11,7 +11,7 @@ export const NAVIGATION_LINKS = [
   { name: 'Personal Styling', href: '/personal-styling' },
   { name: 'Outfit Inspiration', href: '/outfit-inspiration' },
   { name: 'Weekly Finds', href: '/weekly' },
-  { name: 'Wellness', href: '/wellness' },
+  { name: 'Articles', href: '/articles' },
   { name: 'Account', href: '/account' },
 ] as const
 
@@ -79,4 +79,14 @@ export const ARTICLE_OCCASIONS = [
   { id: 'evening', name: 'Evening', slug: 'evening' },
   { id: 'business', name: 'Business Casual', slug: 'business' },
   { id: 'vacation', name: 'Vacation', slug: 'vacation' },
+] as const
+
+
+export const ARTICLE_NAV_CATEGORIES = [
+  { name: 'Wellness', href: '/articles/category/wellness' },
+  { name: 'Grooming Blueprint', href: '/articles/category/blueprint' },
+  { name: 'Confidence', href: '/articles/category/confidence' },
+  { name: 'By Occasion', href: '/articles/category/occasion' },
+  { name: 'Product Reviews', href: '/articles/category/products' },
+  { name: 'Lifestyle', href: '/articles/category/lifestyle' },
 ] as const

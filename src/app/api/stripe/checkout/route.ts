@@ -19,7 +19,7 @@ export async function POST() {
         {
           price_data: {
             currency: "usd",
-            unit_amount: 700, // $7.00 in cents
+            unit_amount: 1000, // $10.00 in cents
             recurring: {
               interval: "month",
             },

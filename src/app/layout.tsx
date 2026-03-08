@@ -3,11 +3,10 @@ import { Bitter } from "next/font/google";
 import "./globals.css";
 import "@/components/editor/editor.css";
 
-import Header from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { APP_CONFIG } from "@/lib/constants";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { CartProvider } from "@/lib/hooks/useCart";
+import AppShell from "@/components/layout/AppShell";
 
 const bitter = Bitter({
   subsets: ["latin"],
@@ -30,11 +29,7 @@ export default function RootLayout({
       <body className={bitter.variable}>
         <AuthProvider>
           <CartProvider>
-            <div className="page-wrapper">
-              <Header />
-              <main className="main-wrapper">{children}</main>
-              <Footer />
-            </div>
+            <AppShell>{children}</AppShell>
           </CartProvider>
         </AuthProvider>
       </body>

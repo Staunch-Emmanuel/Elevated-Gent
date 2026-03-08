@@ -6,6 +6,14 @@ function getPrivateKey() {
   return key.includes("\\n") ? key.replace(/\\n/g, "\n") : key;
 }
 
+function getStorageBucket() {
+  return (
+    process.env.FIREBASE_ADMIN_STORAGE_BUCKET ||
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    undefined
+  );
+}
+
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -13,8 +21,12 @@ if (!admin.apps.length) {
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
       privateKey: getPrivateKey(),
     }),
+    storageBucket: getStorageBucket(),
   });
 }
 
 export const adminAuth = admin.auth();
 export const adminDb = admin.firestore();
+export const adminStorage = admin.storage();
+
+export default admin;

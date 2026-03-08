@@ -1,144 +1,136 @@
-'use client'
+"use client";
 
-import { useEffect, useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
-import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import { PagePadding, Container } from '@/components/layout'
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 
-import { weeklyProducts as staticWeeklyProducts } from '@/lib/products/data'
-import { getAllWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
-import { createOutfit } from '@/lib/firebase/outfits'
-import { OUTFIT_OCCASIONS, STYLE_TYPES } from '@/lib/products/types'
+import { weeklyProducts as staticWeeklyProducts } from "@/lib/products/data";
+import { getAllWeekly, type WeeklyItem } from "@/lib/firebase/weekly";
+import { createOutfit } from "@/lib/firebase/outfits";
+import { OUTFIT_OCCASIONS, STYLE_TYPES } from "@/lib/products/types";
 
-/** Local helper: basic slug generator */
 function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-/** Local helper: parse price string like "$129" or "€430" → number */
 function parsePrice(price: string): number {
-  if (!price) return 0
-  const numeric = parseFloat(price.replace(/[^\d.-]/g, ''))
-  return isNaN(numeric) ? 0 : numeric
+  if (!price) return 0;
+  const numeric = parseFloat(price.replace(/[^\d.-]/g, ""));
+  return isNaN(numeric) ? 0 : numeric;
 }
 
 interface ProductOption {
-  id: string
-  title: string
-  brand: string
-  price: string
-  source: 'static' | 'cms'
+  id: string;
+  title: string;
+  brand: string;
+  price: string;
+  source: "static" | "cms";
 }
 
 export default function AdminNewOutfitPage() {
-  const router = useRouter()
+  const router = useRouter();
 
-  // Form state
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [heroImage, setHeroImage] = useState('')
-  const [galleryInput, setGalleryInput] = useState('') // newline-separated URLs
-  const [occasion, setOccasion] = useState<string>('')
-  const [season, setSeason] = useState<string>('All Seasons')
-  const [styleType, setStyleType] = useState<string>('')
-  const [featured, setFeatured] = useState(false)
-  const [sortWeight, setSortWeight] = useState<number>(0)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [heroImage, setHeroImage] = useState("");
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [occasion, setOccasion] = useState<string>("");
+  const [season, setSeason] = useState<string>("All Seasons");
+  const [styleType, setStyleType] = useState<string>("");
+  const [featured, setFeatured] = useState(false);
+  const [sortWeight, setSortWeight] = useState<number>(0);
 
-  const [products, setProducts] = useState<ProductOption[]>([])
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([])
+  const [products, setProducts] = useState<ProductOption[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
-  const [saving, setSaving] = useState(false)
-  const [loadingProducts, setLoadingProducts] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load static + CMS weekly products for selection
   useEffect(() => {
     async function loadProducts() {
       try {
-        setLoadingProducts(true)
+        setLoadingProducts(true);
 
-        // Static weekly products
         const staticOptions: ProductOption[] = staticWeeklyProducts.map((p) => ({
           id: p.id,
           title: p.title,
           brand: p.brand,
           price: p.price,
-          source: 'static',
-        }))
+          source: "static",
+        }));
 
-        // CMS weekly products
-        const cmsDocs: WeeklyItem[] = await getAllWeekly()
+        const cmsDocs: WeeklyItem[] = await getAllWeekly();
         const cmsOptions: ProductOption[] = cmsDocs.map((p) => ({
           id: p.id,
           title: p.title,
           brand: p.brand,
           price: p.price,
-          source: 'cms',
-        }))
+          source: "cms",
+        }));
 
         const merged = [...cmsOptions, ...staticOptions].sort((a, b) =>
-          a.title.localeCompare(b.title),
-        )
+          a.title.localeCompare(b.title)
+        );
 
-        setProducts(merged)
+        setProducts(merged);
       } catch (err) {
-        console.error('Error loading weekly products:', err)
-        setError('Failed to load weekly products.')
+        console.error("Error loading weekly products:", err);
+        setError("Failed to load weekly products.");
       } finally {
-        setLoadingProducts(false)
+        setLoadingProducts(false);
       }
     }
 
-    loadProducts()
-  }, [])
+    loadProducts();
+  }, []);
 
-  // Compute totalPrice from selected products
-  const totalPrice = selectedProductIds.reduce((sum, id) => {
-    const product = products.find((p) => p.id === id)
-    if (!product) return sum
-    return sum + parsePrice(product.price)
-  }, 0)
+  const totalPrice = useMemo(() => {
+    return selectedProductIds.reduce((sum, id) => {
+      const product = products.find((p) => p.id === id);
+      if (!product) return sum;
+      return sum + parsePrice(product.price);
+    }, 0);
+  }, [products, selectedProductIds]);
 
   function handleToggleProduct(id: string) {
     setSelectedProductIds((current) =>
       current.includes(id)
         ? current.filter((x) => x !== id)
-        : [...current, id],
-    )
+        : [...current, id]
+    );
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (!title.trim()) {
-      setError('Title is required.')
-      return
+      setError("Title is required.");
+      return;
     }
 
     if (!heroImage.trim()) {
-      setError('Hero image URL is required.')
-      return
+      setError("Hero image is required.");
+      return;
     }
 
     if (selectedProductIds.length === 0) {
-      setError('Select at least one product.')
-      return
+      setError("Select at least one product.");
+      return;
     }
 
-    setSaving(true)
+    setSaving(true);
 
     try {
-      const slug = slugify(title)
-      const galleryImages = galleryInput
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
+      const slug = slugify(title);
 
       await createOutfit({
         slug,
@@ -153,14 +145,14 @@ export default function AdminNewOutfitPage() {
         featured,
         totalPrice,
         sortWeight,
-      })
+      });
 
-      router.push('/admin/outfits')
+      router.push("/admin/outfits");
     } catch (err) {
-      console.error('Error creating outfit:', err)
-      setError('Failed to create outfit. Please try again.')
+      console.error("Error creating outfit:", err);
+      setError("Failed to create outfit. Please try again.");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
@@ -172,7 +164,7 @@ export default function AdminNewOutfitPage() {
             <h1 className="text-2xl font-semibold">New Outfit Look</h1>
             <button
               type="button"
-              onClick={() => router.push('/admin/outfits')}
+              onClick={() => router.push("/admin/outfits")}
               className="text-sm text-gray-500 underline"
             >
               Back to Outfits
@@ -186,11 +178,8 @@ export default function AdminNewOutfitPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Title */}
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Title
-              </label>
+              <label className="block text-sm font-medium mb-1">Title</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -200,7 +189,6 @@ export default function AdminNewOutfitPage() {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Description
@@ -214,43 +202,29 @@ export default function AdminNewOutfitPage() {
               />
             </div>
 
-            {/* Hero Image */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Hero Image URL
-              </label>
-              <input
-                value={heroImage}
-                onChange={(e) => setHeroImage(e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm"
-                placeholder="https://..."
-                required
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Main image used for the card and top of the outfit page.
-              </p>
-            </div>
+            <CMSImageUploadField
+              label="Hero Image"
+              folder="outfits"
+              documentSlug={slugify(title)}
+              mode="single"
+              value={heroImage}
+              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              helpText="Main image used for the card and top of the outfit page."
+              disabled={saving}
+            />
 
-            {/* Gallery Images */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Gallery Image URLs (optional)
-              </label>
-              <textarea
-                value={galleryInput}
-                onChange={(e) => setGalleryInput(e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm min-h-[90px]"
-                placeholder={'One image URL per line\nhttps://...\nhttps://...'}
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Optional extra images for the outfit gallery. One URL per
-                line.
-              </p>
-            </div>
+            <CMSImageUploadField
+              label="Gallery Images"
+              folder="outfits"
+              documentSlug={slugify(title)}
+              mode="multiple"
+              value={galleryImages}
+              onChange={(value) => setGalleryImages(Array.isArray(value) ? value : [])}
+              helpText="Optional extra images for the outfit gallery."
+              disabled={saving}
+            />
 
-            {/* Occasion / Season / StyleType */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Occasion */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Occasion
@@ -269,11 +243,8 @@ export default function AdminNewOutfitPage() {
                 </select>
               </div>
 
-              {/* Season */}
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Season
-                </label>
+                <label className="block text-sm font-medium mb-1">Season</label>
                 <select
                   value={season}
                   onChange={(e) => setSeason(e.target.value)}
@@ -285,7 +256,6 @@ export default function AdminNewOutfitPage() {
                 </select>
               </div>
 
-              {/* Style Type */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Style Type
@@ -305,7 +275,6 @@ export default function AdminNewOutfitPage() {
               </div>
             </div>
 
-            {/* Featured + Sort Weight */}
             <div className="flex items-center gap-6">
               <label className="inline-flex items-center gap-2 text-sm">
                 <input
@@ -332,16 +301,13 @@ export default function AdminNewOutfitPage() {
               </div>
             </div>
 
-            {/* Product selector */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Products in this outfit
               </label>
 
               {loadingProducts ? (
-                <p className="text-sm text-gray-500">
-                  Loading products…
-                </p>
+                <p className="text-sm text-gray-500">Loading products…</p>
               ) : products.length === 0 ? (
                 <p className="text-sm text-gray-500">
                   No weekly products available yet.
@@ -377,13 +343,12 @@ export default function AdminNewOutfitPage() {
               </p>
             </div>
 
-            {/* Total price */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Total Price (auto)
               </label>
               <div className="text-lg font-semibold">
-                {totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : '$0.00'}
+                {totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "$0.00"}
               </div>
               <p className="mt-1 text-xs text-gray-500">
                 This value is calculated from the selected product prices and
@@ -391,19 +356,18 @@ export default function AdminNewOutfitPage() {
               </p>
             </div>
 
-            {/* Submit */}
             <div className="pt-4">
               <button
                 type="submit"
                 disabled={saving}
                 className="inline-flex items-center px-4 py-2 rounded bg-black text-white text-sm disabled:opacity-60"
               >
-                {saving ? 'Saving…' : 'Create Outfit'}
+                {saving ? "Saving…" : "Create Outfit"}
               </button>
             </div>
           </form>
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  )
+  );
 }

@@ -1,4 +1,3 @@
-// src/components/articles/ArticleCard.tsx
 'use client'
 
 import Image from 'next/image'
@@ -15,6 +14,7 @@ export type ArticleCardArticle = {
   readTime: number
   featured?: boolean
   occasion?: string
+  href?: string
 }
 
 export interface ArticleCardProps {
@@ -28,6 +28,9 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
     day: 'numeric',
   })
 
+  const href = article.href ?? `/articles/${article.slug}`
+  const hasHeroImage = Boolean(article.heroImage && article.heroImage.trim())
+
   const getCategoryName = (category: string) => {
     const categoryMap: Record<string, string> = {
       blueprint: 'Grooming Blueprint',
@@ -35,20 +38,31 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
       occasion: 'By Occasion',
       products: 'Product Review',
       lifestyle: 'Lifestyle',
+      wellness: 'Wellness',
     }
+
     return categoryMap[category] || category
   }
 
   return (
     <article className="space-y-6 group">
-      <Link href={`/wellness/${article.slug}`}>
-        <div className="aspect-video bg-background-muted border border-black overflow-hidden relative">
-          <Image
-            src={article.heroImage}
-            alt={article.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+      <Link href={href}>
+        <div className="aspect-video bg-background-muted border border-black overflow-hidden relative flex items-center justify-center">
+          {hasHeroImage ? (
+            <Image
+              src={article.heroImage}
+              alt={article.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 px-6 text-center">
+              <span className="font-serif text-sm text-gray-500">
+                {article.title}
+              </span>
+            </div>
+          )}
+
           {article.featured ? (
             <div className="absolute top-4 right-4">
               <Label variant="inverse">Featured</Label>
@@ -67,7 +81,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
           ) : null}
         </div>
 
-        <Link href={`/wellness/${article.slug}`}>
+        <Link href={href}>
           <h3 className="text-lg font-semibold font-sans group-hover:underline">
             {article.title}
           </h3>
@@ -84,7 +98,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
         </div>
 
         <div className="pt-2">
-          <Link href={`/wellness/${article.slug}`}>
+          <Link href={href}>
             <Button variant="outline" size="sm">
               Read Article
             </Button>

@@ -1,4 +1,3 @@
-// src/app/(protected)/weekly/page.tsx
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
@@ -6,11 +5,10 @@ import { PagePadding, Container } from '@/components/layout'
 import { Button, Label } from '@/components/ui'
 
 import {
-  weeklyProducts as staticWeeklyProducts,
-  outfitLooks,
-} from '@/lib/products/data'
-
-import { PRODUCT_CATEGORIES, type Product } from '@/lib/products/types'
+  PRODUCT_CATEGORIES,
+  type Product,
+  type OutfitLook,
+} from '@/lib/products/types'
 
 import { ProductCard } from '@/components/products/ProductCard'
 import { OutfitCard } from '@/components/products/OutfitCard'
@@ -19,59 +17,136 @@ import { StructuredData } from '@/components/seo/StructuredData'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
 import { getWeeklyProducts } from '@/lib/firebase/weekly'
+import { getPublishedOutfits, type OutfitDocument } from '@/lib/firebase/outfits'
 
 const categoryOptions = [
   { id: 'all', label: 'All Categories' },
   ...PRODUCT_CATEGORIES.map((cat) => ({ id: cat.slug, label: cat.name })),
 ]
 
+function normalizeProduct(input: Partial<Product> & { id?: string }): Product {
+  return {
+    id: input.id ?? '',
+    slug: input.slug ?? '',
+    title: input.title ?? '',
+    brand: input.brand ?? '',
+    description: input.description ?? '',
+    image: input.image ?? '',
+    price: input.price ?? '',
+    originalPrice: input.originalPrice ?? '',
+    category: input.category ?? '',
+    tags: Array.isArray(input.tags) ? input.tags : [],
+    productLink: input.productLink ?? '',
+    affiliateLink: input.affiliateLink ?? '',
+    featured: Boolean(input.featured),
+    inStock: typeof input.inStock === 'boolean' ? input.inStock : true,
+    sizes: Array.isArray(input.sizes) ? input.sizes : [],
+    colors: Array.isArray(input.colors) ? input.colors : [],
+  }
+}
+
+function categoryToSlug(category: string): string {
+  return (category || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+}
+
+function buildProductMap(products: Product[]): Map<string, Product> {
+  const map = new Map<string, Product>()
+  for (const p of products) {
+    if (!p?.id) continue
+    map.set(p.id, p)
+  }
+  return map
+}
+
+function hydrateCmsOutfits(cmsOutfits: OutfitDocument[], productMap: Map<string, Product>): OutfitLook[] {
+  return cmsOutfits.map((o) => {
+    const hydratedProducts = (o.products || [])
+      .map((id) => productMap.get(id))
+      .filter(Boolean) as Product[]
+
+    return {
+      id: o.id,
+      slug: o.slug ?? '',
+      title: o.title ?? '',
+      description: o.description ?? '',
+      heroImage: o.heroImage ?? '',
+      occasion: o.occasion ?? '',
+      season: o.season ?? '',
+      styleType: o.styleType ?? '',
+      products: hydratedProducts,
+      totalPrice: typeof o.totalPrice === 'number' ? o.totalPrice : 0,
+      featured: Boolean(o.featured),
+    }
+  })
+}
+
 export default function WeeklyPage() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [showOutfits, setShowOutfits] = useState(false)
 
   const [cmsProducts, setCmsProducts] = useState<Product[]>([])
-  const [loadingCms, setLoadingCms] = useState(true)
+  const [loadingCmsProducts, setLoadingCmsProducts] = useState(true)
+
+  const [cmsOutfits, setCmsOutfits] = useState<OutfitDocument[]>([])
+  const [loadingCmsOutfits, setLoadingCmsOutfits] = useState(true)
 
   useEffect(() => {
-    async function load() {
+    async function loadWeekly() {
       try {
         const items = await getWeeklyProducts()
-        setCmsProducts(items)
+        setCmsProducts(items.map((p) => normalizeProduct(p)))
       } catch (err) {
         console.error('Error loading CMS weekly products:', err)
+        setCmsProducts([])
       } finally {
-        setLoadingCms(false)
+        setLoadingCmsProducts(false)
       }
     }
 
-    load()
+    async function loadOutfits() {
+      try {
+        const items = await getPublishedOutfits()
+        setCmsOutfits(items)
+      } catch (err) {
+        console.error('Error loading CMS outfits:', err)
+        setCmsOutfits([])
+      } finally {
+        setLoadingCmsOutfits(false)
+      }
+    }
+
+    loadWeekly()
+    loadOutfits()
   }, [])
 
-  const allProducts: Product[] = useMemo(() => {
-    return [...staticWeeklyProducts, ...cmsProducts]
+  const productMap = useMemo(() => {
+    return buildProductMap(cmsProducts)
   }, [cmsProducts])
 
   const filteredProducts = useMemo(() => {
-    if (activeCategory === 'all') return allProducts
-    return allProducts.filter(
-      (product) =>
-        product.category.toLowerCase().replace(/\s+/g, '-') === activeCategory
-    )
-  }, [activeCategory, allProducts])
+    if (activeCategory === 'all') return cmsProducts
+    return cmsProducts.filter((product) => categoryToSlug(product.category) === activeCategory)
+  }, [activeCategory, cmsProducts])
 
   const featuredProducts = useMemo(() => {
-    return allProducts.filter((product) => product.featured)
-  }, [allProducts])
+    return cmsProducts.filter((product) => Boolean(product.featured))
+  }, [cmsProducts])
+
+  const mergedOutfits: OutfitLook[] = useMemo(() => {
+    return hydrateCmsOutfits(cmsOutfits, productMap)
+  }, [cmsOutfits, productMap])
 
   const featuredOutfits = useMemo(() => {
-    return outfitLooks.filter((outfit) => outfit.featured)
-  }, [])
+    return mergedOutfits.filter((o) => Boolean(o.featured))
+  }, [mergedOutfits])
 
   return (
     <ProtectedRoute>
       <StructuredData pageKey="weekly" />
 
-      {/* Hero Section */}
       <section className="py-16">
         <PagePadding>
           <Container>
@@ -107,7 +182,6 @@ export default function WeeklyPage() {
         </PagePadding>
       </section>
 
-      {/* Featured Section */}
       <section className="py-16 bg-gray-50">
         <PagePadding>
           <Container>
@@ -124,7 +198,7 @@ export default function WeeklyPage() {
             </div>
 
             {!showOutfits ? (
-              loadingCms && staticWeeklyProducts.length === 0 ? (
+              loadingCmsProducts ? (
                 <p className="text-center">Loading products...</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -138,6 +212,8 @@ export default function WeeklyPage() {
                   ))}
                 </div>
               )
+            ) : loadingCmsOutfits ? (
+              <p className="text-center">Loading outfits...</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {featuredOutfits.map((outfit) => (
@@ -149,7 +225,6 @@ export default function WeeklyPage() {
         </PagePadding>
       </section>
 
-      {/* Content Section */}
       {!showOutfits ? (
         <section className="py-16">
           <PagePadding>
@@ -169,7 +244,6 @@ export default function WeeklyPage() {
                 </div>
               </div>
 
-              {/* Products Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
@@ -193,9 +267,8 @@ export default function WeeklyPage() {
                 </p>
               </div>
 
-              {/* All Outfits Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {outfitLooks.map((outfit) => (
+                {mergedOutfits.map((outfit) => (
                   <OutfitCard key={outfit.id} outfit={outfit} />
                 ))}
               </div>

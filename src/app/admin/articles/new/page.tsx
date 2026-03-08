@@ -1,4 +1,3 @@
-// src/app/admin/articles/new/page.tsx
 "use client";
 
 import { useState, FormEvent } from "react";
@@ -6,7 +5,16 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 import { createArticle } from "@/lib/firebase/articles";
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export default function AdminNewArticlePage() {
   const router = useRouter();
@@ -23,13 +31,7 @@ export default function AdminNewArticlePage() {
   function handleTitleChange(value: string) {
     setTitle(value);
     if (!slug) {
-      setSlug(
-        value
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "")
-      );
+      setSlug(slugify(value));
     }
   }
 
@@ -83,7 +85,7 @@ export default function AdminNewArticlePage() {
               <label className="block text-sm font-medium mb-1">Slug</label>
               <input
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => setSlug(slugify(e.target.value))}
                 className="w-full border rounded-md px-3 py-2 text-sm"
                 required
               />
@@ -99,35 +101,31 @@ export default function AdminNewArticlePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="general">General</option>
-                  <option value="wellness">Wellness</option>
-                  <option value="style">Style</option>
-                  <option value="grooming">Grooming</option>
-                  <option value="lifestyle">Lifestyle</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Hero image URL
-                </label>
-                <input
-                  value={heroImage}
-                  onChange={(e) => setHeroImage(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm"
+              >
+                <option value="general">General</option>
+                <option value="wellness">Wellness</option>
+                <option value="style">Style</option>
+                <option value="grooming">Grooming</option>
+                <option value="lifestyle">Lifestyle</option>
+              </select>
             </div>
+
+            <CMSImageUploadField
+              label="Hero Image"
+              folder="articles"
+              documentSlug={slug || slugify(title)}
+              mode="single"
+              value={heroImage}
+              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              helpText="Upload the main article image to Firebase Storage."
+              disabled={saving}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1">

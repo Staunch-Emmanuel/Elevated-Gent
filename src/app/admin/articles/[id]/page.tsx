@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 
 import {
   getArticleById,
@@ -18,9 +19,6 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-/**
- * Title → Slug (canonical)
- */
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -46,7 +44,6 @@ export default function AdminEditArticlePage({ params }: PageProps) {
   const [heroImage, setHeroImage] = useState("");
   const [content, setContent] = useState("");
 
-  // unwrap params (Next 16 types may provide params as a Promise)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -109,7 +106,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
     try {
       await updateArticle(articleId, {
         title,
-        slug, // 🔒 ALWAYS MATCH TITLE
+        slug,
         excerpt,
         category,
         heroImage,
@@ -161,6 +158,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Edit Article</h1>
             <button
+              type="button"
               onClick={handleDelete}
               className="px-3 py-1.5 rounded-md border border-red-500 text-red-600 text-xs"
             >
@@ -199,35 +197,31 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="general">General</option>
-                  <option value="wellness">Wellness</option>
-                  <option value="style">Style</option>
-                  <option value="grooming">Grooming</option>
-                  <option value="lifestyle">Lifestyle</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Hero image URL
-                </label>
-                <input
-                  value={heroImage}
-                  onChange={(e) => setHeroImage(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm"
+              >
+                <option value="general">General</option>
+                <option value="wellness">Wellness</option>
+                <option value="style">Style</option>
+                <option value="grooming">Grooming</option>
+                <option value="lifestyle">Lifestyle</option>
+              </select>
             </div>
+
+            <CMSImageUploadField
+              label="Hero Image"
+              folder="articles"
+              documentSlug={slugify(title)}
+              mode="single"
+              value={heroImage}
+              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              helpText="Replace or remove the current article hero image."
+              disabled={saving}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1">

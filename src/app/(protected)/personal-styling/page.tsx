@@ -131,7 +131,7 @@ export default function PersonalStylingPage() {
                 </div>
 
                 <div className="space-y-4 flex-grow">
-                  <div className="text-3xl font-semibold">$250</div>
+                  <div className="text-3xl font-semibold">$500</div>
                   <ul className="space-y-2 font-serif text-sm">
                     <li>• Seasonal lookbook (5 curated outfits for work, social, events, casual)</li>
                     <li>• Personal shopping: links + recommended brands/stores</li>
@@ -155,7 +155,7 @@ export default function PersonalStylingPage() {
                 </div>
 
                 <div className="space-y-4 flex-grow">
-                  <div className="text-3xl font-semibold">$500</div>
+                  <div className="text-3xl font-semibold">$750</div>
                   <ul className="space-y-2 font-serif text-sm">
                     <li>• 30min style consultation</li>
                     <li>• Seasonal lookbook (10 curated outfits for work, social, events, casual)</li>
@@ -180,7 +180,7 @@ export default function PersonalStylingPage() {
                 </div>
 
                 <div className="space-y-4 flex-grow">
-                  <div className="text-3xl font-semibold">$750</div>
+                  <div className="text-3xl font-semibold">$1,000</div>
                   <ul className="space-y-2 font-serif text-sm">
                     <li>• 1 hour style consultation (create a plan, outlook, and a view of your current closet)</li>
                     <li>• Full seasonal lookbook (20 curated outfits for work, social, events, casual)</li>

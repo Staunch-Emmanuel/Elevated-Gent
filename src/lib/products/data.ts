@@ -3,6 +3,7 @@ import { Product, OutfitLook } from './types'
 export const weeklyProducts: Product[] = [
   {
     id: 'ourlegacy-third-cut-denim',
+    slug: 'third-cut-digital-denim-print',
     title: "Third Cut Digital Denim Print",
     brand: "Our Legacy",
     description: "Produced in an Italian denim with a trompe l'oeil vintage denim print, the mens Third Cut jeans have a relaxed, wide legged fit",
@@ -20,6 +21,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'poolhouse-silverlake-crop',
+    slug: 'silverlake-crop-tee-ii',
     title: "Silverlake Crop Tee II",
     brand: "Pool House New York",
     description: "A boxy, drop-shoulder relaxed men's crop t-shirt with classic white finish. Perfect for contemporary casual styling.",
@@ -37,6 +39,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'bananarepublic-suede-trucker',
+    slug: 'suede-trucker-jacket',
     title: "Suede Trucker Jacket",
     brand: "Banana Republic",
     description: "Premium suede trucker jacket with classic western-inspired silhouette. Crafted for sophisticated casual wear.",
@@ -54,6 +57,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'acne-2021m-jeans',
+    slug: '2021m-straight-leg-jeans',
     title: "2021M Straight-Leg Jeans",
     brand: "Acne Studios",
     description: "Contemporary straight-leg jeans with premium construction and modern fit. A staple for the discerning wardrobe.",
@@ -71,6 +75,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'cos-merino-sweater',
+    slug: 'slim-merino-wool-crew-neck-sweater',
     title: "Slim Merino Wool Crew-Neck Sweater",
     brand: "COS",
     description: "A refined essential, this sweater is crafted from pure merino wool that's lightweight and soft to the touch. Cut in a slim shape with ribbed detailing.",
@@ -88,6 +93,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'california-arts-overcoat',
+    slug: 'manhattan-oversized-overcoat',
     title: "Manhattan Oversized Overcoat",
     brand: "California Arts",
     description: "Traditional Wall Street meets west coast casual. Blending precise tailoring with a minimalist, relaxed silhouette in Deep Moss.",
@@ -103,9 +109,9 @@ export const weeklyProducts: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Deep Moss", "Black", "Camel"]
   },
-  // Additional products for outfit combinations
   {
     id: 'white-dress-shirt',
+    slug: 'classic-white-dress-shirt',
     title: "Classic White Dress Shirt",
     brand: "Everlane",
     description: "Crisp, clean lines with a modern fit. Made from premium cotton with a subtle texture.",
@@ -123,6 +129,7 @@ export const weeklyProducts: Product[] = [
   },
   {
     id: 'leather-loafers',
+    slug: 'penny-loafers',
     title: "Penny Loafers",
     brand: "Cole Haan",
     description: "Classic penny loafers in rich leather with a modern sole. Perfect for business casual or smart casual looks.",
@@ -143,6 +150,7 @@ export const weeklyProducts: Product[] = [
 export const outfitLooks: OutfitLook[] = [
   {
     id: 'smart-casual-weekend',
+    slug: 'cobalt-blue-merino-sweater',
     title: "Cobalt Blue Merino Sweater",
     description: "A refined essential crafted from pure merino wool. Perfect for smart casual occasions.",
     heroImage: "https://media.cos.com/assets/001/cd/1c/cd1c2d2ff2a4d76c77cd97b30cebbf9b6e64bf38_xxl-1.jpg",
@@ -157,6 +165,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'elevated-street-style',
+    slug: 'digital-denim-print-jeans',
     title: "Digital Denim Print Jeans",
     description: "Italian denim with trompe l'oeil vintage print. Relaxed wide-legged fit for elevated streetwear.",
     heroImage: "https://ourlegacy.centracdn.net/client/dynamic/images/8380_3868101f95-m4205tdd_3166-rtail-big.jpg",
@@ -171,6 +180,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'business-casual-refined',
+    slug: 'manhattan-oversized-overcoat',
     title: "Manhattan Oversized Overcoat",
     description: "Wall Street tailoring meets west coast casual. Precise construction with relaxed silhouette in Deep Moss.",
     heroImage: "https://california-arts.com/cdn/shop/files/CA-AUG--13362_2048x2048.jpg?v=1757563502",
@@ -185,6 +195,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'date-night-sophisticated',
+    slug: 'premium-suede-trucker-jacket',
     title: "Premium Suede Trucker Jacket",
     description: "Classic western-inspired silhouette in rich suede. Perfect for sophisticated date nights.",
     heroImage: "/images/Image 5 (1).jpeg",
@@ -199,6 +210,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'modern-streetwear',
+    slug: 'elevated-runway-streetwear',
     title: "Elevated Runway Streetwear",
     description: "High-fashion runway pieces with urban edge. Contemporary silhouettes for the modern gentleman.",
     heroImage: "/images/fashion-runway.jpeg",
@@ -213,6 +225,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'casual-weekend-vibes',
+    slug: 'straight-leg-premium-denim',
     title: "Straight-Leg Premium Denim",
     description: "Contemporary straight-leg jeans with modern fit. A staple for the discerning wardrobe.",
     heroImage: "/images/Image 3.jpeg",
@@ -227,6 +240,7 @@ export const outfitLooks: OutfitLook[] = [
   },
   {
     id: 'relaxed-crop-tee',
+    slug: 'boxy-crop-tee',
     title: "Boxy Crop Tee",
     description: "Drop-shoulder relaxed fit with contemporary styling. Perfect for casual weekend wear.",
     heroImage: "/images/Image 1 (1).jpeg",

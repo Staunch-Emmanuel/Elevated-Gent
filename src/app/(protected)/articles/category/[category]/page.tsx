@@ -1,32 +1,63 @@
-'use client'
-
-import { useEffect, useMemo, useState } from 'react'
-
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import { StructuredData } from '@/components/seo/StructuredData'
-import { Label } from '@/components/ui'
 import ArticleCard from '@/components/articles/ArticleCard'
 
 import staticArticles from '@/lib/articles/data'
 import type { ArticleDocument } from '@/lib/types/articles'
 import type { ArticleCardArticle } from '@/components/articles/ArticleCard'
 import { getAllArticlesCMS } from '@/lib/firebase/articles'
+import { notFound } from 'next/navigation'
+
+type PageProps = {
+  params: Promise<{
+    category: string
+  }>
+}
 
 type CombinedArticle = ArticleDocument & {
   source: 'static' | 'cms'
   normalizedDate: number
 }
 
-const categoryOptions = [
-  { id: 'all', label: 'All' },
-  { id: 'wellness', label: 'Wellness' },
-  { id: 'blueprint', label: 'Grooming Blueprint' },
-  { id: 'confidence', label: 'Confidence' },
-  { id: 'occasion', label: 'By Occasion' },
-  { id: 'products', label: 'Product Reviews' },
-  { id: 'lifestyle', label: 'Lifestyle' },
-] as const
+const CATEGORY_CONFIG: Record<
+  string,
+  {
+    title: string
+    description: string
+  }
+> = {
+  wellness: {
+    title: 'WELLNESS',
+    description:
+      'Guidance on wellness, grooming, and healthy routines that support confidence and personal style.',
+  },
+  blueprint: {
+    title: 'THE GROOMING BLUEPRINT',
+    description:
+      'Foundational grooming advice for the modern gentleman, from skincare to maintenance routines.',
+  },
+  confidence: {
+    title: 'CONFIDENCE & WELLNESS',
+    description:
+      'Editorial content focused on self-presentation, confidence, and everyday wellness.',
+  },
+  occasion: {
+    title: 'BY OCCASION',
+    description:
+      'Category-based article selections for different moments, settings, and lifestyle needs.',
+  },
+  products: {
+    title: 'PRODUCT REVIEWS',
+    description:
+      'Curated reviews and recommendations on products that support grooming, lifestyle, and style.',
+  },
+  lifestyle: {
+    title: 'LIFESTYLE',
+    description:
+      'Modern lifestyle content designed to complement a refined wardrobe and intentional living.',
+  },
+}
 
 function normalizeCategory(value: unknown): string {
   return String(value ?? '').trim().toLowerCase()
@@ -106,52 +137,34 @@ function mapArticleForCard(article: CombinedArticle): ArticleCardArticle {
   }
 }
 
-export default function ArticlesPage() {
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [cmsArticles, setCmsArticles] = useState<ArticleDocument[]>([])
-  const [loading, setLoading] = useState(true)
+export default async function ArticleCategoryPage({ params }: PageProps) {
+  const { category } = await params
+  const normalizedCategory = normalizeCategory(category)
 
-  useEffect(() => {
-    async function loadArticles() {
-      try {
-        const items = await getAllArticlesCMS()
-        setCmsArticles(items)
-      } catch (error) {
-        console.error('Failed to load articles:', error)
-        setCmsArticles([])
-      } finally {
-        setLoading(false)
-      }
-    }
+  const categoryConfig = CATEGORY_CONFIG[normalizedCategory]
 
-    loadArticles()
-  }, [])
+  if (!categoryConfig) {
+    notFound()
+  }
 
-  const mergedArticles = useMemo(() => {
-    const cmsMapped: CombinedArticle[] = (cmsArticles ?? []).map((a) => ({
-      ...a,
-      source: 'cms',
-      normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
-    }))
+  const cms = await getAllArticlesCMS()
 
-    const staticMapped: CombinedArticle[] = (staticArticles ?? []).map((a) => ({
-      ...a,
-      source: 'static',
-      normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
-    }))
+  const cmsMapped: CombinedArticle[] = (cms ?? []).map((a) => ({
+    ...a,
+    source: 'cms',
+    normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
+  }))
 
-    return mergeBySlug(staticMapped, cmsMapped)
-      .sort((a, b) => b.normalizedDate - a.normalizedDate)
-      .map(mapArticleForCard)
-  }, [cmsArticles])
+  const staticMapped: CombinedArticle[] = (staticArticles ?? []).map((a) => ({
+    ...a,
+    source: 'static',
+    normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
+  }))
 
-  const filteredArticles = useMemo(() => {
-    if (activeCategory === 'all') return mergedArticles
-
-    return mergedArticles.filter(
-      (article) => normalizeCategory(article.category) === activeCategory
-    )
-  }, [activeCategory, mergedArticles])
+  const merged = mergeBySlug(staticMapped, cmsMapped)
+    .filter((article) => normalizeCategory(article.category) === normalizedCategory)
+    .sort((a, b) => b.normalizedDate - a.normalizedDate)
+    .map(mapArticleForCard)
 
   return (
     <ProtectedRoute>
@@ -163,13 +176,12 @@ export default function ArticlesPage() {
             <div className="text-center space-y-8">
               <div className="overflow-hidden px-4">
                 <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
-                  ARTICLES
+                  {categoryConfig.title}
                 </h1>
               </div>
 
               <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                Explore editorial content across wellness, grooming, lifestyle, and modern style.
-                Curated insights designed to help you look sharp and live well.
+                {categoryConfig.description}
               </p>
             </div>
           </Container>
@@ -179,32 +191,13 @@ export default function ArticlesPage() {
       <section className="py-16">
         <PagePadding>
           <Container>
-            <div className="flex justify-center mb-12">
-              <div className="flex gap-2 flex-wrap justify-center">
-                {categoryOptions.map((category) => (
-                  <Label
-                    key={category.id}
-                    variant={activeCategory === category.id ? 'inverse' : 'default'}
-                    onClick={() => setActiveCategory(category.id)}
-                    className="cursor-pointer"
-                  >
-                    {category.label}
-                  </Label>
-                ))}
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 font-serif">Loading articles…</p>
-              </div>
-            ) : filteredArticles.length === 0 ? (
+            {merged.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-600 font-serif">No articles in this category yet.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredArticles.map((article) => (
+                {merged.map((article) => (
                   <ArticleCard key={article.slug} article={article} />
                 ))}
               </div>

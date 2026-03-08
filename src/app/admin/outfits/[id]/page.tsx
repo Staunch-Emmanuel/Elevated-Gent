@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 
 import { getOutfitById, updateOutfit } from "@/lib/firebase/outfits";
 import { getWeeklyProducts } from "@/lib/firebase/weekly";
@@ -21,7 +22,17 @@ type WeeklyProduct = {
   title: string;
 };
 
-export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps) {
+function slugify(text: string): string {
+  return (text || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export default function AdminEditOutfitPage({
+  params,
+}: AdminEditOutfitPageProps) {
   const router = useRouter();
 
   const [outfitId, setOutfitId] = useState<string>("");
@@ -31,11 +42,11 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
   const [error, setError] = useState("");
 
   const [products, setProducts] = useState<WeeklyProduct[]>([]);
+  const [form, setForm] = useState<Partial<OutfitDocument>>({
+    galleryImages: [],
+    products: [],
+  });
 
-  // FORM STATE
-  const [form, setForm] = useState<Partial<OutfitDocument>>({});
-
-  // unwrap params (Next 16 types may provide params as a Promise)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -56,7 +67,6 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
     };
   }, [params]);
 
-  // Load outfit + products
   useEffect(() => {
     async function load() {
       if (!outfitId) return;
@@ -118,22 +128,32 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
   }
 
   const toggleProduct = (id: string) => {
-    if (!form.products) return;
+    const currentProducts = form.products || [];
 
-    if (form.products.includes(id)) {
+    if (currentProducts.includes(id)) {
       setForm({
         ...form,
-        products: form.products.filter((p) => p !== id),
+        products: currentProducts.filter((p) => p !== id),
       });
     } else {
       setForm({
         ...form,
-        products: [...form.products, id],
+        products: [...currentProducts, id],
       });
     }
   };
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <PagePadding>
+          <Container>
+            <p>Loading...</p>
+          </Container>
+        </PagePadding>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -144,89 +164,94 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
           {error && <p className="text-red-600 mb-4">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* TITLE */}
             <div>
               <label className="block font-medium mb-1">Title</label>
               <input
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.title || ""}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                URL slug will be:
+                <span className="ml-1 font-mono">
+                  /outfit-inspiration/{slugify(form.title || "")}
+                </span>
+              </p>
             </div>
 
-            {/* DESCRIPTION */}
             <div>
               <label className="block font-medium mb-1">Description</label>
               <textarea
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 rows={3}
                 value={form.description || ""}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-              />
-            </div>
-
-            {/* HERO IMAGE */}
-            <div>
-              <label className="block font-medium mb-1">Hero Image URL</label>
-              <input
-                className="input"
-                value={form.heroImage || ""}
-                onChange={(e) => setForm({ ...form, heroImage: e.target.value })}
-              />
-            </div>
-
-            {/* GALLERY */}
-            <div>
-              <label className="block font-medium mb-1">
-                Gallery Images (one per line)
-              </label>
-              <textarea
-                className="input"
-                rows={4}
-                value={(form.galleryImages || []).join("\n")}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    galleryImages: e.target.value
-                      .split("\n")
-                      .map((x) => x.trim())
-                      .filter(Boolean),
-                  })
+                  setForm({ ...form, description: e.target.value })
                 }
               />
             </div>
 
-            {/* OCCASION */}
+            <CMSImageUploadField
+              label="Hero Image"
+              folder="outfits"
+              documentSlug={slugify(form.title || "")}
+              mode="single"
+              value={form.heroImage || ""}
+              onChange={(value) =>
+                setForm({
+                  ...form,
+                  heroImage: typeof value === "string" ? value : "",
+                })
+              }
+              helpText="Replace or remove the main outfit image."
+              disabled={saving}
+            />
+
+            <CMSImageUploadField
+              label="Gallery Images"
+              folder="outfits"
+              documentSlug={slugify(form.title || "")}
+              mode="multiple"
+              value={Array.isArray(form.galleryImages) ? form.galleryImages : []}
+              onChange={(value) =>
+                setForm({
+                  ...form,
+                  galleryImages: Array.isArray(value) ? value : [],
+                })
+              }
+              helpText="Optional extra outfit gallery images."
+              disabled={saving}
+            />
+
             <div>
               <label className="block font-medium mb-1">Occasion</label>
               <input
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.occasion || ""}
                 onChange={(e) => setForm({ ...form, occasion: e.target.value })}
               />
             </div>
 
-            {/* SEASON */}
             <div>
               <label className="block font-medium mb-1">Season</label>
               <input
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.season || ""}
                 onChange={(e) => setForm({ ...form, season: e.target.value })}
               />
             </div>
 
-            {/* STYLE TYPE */}
             <div>
               <label className="block font-medium mb-1">Style Type</label>
               <input
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.styleType || ""}
-                onChange={(e) => setForm({ ...form, styleType: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, styleType: e.target.value })
+                }
               />
             </div>
 
-            {/* PRODUCTS SELECTOR */}
             <div>
               <label className="block font-medium mb-2">
                 Products in this Outfit
@@ -247,12 +272,11 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
               </div>
             </div>
 
-            {/* TOTAL PRICE */}
             <div>
               <label className="block font-medium mb-1">Total Price</label>
               <input
                 type="number"
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.totalPrice || 0}
                 onChange={(e) =>
                   setForm({
@@ -263,22 +287,22 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
               />
             </div>
 
-            {/* FEATURED */}
             <div>
               <label className="block font-medium mb-1">Featured</label>
               <input
                 type="checkbox"
                 checked={form.featured || false}
-                onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                onChange={(e) =>
+                  setForm({ ...form, featured: e.target.checked })
+                }
               />
             </div>
 
-            {/* SORT WEIGHT */}
             <div>
               <label className="block font-medium mb-1">Sort Weight</label>
               <input
                 type="number"
-                className="input"
+                className="w-full border rounded-md px-3 py-2 text-sm"
                 value={form.sortWeight || 0}
                 onChange={(e) =>
                   setForm({
@@ -289,8 +313,10 @@ export default function AdminEditOutfitPage({ params }: AdminEditOutfitPageProps
               />
             </div>
 
-            {/* SUBMIT */}
-            <button disabled={saving} className="button-primary mt-6">
+            <button
+              disabled={saving}
+              className="px-4 py-2 rounded-md bg-black text-white text-sm disabled:opacity-60"
+            >
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>

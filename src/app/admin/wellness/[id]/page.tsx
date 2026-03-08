@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 
 import {
   getWellnessById,
@@ -17,6 +18,7 @@ interface WellnessDocument {
   title: string;
   slug: string;
   excerpt?: string;
+  heroImage?: string;
   content?: string;
 }
 
@@ -37,9 +39,9 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
+  const [heroImage, setHeroImage] = useState("");
   const [content, setContent] = useState("");
 
-  // unwrap params (Next 16 types may provide params as a Promise)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -75,10 +77,11 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
       }
 
       const normalized: WellnessDocument = {
-        id: (doc as any).id ?? wellnessId,
+        id: doc.id ?? wellnessId,
         title: doc.title ?? "",
         slug: doc.slug ?? "",
         excerpt: doc.excerpt ?? "",
+        heroImage: doc.heroImage ?? "",
         content: doc.content ?? "",
       };
 
@@ -86,6 +89,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
       setTitle(normalized.title);
       setSlug(normalized.slug);
       setExcerpt(normalized.excerpt ?? "");
+      setHeroImage(normalized.heroImage ?? "");
       setContent(normalized.content ?? "");
 
       setLoading(false);
@@ -106,6 +110,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
         title,
         slug,
         excerpt,
+        heroImage,
         content,
       });
 
@@ -154,6 +159,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Edit Wellness Article</h1>
             <button
+              type="button"
               onClick={handleDelete}
               className="px-3 py-1.5 rounded-md border border-red-500 text-red-600 text-xs"
             >
@@ -197,6 +203,17 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
                 rows={3}
               />
             </div>
+
+            <CMSImageUploadField
+              label="Hero Image"
+              folder="wellness"
+              documentSlug={slug || title}
+              mode="single"
+              value={heroImage}
+              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              helpText="Replace or remove the current wellness hero image."
+              disabled={saving}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1">

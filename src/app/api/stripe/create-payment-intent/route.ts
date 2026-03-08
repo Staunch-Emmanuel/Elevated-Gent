@@ -28,10 +28,10 @@ export async function POST(req: Request) {
     }
 
     const SERVICE_PRICES = {
-      'foundation-package': 25000,
-      'signature-refresh': 50000,
-      'gentlemens-upgrade': 75000,
-      'monthly-subscription': 700, // $42.00 in cents (UPDATE if your real amount differs)
+      'foundation-package': 50000,
+      'signature-refresh': 75000,
+      'gentlemens-upgrade': 100000,
+      'monthly-subscription': 1000, // $10.00 in cents (UPDATE if your real amount differs)
     } as const
 
     const amount = (SERVICE_PRICES as any)[serviceType]

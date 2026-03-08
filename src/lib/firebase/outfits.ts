@@ -1,5 +1,4 @@
-// src/lib/firebase/outfits.ts
-'use client';
+'use client'
 
 import {
   collection,
@@ -10,52 +9,40 @@ import {
   updateDoc,
   deleteDoc,
   increment,
-} from 'firebase/firestore';
+} from 'firebase/firestore'
 
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/config'
 
-const COLLECTION = 'outfits';
+const COLLECTION = 'outfits'
 
-/**
- * Input type when creating/updating an outfit from Admin
- */
 export interface OutfitInput {
-  title: string;
-  description: string;
-  heroImage: string;
-
-  /** admin form uses this */
-  galleryImages?: string[];
-
-  occasion: string;
-  season: string;
-  styleType: string;
-  products: string[];
-  totalPrice: number;
-  featured?: boolean;
-
-  slug?: string;
-  sortWeight?: number;
+  title: string
+  description: string
+  heroImage: string
+  galleryImages?: string[]
+  occasion: string
+  season: string
+  styleType: string
+  products: string[]
+  totalPrice: number
+  featured?: boolean
+  slug?: string
+  sortWeight?: number
+  published?: boolean
 }
 
-/**
- * Firestore document shape
- */
 export interface OutfitDocument extends OutfitInput {
-  id: string;
-  createdAt?: string;
-  updatedAt?: string;
-
-  viewCount?: number;
-  clickCount?: number;
-  lastViewedAt?: string;
-  lastClickedAt?: string;
+  id: string
+  createdAt?: string
+  updatedAt?: string
+  viewCount?: number
+  clickCount?: number
+  lastViewedAt?: string
+  lastClickedAt?: string
 }
-
-/* ------------------ helpers ------------------ */
 
 function nowIso(): string {
-  return new Date().toISOString();
+  return new Date().toISOString()
 }
 
 function slugify(text: string): string {
@@ -63,59 +50,45 @@ function slugify(text: string): string {
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+|-+$/g, '')
 }
 
-/**
- * Map Firestore → OutfitDocument
- * 🔑 gallery (db) → galleryImages (app)
- */
 function mapDocToOutfit(id: string, data: any): OutfitDocument {
-  const createdAt = data.createdAt || nowIso();
-  const updatedAt = data.updatedAt || createdAt;
+  const createdAt = data.createdAt || nowIso()
+  const updatedAt = data.updatedAt || createdAt
 
   return {
     id,
     title: data.title || '',
     description: data.description || '',
     heroImage: data.heroImage || '',
-
-    galleryImages: Array.isArray(data.gallery)
-      ? data.gallery
-      : [],
-
+    galleryImages: Array.isArray(data.gallery) ? data.gallery : [],
     occasion: data.occasion || '',
     season: data.season || '',
     styleType: data.styleType || '',
     products: Array.isArray(data.products) ? data.products : [],
     totalPrice: typeof data.totalPrice === 'number' ? data.totalPrice : 0,
     featured: !!data.featured,
-
     slug: data.slug || slugify(data.title || id),
     sortWeight: typeof data.sortWeight === 'number' ? data.sortWeight : 0,
-
+    published: typeof data.published === 'boolean' ? data.published : true,
     createdAt,
     updatedAt,
     viewCount: typeof data.viewCount === 'number' ? data.viewCount : 0,
     clickCount: typeof data.clickCount === 'number' ? data.clickCount : 0,
     lastViewedAt: data.lastViewedAt || undefined,
     lastClickedAt: data.lastClickedAt || undefined,
-  };
+  }
 }
 
-/* ------------------ CREATE ------------------ */
-
 export async function createOutfit(input: OutfitInput): Promise<string> {
-  const now = nowIso();
+  const now = nowIso()
 
   const payload = {
     title: input.title,
     description: input.description,
     heroImage: input.heroImage,
-
-    /** store as gallery in Firestore */
     gallery: input.galleryImages ?? [],
-
     occasion: input.occasion,
     season: input.season,
     styleType: input.styleType,
@@ -124,44 +97,54 @@ export async function createOutfit(input: OutfitInput): Promise<string> {
     featured: input.featured ?? false,
     slug: input.slug || slugify(input.title),
     sortWeight: input.sortWeight ?? 0,
+    published: input.published ?? true,
     createdAt: now,
     updatedAt: now,
     viewCount: 0,
     clickCount: 0,
-  };
+  }
 
-  const res = await addDoc(collection(db, COLLECTION), payload);
-  return res.id;
+  const res = await addDoc(collection(db, COLLECTION), payload)
+  return res.id
 }
 
-/* ------------------ READ ------------------ */
-
 export async function getAllOutfits(): Promise<OutfitDocument[]> {
-  const snap = await getDocs(collection(db, COLLECTION));
-  return snap.docs.map((d) => mapDocToOutfit(d.id, d.data()));
+  const snap = await getDocs(collection(db, COLLECTION))
+  return snap.docs.map((d) => mapDocToOutfit(d.id, d.data()))
+}
+
+export async function getPublishedOutfits(): Promise<OutfitDocument[]> {
+  const snap = await getDocs(collection(db, COLLECTION))
+
+  return snap.docs
+    .map((d) => mapDocToOutfit(d.id, d.data()))
+    .filter((item) => item.published !== false)
+    .sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return bTime - aTime
+    })
 }
 
 export async function getOutfitById(id: string): Promise<OutfitDocument | null> {
-  const snap = await getDoc(doc(db, COLLECTION, id));
-  if (!snap.exists()) return null;
-  return mapDocToOutfit(snap.id, snap.data());
+  const snap = await getDoc(doc(db, COLLECTION, id))
+  if (!snap.exists()) return null
+  return mapDocToOutfit(snap.id, snap.data())
 }
 
 export async function getOutfitBySlug(slug: string): Promise<OutfitDocument | null> {
-  const snap = await getDocs(collection(db, COLLECTION));
+  const snap = await getDocs(collection(db, COLLECTION))
 
   for (const d of snap.docs) {
-    const data: any = d.data();
-    const docSlug = data.slug || slugify(data.title || d.id);
+    const data: any = d.data()
+    const docSlug = data.slug || slugify(data.title || d.id)
     if (docSlug === slug) {
-      return mapDocToOutfit(d.id, data);
+      return mapDocToOutfit(d.id, data)
     }
   }
 
-  return null;
+  return null
 }
-
-/* ------------------ UPDATE ------------------ */
 
 export async function updateOutfit(
   id: string,
@@ -169,45 +152,42 @@ export async function updateOutfit(
 ): Promise<void> {
   const payload: any = {
     updatedAt: nowIso(),
-  };
-
-  if (input.title) {
-    payload.title = input.title;
-    payload.slug = slugify(input.title);
   }
 
-  if (input.description !== undefined) payload.description = input.description;
-  if (input.heroImage !== undefined) payload.heroImage = input.heroImage;
-  if (input.galleryImages !== undefined) payload.gallery = input.galleryImages;
-  if (input.occasion !== undefined) payload.occasion = input.occasion;
-  if (input.season !== undefined) payload.season = input.season;
-  if (input.styleType !== undefined) payload.styleType = input.styleType;
-  if (input.products !== undefined) payload.products = input.products;
-  if (input.totalPrice !== undefined) payload.totalPrice = input.totalPrice;
-  if (input.featured !== undefined) payload.featured = input.featured;
-  if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight;
+  if (input.title) {
+    payload.title = input.title
+    payload.slug = slugify(input.title)
+  }
 
-  await updateDoc(doc(db, COLLECTION, id), payload);
+  if (input.description !== undefined) payload.description = input.description
+  if (input.heroImage !== undefined) payload.heroImage = input.heroImage
+  if (input.galleryImages !== undefined) payload.gallery = input.galleryImages
+  if (input.occasion !== undefined) payload.occasion = input.occasion
+  if (input.season !== undefined) payload.season = input.season
+  if (input.styleType !== undefined) payload.styleType = input.styleType
+  if (input.products !== undefined) payload.products = input.products
+  if (input.totalPrice !== undefined) payload.totalPrice = input.totalPrice
+  if (input.featured !== undefined) payload.featured = input.featured
+  if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight
+  if (input.published !== undefined) payload.published = input.published
+
+  await updateDoc(doc(db, COLLECTION, id), payload)
 }
-
-/* ------------------ DELETE ------------------ */
 
 export async function deleteOutfit(id: string): Promise<void> {
-  await deleteDoc(doc(db, COLLECTION, id));
+  await deleteDoc(doc(db, COLLECTION, id))
 }
-
-/* ------------------ ANALYTICS ------------------ */
 
 export async function incrementOutfitView(id: string): Promise<void> {
   await updateDoc(doc(db, COLLECTION, id), {
     viewCount: increment(1),
     lastViewedAt: nowIso(),
-  });
+  })
 }
 
 export async function incrementOutfitClick(id: string): Promise<void> {
   await updateDoc(doc(db, COLLECTION, id), {
     clickCount: increment(1),
     lastClickedAt: nowIso(),
-  });
+  })
 }

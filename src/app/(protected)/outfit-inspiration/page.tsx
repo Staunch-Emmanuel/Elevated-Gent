@@ -1,4 +1,3 @@
-// src/app/(protected)/outfit-inspiration/page.tsx
 import Image from 'next/image'
 import { PagePadding, Container } from '@/components/layout'
 
@@ -10,12 +9,10 @@ import {
 } from '@/lib/firebase/admin/outfits'
 
 export default async function OutfitInspirationPage() {
-  // ✅ Admin SDK allowed here
   const cmsOutfits: OutfitDocument[] = await getAllOutfitsPublic()
 
   return (
     <>
-      {/* Hero Section */}
       <section className="py-16">
         <PagePadding>
           <Container>
@@ -40,7 +37,6 @@ export default async function OutfitInspirationPage() {
         </PagePadding>
       </section>
 
-      {/* Categories + Grid */}
       <section className="py-16">
         <PagePadding>
           <Container>

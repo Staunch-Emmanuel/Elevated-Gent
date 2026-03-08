@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
               name: 'Monthly Subscription',
               description: 'Access to all styling services, curated collections, and exclusive content',
             },
-            unit_amount: 700, // $2.00 in cents
+            unit_amount: 1000, // $10.00 in cents
             recurring: {
               interval: 'month',
             },

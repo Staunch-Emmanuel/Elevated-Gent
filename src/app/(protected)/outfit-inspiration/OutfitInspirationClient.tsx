@@ -1,15 +1,9 @@
-// src/app/(protected)/outfit-inspiration/OutfitInspirationClient.tsx
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 
 import { Label } from '@/components/ui'
 import { OutfitCard } from '@/components/products/OutfitCard'
-
-import {
-  weeklyProducts as staticWeeklyProducts,
-  outfitLooks as staticOutfits,
-} from '@/lib/products/data'
 
 import type { OutfitLook, Product } from '@/lib/products/types'
 import type { OutfitDocument } from '@/lib/firebase/admin/outfits'
@@ -45,6 +39,58 @@ const getOutfitsByFilter = (outfits: OutfitLook[], filterId: string) => {
   )
 }
 
+function normalizeProduct(input: Partial<Product> & { id?: string }): Product {
+  return {
+    id: input.id ?? '',
+    slug: input.slug ?? '',
+    title: input.title ?? '',
+    brand: input.brand ?? '',
+    description: input.description ?? '',
+    image: input.image ?? '',
+    price: input.price ?? '',
+    originalPrice: input.originalPrice ?? '',
+    category: input.category ?? '',
+    tags: Array.isArray(input.tags) ? input.tags : [],
+    productLink: input.productLink ?? '',
+    affiliateLink: input.affiliateLink ?? '',
+    featured: Boolean(input.featured),
+    inStock: typeof input.inStock === 'boolean' ? input.inStock : true,
+    sizes: Array.isArray(input.sizes) ? input.sizes : [],
+    colors: Array.isArray(input.colors) ? input.colors : [],
+  }
+}
+
+function buildProductMap(products: Product[]): Map<string, Product> {
+  const map = new Map<string, Product>()
+  for (const p of products) {
+    if (!p?.id) continue
+    map.set(p.id, p)
+  }
+  return map
+}
+
+function hydrateCmsOutfits(cmsOutfits: OutfitDocument[], productMap: Map<string, Product>): OutfitLook[] {
+  return (cmsOutfits || []).map((doc) => {
+    const products: Product[] = (doc.products || [])
+      .map((pid) => productMap.get(pid))
+      .filter(Boolean) as Product[]
+
+    return {
+      id: doc.id,
+      slug: doc.slug ?? '',
+      title: doc.title ?? '',
+      description: doc.description ?? '',
+      heroImage: doc.heroImage ?? '',
+      occasion: doc.occasion ?? '',
+      season: doc.season ?? '',
+      styleType: doc.styleType ?? '',
+      products,
+      totalPrice: typeof doc.totalPrice === 'number' ? doc.totalPrice : 0,
+      featured: Boolean(doc.featured),
+    }
+  })
+}
+
 export default function OutfitInspirationClient({ cmsOutfits }: Props) {
   const [activeFilter, setActiveFilter] = useState('all')
   const [outfits, setOutfits] = useState<OutfitLook[]>([])
@@ -53,37 +99,15 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
   useEffect(() => {
     async function load() {
       try {
-        // ✅ Client SDK only
         const cmsWeekly: Product[] = await getWeeklyProducts()
+        const cmsNormalized = cmsWeekly.map((p) => normalizeProduct(p))
+        const productMap = buildProductMap(cmsNormalized)
+        const hydratedCms = hydrateCmsOutfits(cmsOutfits || [], productMap)
 
-        const allWeeklyProducts: Product[] = [...staticWeeklyProducts, ...cmsWeekly]
-
-        const productMap: Record<string, Product> = {}
-        for (const p of allWeeklyProducts) productMap[p.id] = p
-
-        const mappedCmsOutfits: OutfitLook[] = (cmsOutfits || []).map((doc) => {
-          const products: Product[] = (doc.products || [])
-            .map((pid) => productMap[pid])
-            .filter(Boolean)
-
-          return {
-            id: doc.slug || doc.id,
-            title: doc.title,
-            description: doc.description,
-            heroImage: doc.heroImage,
-            occasion: doc.occasion,
-            season: doc.season,
-            styleType: doc.styleType,
-            products,
-            totalPrice: doc.totalPrice ?? 0,
-            featured: !!doc.featured,
-          }
-        })
-
-        setOutfits([...staticOutfits, ...mappedCmsOutfits])
+        setOutfits(hydratedCms)
       } catch (err) {
         console.error('Failed to load outfit inspiration:', err)
-        setOutfits([...staticOutfits])
+        setOutfits([])
       } finally {
         setLoading(false)
       }
@@ -113,6 +137,7 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
               key={filter.id}
               variant={activeFilter === filter.id ? 'inverse' : 'default'}
               onClick={() => setActiveFilter(filter.id)}
+              className="cursor-pointer"
             >
               {filter.label}
             </Label>

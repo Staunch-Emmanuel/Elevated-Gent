@@ -28,7 +28,7 @@
     "clsx": "^2.1.1",
     "editorjs-html": "^4.0.5",
     "firebase": "^12.3.0",
-    "firebase-admin": "^13.6.0",
+    "firebase-admin": "^13.7.0",
     "lucide-react": "^0.544.0",
     "next": "^16.0.7",
     "next-auth": "^4.24.11",
@@ -36,6 +36,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "resend": "^6.6.0",
+    "sharp": "^0.34.5",
     "slugify": "^1.6.6",
     "stripe": "^18.5.0",
     "tailwind-merge": "^3.3.1"
