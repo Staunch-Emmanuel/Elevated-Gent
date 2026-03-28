@@ -22,21 +22,38 @@ export default function SignInClient() {
   const nextPath = useMemo(() => {
     const next = searchParams.get("next");
     if (!next) return "/personal-styling";
-
     if (!next.startsWith("/")) return "/personal-styling";
     return next;
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (loading) return;
+
     setError("");
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password;
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      const result = await signIn(trimmedEmail, trimmedPassword);
+
+      if (!result || result.success !== true) {
+        setError(result?.error || "Incorrect email or password.");
+        return;
+      }
+
       router.push(nextPath);
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Failed to sign in");
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -78,13 +95,17 @@ export default function SignInClient() {
                     Sign in to access your styling services
                   </p>
 
-                  {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  {error ? (
+                    <div
+                      className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+                      role="alert"
+                      aria-live="polite"
+                    >
                       <p className="text-red-600 text-sm font-serif">{error}</p>
                     </div>
-                  )}
+                  ) : null}
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                     <div>
                       <label
                         htmlFor="email"
@@ -98,6 +119,7 @@ export default function SignInClient() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        autoComplete="email"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif"
                         placeholder="your@email.com"
                       />
@@ -116,6 +138,7 @@ export default function SignInClient() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        autoComplete="current-password"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif"
                         placeholder="Enter your password"
                       />

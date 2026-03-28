@@ -1,17 +1,21 @@
-// src/app/(protected)/account/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PagePadding, Container } from '@/components/layout'
 import { Button } from '@/components/ui'
 import { useAuth } from '@/lib/firebase/auth'
-import { useRouter } from 'next/navigation'
 import { ProfileEditModal } from '@/components/account/ProfileEditModal'
 
 export default function AccountPage() {
   const { user, logout } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [showEditProfile, setShowEditProfile] = useState(false)
+
+  const signupSuccess = useMemo(() => {
+    return searchParams.get('signup') === 'success'
+  }, [searchParams])
 
   const handleBookSession = () => {
     router.push('/personal-styling')
@@ -33,6 +37,10 @@ export default function AccountPage() {
     router.push('/weekly')
   }
 
+  const handleSubscribe = () => {
+    router.push('/subscribe')
+  }
+
   const handleSignOut = async () => {
     try {
       await logout()
@@ -44,7 +52,6 @@ export default function AccountPage() {
 
   return (
     <>
-      {/* Hero Section */}
       <section className="py-16">
         <PagePadding>
           <Container>
@@ -62,12 +69,35 @@ export default function AccountPage() {
         </PagePadding>
       </section>
 
-      {/* Account Dashboard */}
+      {signupSuccess ? (
+        <section className="pb-4">
+          <PagePadding>
+            <Container>
+              <div className="max-w-3xl mx-auto border border-green-200 bg-green-50 rounded-lg p-6 text-center space-y-4">
+                <h2 className="text-2xl font-semibold font-sans text-green-900">
+                  Account created successfully
+                </h2>
+                <p className="font-serif text-green-800">
+                  Your account is ready. Subscribe now to unlock access to the platform and protected content.
+                </p>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <Button onClick={handleSubscribe}>
+                    Subscribe Now
+                  </Button>
+                  <Button variant="outline" onClick={handleViewCollections}>
+                    Explore the Platform
+                  </Button>
+                </div>
+              </div>
+            </Container>
+          </PagePadding>
+        </section>
+      ) : null}
+
       <section className="py-16">
         <PagePadding>
           <Container>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Profile */}
               <div className="border border-black p-8 space-y-6">
                 <h3 className="text-2xl font-semibold font-sans">
                   Profile Information
@@ -148,7 +178,6 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              {/* Styling Sessions */}
               <div className="border border-black p-8 space-y-6">
                 <h3 className="text-2xl font-semibold font-sans">
                   Styling Services
@@ -181,7 +210,6 @@ export default function AccountPage() {
               </div>
             </div>
 
-            {/* Quick Actions */}
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center p-6 border border-gray-200 rounded-lg">
                 <h4 className="text-lg font-semibold font-sans mb-2">
@@ -243,7 +271,6 @@ export default function AccountPage() {
         </PagePadding>
       </section>
 
-      {/* Profile Edit Modal */}
       <ProfileEditModal
         isOpen={showEditProfile}
         onClose={() => setShowEditProfile(false)}

@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import Link from 'next/link'
 
 import { Label } from '@/components/ui'
 import { OutfitCard } from '@/components/products/OutfitCard'
 
-import type { OutfitLook, Product } from '@/lib/products/types'
-import type { OutfitDocument } from '@/lib/firebase/admin/outfits'
-import { getWeeklyProducts } from '@/lib/firebase/weekly'
+import type { OutfitLook } from '@/lib/products/types'
+import type { OutfitInspirationDocument } from '@/lib/firebase/outfitInspiration'
 
 type Props = {
-  cmsOutfits: OutfitDocument[]
+  cmsOutfits: OutfitInspirationDocument[]
 }
 
 const filterOptions = [
@@ -19,114 +19,86 @@ const filterOptions = [
   { id: 'formal', label: 'Formal Wear' },
   { id: 'streetwear', label: 'Streetwear' },
   { id: 'date-night', label: 'Date Night' },
-  { id: 'accessories', label: 'Accessories' },
+  { id: 'weddings-events', label: 'Weddings/Events' },
 ] as const
 
-const getOutfitsByFilter = (outfits: OutfitLook[], filterId: string) => {
+function mapCmsOutfitsToLooks(cmsOutfits: OutfitInspirationDocument[]): OutfitLook[] {
+  return (cmsOutfits || []).map((doc) => ({
+    id: doc.id,
+    slug: doc.slug ?? doc.id,
+    title: doc.title ?? '',
+    description: '',
+    heroImage: doc.imageUrl ?? '',
+    occasion: doc.occasion ?? 'Weddings/Events',
+    season: '',
+    styleType: 'Inspiration',
+    productLinks: Array.isArray(doc.links) ? doc.links : [],
+    featured: Boolean(doc.featured),
+  }))
+}
+
+function getOutfitsByFilter(outfits: OutfitLook[], filterId: string) {
   if (filterId === 'all') return outfits
 
-  const filterMap: Record<string, string[]> = {
-    casual: ['Casual', 'Weekend', 'Smart Casual'],
-    formal: ['Formal Event', 'Work', 'Business Casual'],
-    streetwear: ['Modern', 'Streetwear'],
-    'date-night': ['Date Night', 'Cocktail Hour'],
-    accessories: [],
-  }
+  return outfits.filter((outfit) => {
+    const occasion = (outfit.occasion || '').toLowerCase()
+    const styleType = (outfit.styleType || '').toLowerCase()
+    const title = (outfit.title || '').toLowerCase()
 
-  const matchTerms = filterMap[filterId] || []
-  return outfits.filter((outfit) =>
-    matchTerms.some((term) => outfit.occasion === term || outfit.styleType === term)
-  )
-}
+    switch (filterId) {
+      case 'casual':
+        return (
+          occasion.includes('casual') ||
+          occasion.includes('weekend') ||
+          styleType.includes('casual') ||
+          title.includes('casual')
+        )
 
-function normalizeProduct(input: Partial<Product> & { id?: string }): Product {
-  return {
-    id: input.id ?? '',
-    slug: input.slug ?? '',
-    title: input.title ?? '',
-    brand: input.brand ?? '',
-    description: input.description ?? '',
-    image: input.image ?? '',
-    price: input.price ?? '',
-    originalPrice: input.originalPrice ?? '',
-    category: input.category ?? '',
-    tags: Array.isArray(input.tags) ? input.tags : [],
-    productLink: input.productLink ?? '',
-    affiliateLink: input.affiliateLink ?? '',
-    featured: Boolean(input.featured),
-    inStock: typeof input.inStock === 'boolean' ? input.inStock : true,
-    sizes: Array.isArray(input.sizes) ? input.sizes : [],
-    colors: Array.isArray(input.colors) ? input.colors : [],
-  }
-}
+      case 'formal':
+        return (
+          occasion.includes('formal') ||
+          occasion.includes('work') ||
+          styleType.includes('formal') ||
+          styleType.includes('business')
+        )
 
-function buildProductMap(products: Product[]): Map<string, Product> {
-  const map = new Map<string, Product>()
-  for (const p of products) {
-    if (!p?.id) continue
-    map.set(p.id, p)
-  }
-  return map
-}
+      case 'streetwear':
+        return (
+          styleType.includes('streetwear') ||
+          styleType.includes('modern') ||
+          title.includes('streetwear')
+        )
 
-function hydrateCmsOutfits(cmsOutfits: OutfitDocument[], productMap: Map<string, Product>): OutfitLook[] {
-  return (cmsOutfits || []).map((doc) => {
-    const products: Product[] = (doc.products || [])
-      .map((pid) => productMap.get(pid))
-      .filter(Boolean) as Product[]
+      case 'date-night':
+        return (
+          occasion.includes('date') ||
+          occasion.includes('cocktail') ||
+          title.includes('date')
+        )
 
-    return {
-      id: doc.id,
-      slug: doc.slug ?? '',
-      title: doc.title ?? '',
-      description: doc.description ?? '',
-      heroImage: doc.heroImage ?? '',
-      occasion: doc.occasion ?? '',
-      season: doc.season ?? '',
-      styleType: doc.styleType ?? '',
-      products,
-      totalPrice: typeof doc.totalPrice === 'number' ? doc.totalPrice : 0,
-      featured: Boolean(doc.featured),
+      case 'weddings-events':
+        return (
+          occasion.includes('wedding') ||
+          occasion.includes('event') ||
+          occasion.includes('formal')
+        )
+
+      default:
+        return true
     }
   })
 }
 
 export default function OutfitInspirationClient({ cmsOutfits }: Props) {
   const [activeFilter, setActiveFilter] = useState('all')
-  const [outfits, setOutfits] = useState<OutfitLook[]>([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const cmsWeekly: Product[] = await getWeeklyProducts()
-        const cmsNormalized = cmsWeekly.map((p) => normalizeProduct(p))
-        const productMap = buildProductMap(cmsNormalized)
-        const hydratedCms = hydrateCmsOutfits(cmsOutfits || [], productMap)
-
-        setOutfits(hydratedCms)
-      } catch (err) {
-        console.error('Failed to load outfit inspiration:', err)
-        setOutfits([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    load()
+  const outfits = useMemo(() => {
+    return mapCmsOutfitsToLooks(cmsOutfits || [])
   }, [cmsOutfits])
 
   const filteredOutfits = useMemo(() => {
     return getOutfitsByFilter(outfits, activeFilter)
   }, [outfits, activeFilter])
-
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 font-serif">Loading outfits…</p>
-      </div>
-    )
-  }
 
   return (
     <>
@@ -145,17 +117,19 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredOutfits.map((outfit) => (
-          <OutfitCard key={outfit.id} outfit={outfit} />
-        ))}
-      </div>
-
-      {filteredOutfits.length === 0 && (
+      {filteredOutfits.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 font-serif">
             No outfits found in this category yet. Check back soon!
           </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredOutfits.map((outfit) => (
+            <Link key={outfit.id} href={`/outfit-inspiration/${outfit.slug}`} className="block">
+              <OutfitCard outfit={outfit} />
+            </Link>
+          ))}
         </div>
       )}
     </>

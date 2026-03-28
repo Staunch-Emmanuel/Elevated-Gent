@@ -1,158 +1,103 @@
-"use client";
+'use client'
 
-import { useEffect, useMemo, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
-import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
-import { weeklyProducts as staticWeeklyProducts } from "@/lib/products/data";
-import { getAllWeekly, type WeeklyItem } from "@/lib/firebase/weekly";
-import { createOutfit } from "@/lib/firebase/outfits";
-import { OUTFIT_OCCASIONS, STYLE_TYPES } from "@/lib/products/types";
+import { createOutfit } from '@/lib/firebase/outfits'
+import { OUTFIT_OCCASIONS, STYLE_TYPES } from '@/lib/products/types'
 
 function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
-function parsePrice(price: string): number {
-  if (!price) return 0;
-  const numeric = parseFloat(price.replace(/[^\d.-]/g, ""));
-  return isNaN(numeric) ? 0 : numeric;
-}
-
-interface ProductOption {
-  id: string;
-  title: string;
-  brand: string;
-  price: string;
-  source: "static" | "cms";
+function sanitizeLinks(links: string[]): string[] {
+  return links.map((link) => link.trim()).filter(Boolean)
 }
 
 export default function AdminNewOutfitPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [heroImage, setHeroImage] = useState("");
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [occasion, setOccasion] = useState<string>("");
-  const [season, setSeason] = useState<string>("All Seasons");
-  const [styleType, setStyleType] = useState<string>("");
-  const [featured, setFeatured] = useState(false);
-  const [sortWeight, setSortWeight] = useState<number>(0);
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [heroImage, setHeroImage] = useState('')
+  const [galleryImages, setGalleryImages] = useState<string[]>([])
+  const [occasion, setOccasion] = useState<string>('')
+  const [season, setSeason] = useState<string>('All Seasons')
+  const [styleType, setStyleType] = useState<string>('')
+  const [featured, setFeatured] = useState(false)
+  const [sortWeight, setSortWeight] = useState<number>(0)
+  const [productLinks, setProductLinks] = useState<string[]>([''])
 
-  const [products, setProducts] = useState<ProductOption[]>([]);
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const [saving, setSaving] = useState(false);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  function updateLink(index: number, value: string) {
+    setProductLinks((current) => current.map((item, i) => (i === index ? value : item)))
+  }
 
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        setLoadingProducts(true);
+  function addLinkField() {
+    setProductLinks((current) => [...current, ''])
+  }
 
-        const staticOptions: ProductOption[] = staticWeeklyProducts.map((p) => ({
-          id: p.id,
-          title: p.title,
-          brand: p.brand,
-          price: p.price,
-          source: "static",
-        }));
-
-        const cmsDocs: WeeklyItem[] = await getAllWeekly();
-        const cmsOptions: ProductOption[] = cmsDocs.map((p) => ({
-          id: p.id,
-          title: p.title,
-          brand: p.brand,
-          price: p.price,
-          source: "cms",
-        }));
-
-        const merged = [...cmsOptions, ...staticOptions].sort((a, b) =>
-          a.title.localeCompare(b.title)
-        );
-
-        setProducts(merged);
-      } catch (err) {
-        console.error("Error loading weekly products:", err);
-        setError("Failed to load weekly products.");
-      } finally {
-        setLoadingProducts(false);
-      }
-    }
-
-    loadProducts();
-  }, []);
-
-  const totalPrice = useMemo(() => {
-    return selectedProductIds.reduce((sum, id) => {
-      const product = products.find((p) => p.id === id);
-      if (!product) return sum;
-      return sum + parsePrice(product.price);
-    }, 0);
-  }, [products, selectedProductIds]);
-
-  function handleToggleProduct(id: string) {
-    setSelectedProductIds((current) =>
-      current.includes(id)
-        ? current.filter((x) => x !== id)
-        : [...current, id]
-    );
+  function removeLinkField(index: number) {
+    setProductLinks((current) => {
+      const next = current.filter((_, i) => i !== index)
+      return next.length > 0 ? next : ['']
+    })
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
+
+    const cleanedLinks = sanitizeLinks(productLinks)
 
     if (!title.trim()) {
-      setError("Title is required.");
-      return;
+      setError('Title is required.')
+      return
     }
 
     if (!heroImage.trim()) {
-      setError("Hero image is required.");
-      return;
+      setError('Hero image is required.')
+      return
     }
 
-    if (selectedProductIds.length === 0) {
-      setError("Select at least one product.");
-      return;
+    if (cleanedLinks.length === 0) {
+      setError('Add at least one product link.')
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
 
     try {
-      const slug = slugify(title);
-
       await createOutfit({
-        slug,
-        title,
-        description,
-        heroImage,
+        slug: slugify(title),
+        title: title.trim(),
+        description: description.trim(),
+        heroImage: heroImage.trim(),
         galleryImages,
-        occasion,
-        season,
-        styleType,
-        products: selectedProductIds,
+        occasion: occasion.trim(),
+        season: season.trim(),
+        styleType: styleType.trim(),
+        productLinks: cleanedLinks,
         featured,
-        totalPrice,
-        sortWeight,
-      });
+        sortWeight: Number(sortWeight) || 0,
+      })
 
-      router.push("/admin/outfits");
+      router.push('/admin/outfits')
     } catch (err) {
-      console.error("Error creating outfit:", err);
-      setError("Failed to create outfit. Please try again.");
+      console.error('Error creating outfit:', err)
+      setError('Failed to create outfit. Please try again.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
   }
 
@@ -164,7 +109,7 @@ export default function AdminNewOutfitPage() {
             <h1 className="text-2xl font-semibold">New Outfit Look</h1>
             <button
               type="button"
-              onClick={() => router.push("/admin/outfits")}
+              onClick={() => router.push('/admin/outfits')}
               className="text-sm text-gray-500 underline"
             >
               Back to Outfits
@@ -208,7 +153,7 @@ export default function AdminNewOutfitPage() {
               documentSlug={slugify(title)}
               mode="single"
               value={heroImage}
-              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              onChange={(value) => setHeroImage(typeof value === 'string' ? value : '')}
               helpText="Main image used for the card and top of the outfit page."
               disabled={saving}
             />
@@ -251,8 +196,10 @@ export default function AdminNewOutfitPage() {
                   className="w-full border rounded px-3 py-2 text-sm"
                 >
                   <option value="All Seasons">All Seasons</option>
-                  <option value="Spring/Summer">Spring/Summer</option>
-                  <option value="Fall/Winter">Fall/Winter</option>
+                  <option value="Spring">Spring</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Fall">Fall</option>
+                  <option value="Winter">Winter</option>
                 </select>
               </div>
 
@@ -295,64 +242,46 @@ export default function AdminNewOutfitPage() {
                   onChange={(e) => setSortWeight(Number(e.target.value || 0))}
                   className="w-32 border rounded px-2 py-1 text-sm"
                 />
-                <p className="mt-1 text-[11px] text-gray-500">
-                  Higher numbers can push this outfit higher in lists.
-                </p>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Products in this outfit
+                Product Links
               </label>
 
-              {loadingProducts ? (
-                <p className="text-sm text-gray-500">Loading products…</p>
-              ) : products.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  No weekly products available yet.
-                </p>
-              ) : (
-                <div className="max-h-80 overflow-y-auto border rounded px-3 py-2 space-y-2 bg-white">
-                  {products.map((p) => (
-                    <label
-                      key={`${p.source}-${p.id}`}
-                      className="flex items-center justify-between gap-3 text-sm"
+              <div className="space-y-3">
+                {productLinks.map((link, index) => (
+                  <div key={index} className="flex gap-3">
+                    <input
+                      type="url"
+                      value={link}
+                      onChange={(e) => updateLink(index, e.target.value)}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="https://example.com/product"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => removeLinkField(index)}
+                      className="px-3 py-2 border rounded text-sm"
                     >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedProductIds.includes(p.id)}
-                          onChange={() => handleToggleProduct(p.id)}
-                        />
-                        <div>
-                          <div className="font-medium">{p.title}</div>
-                          <div className="text-xs text-gray-500">
-                            {p.brand} • {p.price} • {p.source.toUpperCase()}
-                          </div>
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addLinkField}
+                className="mt-3 text-sm underline"
+              >
+                + Add another link
+              </button>
 
               <p className="mt-2 text-xs text-gray-500">
-                These products are referenced by ID. Total price is computed
-                automatically from their prices.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Total Price (auto)
-              </label>
-              <div className="text-lg font-semibold">
-                {totalPrice > 0 ? `$${totalPrice.toFixed(2)}` : "$0.00"}
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                This value is calculated from the selected product prices and
-                saved to Firestore.
+                Add one or more external product URLs for this outfit.
               </p>
             </div>
 
@@ -362,12 +291,12 @@ export default function AdminNewOutfitPage() {
                 disabled={saving}
                 className="inline-flex items-center px-4 py-2 rounded bg-black text-white text-sm disabled:opacity-60"
               >
-                {saving ? "Saving…" : "Create Outfit"}
+                {saving ? 'Saving…' : 'Create Outfit'}
               </button>
             </div>
           </form>
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

@@ -16,6 +16,7 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
   const { signUp } = useAuth()
   const router = useRouter()
 
@@ -23,24 +24,44 @@ export default function SignUpPage() {
     e.preventDefault()
     setError('')
 
+    const trimmedEmail = email.trim()
+    const trimmedFirstName = firstName.trim()
+    const trimmedLastName = lastName.trim()
+
+    if (!trimmedFirstName || !trimmedLastName) {
+      setError('Please enter your first and last name.')
+      return
+    }
+
+    if (!trimmedEmail) {
+      setError('Please enter your email address.')
+      return
+    }
+
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError('Passwords do not match.')
       return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError('Password must be at least 6 characters.')
       return
     }
 
     setLoading(true)
 
     try {
-      const displayName = `${firstName} ${lastName}`.trim()
-      await signUp(email, password, displayName)
-      router.push('/account')
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'Failed to create account')
+      const displayName = `${trimmedFirstName} ${trimmedLastName}`.trim()
+      const result = await signUp(trimmedEmail, password, displayName)
+
+      if (!result.success) {
+        setError(result.error || 'Failed to create account.')
+        return
+      }
+
+      router.push('/account?signup=success')
+    } catch {
+      setError('Failed to create account.')
     } finally {
       setLoading(false)
     }
@@ -70,11 +91,11 @@ export default function SignUpPage() {
                   Join us for personalized styling services
                 </p>
 
-                {error && (
+                {error ? (
                   <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-600 text-sm font-serif">{error}</p>
                   </div>
-                )}
+                ) : null}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">

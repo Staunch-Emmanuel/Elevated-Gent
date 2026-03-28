@@ -8,23 +8,14 @@ import { StructuredData } from '@/components/seo/StructuredData'
 import { Label } from '@/components/ui'
 import ArticleCard from '@/components/articles/ArticleCard'
 
-import staticArticles from '@/lib/articles/data'
 import type { ArticleDocument } from '@/lib/types/articles'
 import type { ArticleCardArticle } from '@/components/articles/ArticleCard'
 import { getAllArticlesCMS } from '@/lib/firebase/articles'
-
-type CombinedArticle = ArticleDocument & {
-  source: 'static' | 'cms'
-  normalizedDate: number
-}
 
 const categoryOptions = [
   { id: 'all', label: 'All' },
   { id: 'wellness', label: 'Wellness' },
   { id: 'blueprint', label: 'Grooming Blueprint' },
-  { id: 'confidence', label: 'Confidence' },
-  { id: 'occasion', label: 'By Occasion' },
-  { id: 'products', label: 'Product Reviews' },
   { id: 'lifestyle', label: 'Lifestyle' },
 ] as const
 
@@ -57,24 +48,6 @@ function normalizeDate(value: unknown): number {
   }
 }
 
-function mergeBySlug(staticItems: CombinedArticle[], cmsItems: CombinedArticle[]): CombinedArticle[] {
-  const map = new Map<string, CombinedArticle>()
-
-  for (const item of staticItems) {
-    const slug = String(item.slug ?? '').trim().toLowerCase()
-    if (!slug) continue
-    map.set(slug, item)
-  }
-
-  for (const item of cmsItems) {
-    const slug = String(item.slug ?? '').trim().toLowerCase()
-    if (!slug) continue
-    map.set(slug, item)
-  }
-
-  return Array.from(map.values())
-}
-
 function estimateReadTimeMinutes(content: string | undefined): number {
   const text = String(content ?? '')
     .replace(/<[^>]+>/g, ' ')
@@ -87,7 +60,7 @@ function estimateReadTimeMinutes(content: string | undefined): number {
   return Math.max(1, Math.ceil(wordCount / 200))
 }
 
-function mapArticleForCard(article: CombinedArticle): ArticleCardArticle {
+function mapArticleForCard(article: ArticleDocument): ArticleCardArticle {
   return {
     slug: article.slug ?? '',
     title: article.title ?? '',
@@ -100,7 +73,7 @@ function mapArticleForCard(article: CombinedArticle): ArticleCardArticle {
       article.createdAt ??
       new Date().toISOString(),
     readTime: estimateReadTimeMinutes(article.content),
-    featured: (article as CombinedArticle & { featured?: boolean }).featured ?? false,
+    featured: false,
     occasion: article.occasion ?? undefined,
     href: `/articles/${article.slug ?? ''}`,
   }
@@ -115,7 +88,12 @@ export default function ArticlesPage() {
     async function loadArticles() {
       try {
         const items = await getAllArticlesCMS()
-        setCmsArticles(items)
+        const sorted = [...items].sort((a, b) => {
+          const aDate = normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt)
+          const bDate = normalizeDate(b.publishDate ?? b.datePublished ?? b.createdAt)
+          return bDate - aDate
+        })
+        setCmsArticles(sorted)
       } catch (error) {
         console.error('Failed to load articles:', error)
         setCmsArticles([])
@@ -127,31 +105,17 @@ export default function ArticlesPage() {
     loadArticles()
   }, [])
 
-  const mergedArticles = useMemo(() => {
-    const cmsMapped: CombinedArticle[] = (cmsArticles ?? []).map((a) => ({
-      ...a,
-      source: 'cms',
-      normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
-    }))
-
-    const staticMapped: CombinedArticle[] = (staticArticles ?? []).map((a) => ({
-      ...a,
-      source: 'static',
-      normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
-    }))
-
-    return mergeBySlug(staticMapped, cmsMapped)
-      .sort((a, b) => b.normalizedDate - a.normalizedDate)
-      .map(mapArticleForCard)
+  const mappedArticles = useMemo(() => {
+    return cmsArticles.map(mapArticleForCard)
   }, [cmsArticles])
 
   const filteredArticles = useMemo(() => {
-    if (activeCategory === 'all') return mergedArticles
+    if (activeCategory === 'all') return mappedArticles
 
-    return mergedArticles.filter(
+    return mappedArticles.filter(
       (article) => normalizeCategory(article.category) === activeCategory
     )
-  }, [activeCategory, mergedArticles])
+  }, [activeCategory, mappedArticles])
 
   return (
     <ProtectedRoute>

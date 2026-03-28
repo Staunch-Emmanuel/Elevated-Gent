@@ -1,4 +1,3 @@
-// src/components/admin/AdminSidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -10,6 +9,7 @@ const menu = [
   { label: "Weekly", href: "/admin/weekly" },
   { label: "Wellness", href: "/admin/wellness" },
   { label: "Outfits", href: "/admin/outfits" },
+  { label: "Personal Styling", href: "/admin/personal-styling" },
   { label: "Users", href: "/admin/users" },
 ];
 

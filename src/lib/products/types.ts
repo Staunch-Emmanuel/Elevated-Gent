@@ -21,26 +21,17 @@ export interface OutfitLook {
   id: string
   title: string
   description: string
-
-  // required for CMS
   heroImage: string
   gallery?: string[]
   slug: string
-
   occasion: string
   season: string
   styleType: string
-
-  products: Product[]
-  totalPrice: number
+  productLinks: string[]
   featured: boolean
-
-  // CMS meta fields
   createdAt?: string
   updatedAt?: string
   sortWeight?: number
-
-  // analytics
   viewCount?: number
   clickCount?: number
   lastViewedAt?: string
@@ -71,7 +62,7 @@ export const OUTFIT_OCCASIONS = [
   'Weekend',
   'Formal Event',
   'Cocktail Hour',
-  'Seasonal'
+  'Seasonal',
 ]
 
 export const STYLE_TYPES = [
@@ -82,5 +73,5 @@ export const STYLE_TYPES = [
   'Business Casual',
   'Smart Casual',
   'Formal',
-  'Casual'
+  'Casual',
 ]

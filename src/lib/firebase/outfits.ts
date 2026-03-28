@@ -1,14 +1,14 @@
 'use client'
 
 import {
-  collection,
-  getDocs,
-  getDoc,
-  doc,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
   increment,
+  updateDoc,
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
@@ -23,8 +23,7 @@ export interface OutfitInput {
   occasion: string
   season: string
   styleType: string
-  products: string[]
-  totalPrice: number
+  productLinks: string[]
   featured?: boolean
   slug?: string
   sortWeight?: number
@@ -53,6 +52,13 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+function sanitizeLinks(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter(Boolean)
+}
+
 function mapDocToOutfit(id: string, data: any): OutfitDocument {
   const createdAt = data.createdAt || nowIso()
   const updatedAt = data.updatedAt || createdAt
@@ -66,8 +72,7 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
     occasion: data.occasion || '',
     season: data.season || '',
     styleType: data.styleType || '',
-    products: Array.isArray(data.products) ? data.products : [],
-    totalPrice: typeof data.totalPrice === 'number' ? data.totalPrice : 0,
+    productLinks: sanitizeLinks(data.productLinks),
     featured: !!data.featured,
     slug: data.slug || slugify(data.title || id),
     sortWeight: typeof data.sortWeight === 'number' ? data.sortWeight : 0,
@@ -92,8 +97,7 @@ export async function createOutfit(input: OutfitInput): Promise<string> {
     occasion: input.occasion,
     season: input.season,
     styleType: input.styleType,
-    products: input.products ?? [],
-    totalPrice: input.totalPrice ?? 0,
+    productLinks: sanitizeLinks(input.productLinks),
     featured: input.featured ?? false,
     slug: input.slug || slugify(input.title),
     sortWeight: input.sortWeight ?? 0,
@@ -150,11 +154,11 @@ export async function updateOutfit(
   id: string,
   input: Partial<OutfitInput>
 ): Promise<void> {
-  const payload: any = {
+  const payload: Record<string, unknown> = {
     updatedAt: nowIso(),
   }
 
-  if (input.title) {
+  if (input.title !== undefined) {
     payload.title = input.title
     payload.slug = slugify(input.title)
   }
@@ -165,8 +169,7 @@ export async function updateOutfit(
   if (input.occasion !== undefined) payload.occasion = input.occasion
   if (input.season !== undefined) payload.season = input.season
   if (input.styleType !== undefined) payload.styleType = input.styleType
-  if (input.products !== undefined) payload.products = input.products
-  if (input.totalPrice !== undefined) payload.totalPrice = input.totalPrice
+  if (input.productLinks !== undefined) payload.productLinks = sanitizeLinks(input.productLinks)
   if (input.featured !== undefined) payload.featured = input.featured
   if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight
   if (input.published !== undefined) payload.published = input.published

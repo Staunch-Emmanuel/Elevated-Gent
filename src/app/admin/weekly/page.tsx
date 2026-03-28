@@ -5,21 +5,14 @@ import Link from 'next/link'
 
 import { PagePadding, Container } from '@/components/layout'
 
-import { weeklyProducts as staticWeeklyProducts } from '@/lib/products/data'
-import type { Product } from '@/lib/products/types'
-
 import {
   getAllWeekly,
   deleteWeekly,
   type WeeklyItem,
 } from '@/lib/firebase/weekly'
 
-type CombinedWeekly = (WeeklyItem | Product) & {
-  source: 'cms' | 'static'
-}
-
 export default function WeeklyAdminPage() {
-  const [items, setItems] = useState<CombinedWeekly[]>([])
+  const [items, setItems] = useState<WeeklyItem[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -29,19 +22,7 @@ export default function WeeklyAdminPage() {
     setLoading(true)
     try {
       const cms = await getAllWeekly()
-      const cmsMapped: CombinedWeekly[] = cms.map((item) => ({
-        ...item,
-        source: 'cms' as const,
-      }))
-
-      const staticMapped: CombinedWeekly[] = staticWeeklyProducts.map(
-        (item) => ({
-          ...item,
-          source: 'static' as const,
-        })
-      )
-
-      setItems([...cmsMapped, ...staticMapped])
+      setItems(cms)
     } catch (err) {
       console.error('Error loading weekly:', err)
     } finally {
@@ -128,7 +109,7 @@ export default function WeeklyAdminPage() {
           <div className="space-y-4">
             {filtered.map((item) => (
               <div
-                key={item.id + item.source}
+                key={item.id}
                 className="border rounded p-4 flex items-center gap-4 justify-between"
               >
                 <div className="flex items-center gap-4">
@@ -146,37 +127,29 @@ export default function WeeklyAdminPage() {
                     <p className="text-sm text-gray-500">{item.price}</p>
 
                     <div className="mt-1 flex gap-2">
-                      {item.source === 'static' ? (
-                        <span className="text-xs bg-gray-200 px-2 py-1 rounded">
-                          STATIC
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-green-200 px-2 py-1 rounded">
-                          CMS
-                        </span>
-                      )}
+                      <span className="text-xs bg-green-200 px-2 py-1 rounded">
+                        CMS
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {item.source === 'cms' && (
-                  <div className="flex gap-3">
-                    <Link
-                      href={`/admin/weekly/${item.id}`}
-                      className="text-yellow-600 text-sm underline"
-                    >
-                      Edit
-                    </Link>
+                <div className="flex gap-3">
+                  <Link
+                    href={`/admin/weekly/${item.id}`}
+                    className="text-yellow-600 text-sm underline"
+                  >
+                    Edit
+                  </Link>
 
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      disabled={deletingId === item.id}
-                      className="text-red-600 text-sm underline disabled:opacity-40"
-                    >
-                      {deletingId === item.id ? 'Deleting…' : 'Delete'}
-                    </button>
-                  </div>
-                )}
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                    className="text-red-600 text-sm underline disabled:opacity-40"
+                  >
+                    {deletingId === item.id ? 'Deleting…' : 'Delete'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

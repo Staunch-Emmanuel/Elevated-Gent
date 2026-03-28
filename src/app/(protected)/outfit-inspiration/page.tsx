@@ -4,12 +4,13 @@ import { PagePadding, Container } from '@/components/layout'
 import OutfitInspirationClient from './OutfitInspirationClient'
 
 import {
-  getAllOutfitsPublic,
-  type OutfitDocument,
-} from '@/lib/firebase/admin/outfits'
+  getAllOutfitInspiration,
+  type OutfitInspirationDocument,
+} from '@/lib/firebase/outfitInspiration'
 
 export default async function OutfitInspirationPage() {
-  const cmsOutfits: OutfitDocument[] = await getAllOutfitsPublic()
+  const cmsOutfits: OutfitInspirationDocument[] =
+    await getAllOutfitInspiration()
 
   return (
     <>

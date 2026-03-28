@@ -1,161 +1,91 @@
-// src/app/(protected)/outfit-inspiration/[slug]/page.tsx
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
-import Image from "next/image";
-import { notFound } from "next/navigation";
-import { PagePadding, Container } from "@/components/layout";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import { Button, Label } from '@/components/ui'
 
-import {
-  getOutfitBySlug,
-  incrementOutfitView,
-  type OutfitDocument,
-} from "@/lib/firebase/outfits";
+import { getAllOutfitInspiration } from '@/lib/firebase/outfitInspiration'
 
-import {
-  outfitLooks as staticOutfits,
-  weeklyProducts as staticWeekly,
-} from "@/lib/products/data";
-
-import { getWeeklyProducts } from "@/lib/firebase/weekly";
-import type { Product, OutfitLook } from "@/lib/products/types";
-
-export default async function OutfitPage({
+export default async function OutfitInspirationDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const { slug } = await params
 
-  // 1) Load CMS outfit
-  const cmsDoc: OutfitDocument | null = await getOutfitBySlug(slug);
+  const items = await getAllOutfitInspiration()
 
-  let finalOutfit: OutfitLook | null = null;
+  const item =
+    items.find((entry) => (entry.slug ?? entry.id) === slug && entry.published !== false) || null
 
-  // 2) Static fallback
-  if (!cmsDoc) {
-    finalOutfit = staticOutfits.find((o) => o.id === slug) || null;
+  if (!item) {
+    return notFound()
   }
 
-  // 3) CMS → OutfitLook conversion
-  if (cmsDoc) {
-    const cmsWeekly: Product[] = await getWeeklyProducts();
-    const allProducts = [...staticWeekly, ...cmsWeekly];
-
-    const productMap: Record<string, Product> = {};
-    allProducts.forEach((p) => {
-      productMap[p.id] = p;
-    });
-
-    const mappedProducts = (cmsDoc.products || [])
-      .map((id: string) => productMap[id])
-      .filter(Boolean) as Product[];
-
-    finalOutfit = {
-      id: cmsDoc.slug || cmsDoc.id,
-      title: cmsDoc.title,
-      slug: cmsDoc.slug || cmsDoc.id,
-      description: cmsDoc.description,
-      heroImage: cmsDoc.heroImage,
-      gallery: cmsDoc.galleryImages ?? [],
-      occasion: cmsDoc.occasion,
-      season: cmsDoc.season,
-      styleType: cmsDoc.styleType,
-      products: mappedProducts,
-      totalPrice: cmsDoc.totalPrice ?? 0,
-      featured: cmsDoc.featured ?? false,
-    };
-
-    // Analytics
-    incrementOutfitView(cmsDoc.id).catch(() => {});
-  }
-
-  if (!finalOutfit) return notFound();
+  const links = Array.isArray(item.links) ? item.links.filter(Boolean) : []
 
   return (
-    <section className="py-16">
-      <PagePadding>
-        <Container className="space-y-12">
-          {/* HERO IMAGE */}
-          <div className="w-full">
-            <Image
-              src={finalOutfit.heroImage}
-              alt={finalOutfit.title}
-              width={1200}
-              height={900}
-              className="w-full rounded-lg object-cover"
-            />
-          </div>
-
-          {/* TITLE + META */}
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              {finalOutfit.title}
-            </h1>
-
-            <div className="text-muted text-lg space-y-1">
-              {finalOutfit.occasion && <p>Occasion: {finalOutfit.occasion}</p>}
-              {finalOutfit.styleType && <p>Style: {finalOutfit.styleType}</p>}
-              {finalOutfit.season && <p>Season: {finalOutfit.season}</p>}
+    <ProtectedRoute>
+      <section className="py-16">
+        <PagePadding>
+          <Container className="space-y-12">
+            <div className="w-full">
+              <Image
+                src={item.imageUrl || '/images/placeholder-outfit.jpg'}
+                alt={item.title}
+                width={1200}
+                height={900}
+                className="w-full rounded-lg object-cover"
+                priority
+              />
             </div>
 
-            <p className="font-serif text-lg max-w-3xl">
-              {finalOutfit.description}
-            </p>
-          </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                {item.occasion ? <Label>{item.occasion}</Label> : null}
+                <Label variant="inverse">Inspiration</Label>
+              </div>
 
-          {/* GALLERY */}
-          {(finalOutfit.gallery ?? []).length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {(finalOutfit.gallery ?? []).map((url: string, idx: number) => (
-                <Image
-                  key={idx}
-                  src={url}
-                  alt={`${finalOutfit.title} ${idx + 1}`}
-                  width={800}
-                  height={800}
-                  className="rounded-lg object-cover"
-                />
-              ))}
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                {item.title}
+              </h1>
+
+              <p className="font-serif text-lg max-w-3xl text-muted">
+                Curated outfit inspiration with direct links to shop each selection.
+              </p>
             </div>
-          )}
 
-          {/* PRODUCTS */}
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Products in this look</h2>
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Links for this look</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {finalOutfit.products.map((product) => (
-                <a
-                  key={product.id}
-                  href={product.affiliateLink || product.productLink}
-                  target="_blank"
-                  className="flex gap-4 p-4 border rounded-lg hover:bg-gray-50 transition"
-                  rel="noreferrer"
-                >
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    width={160}
-                    height={160}
-                    className="rounded object-cover"
-                  />
+              {links.length === 0 ? (
+                <p className="text-muted">No links added yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {links.map((link, index) => (
+                    <div
+                      key={`${item.id}-link-${index}`}
+                      className="border rounded-lg p-5 space-y-4"
+                    >
+                      <div className="space-y-2">
+                        <p className="text-xs uppercase tracking-wide text-muted">
+                          Link {index + 1}
+                        </p>
+                        <p className="break-all font-serif text-sm">{link}</p>
+                      </div>
 
-                  <div>
-                    <h3 className="font-semibold">{product.title}</h3>
-                    <p className="text-muted">{product.brand}</p>
-                    <p className="mt-2 font-bold">${product.price}</p>
-                  </div>
-                </a>
-              ))}
+                      <a href={link} target="_blank" rel="noreferrer">
+                        <Button>Open Link</Button>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* TOTAL PRICE */}
-          <div className="bg-gray-100 rounded-lg p-6">
-            <h3 className="text-xl font-semibold">Total Price</h3>
-            <p className="text-3xl font-bold mt-2">${finalOutfit.totalPrice}</p>
-          </div>
-        </Container>
-      </PagePadding>
-    </section>
-  );
+          </Container>
+        </PagePadding>
+      </section>
+    </ProtectedRoute>
+  )
 }

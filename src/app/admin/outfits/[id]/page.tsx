@@ -1,81 +1,75 @@
-"use client";
+'use client'
 
-import { useEffect, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
-import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
-import { getOutfitById, updateOutfit } from "@/lib/firebase/outfits";
-import { getWeeklyProducts } from "@/lib/firebase/weekly";
-import type { OutfitDocument } from "@/lib/firebase/outfits";
+import { getOutfitById, updateOutfit } from '@/lib/firebase/outfits'
+import type { OutfitDocument } from '@/lib/firebase/outfits'
 
 type AdminEditOutfitPageProps = {
   params: Promise<{
-    id: string;
-  }>;
-};
-
-type WeeklyProduct = {
-  id: string;
-  title: string;
-};
+    id: string
+  }>
+}
 
 function slugify(text: string): string {
-  return (text || "")
+  return (text || '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function sanitizeLinks(links: string[]): string[] {
+  return links.map((link) => link.trim()).filter(Boolean)
 }
 
 export default function AdminEditOutfitPage({
   params,
 }: AdminEditOutfitPageProps) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [outfitId, setOutfitId] = useState<string>("");
+  const [outfitId, setOutfitId] = useState<string>('')
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const [products, setProducts] = useState<WeeklyProduct[]>([]);
   const [form, setForm] = useState<Partial<OutfitDocument>>({
     galleryImages: [],
-    products: [],
-  });
+    productLinks: [''],
+  })
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
+    let mounted = true
+    ;(async () => {
       try {
-        const resolved = await params;
-        if (!mounted) return;
-        setOutfitId(resolved.id);
+        const resolved = await params
+        if (!mounted) return
+        setOutfitId(resolved.id)
       } catch (e) {
-        console.error(e);
-        if (!mounted) return;
-        setError("Invalid route params.");
-        setLoading(false);
+        console.error(e)
+        if (!mounted) return
+        setError('Invalid route params.')
+        setLoading(false)
       }
-    })();
+    })()
 
     return () => {
-      mounted = false;
-    };
-  }, [params]);
+      mounted = false
+    }
+  }, [params])
 
   useEffect(() => {
     async function load() {
-      if (!outfitId) return;
+      if (!outfitId) return
 
       try {
-        const outfit = await getOutfitById(outfitId);
-        const productsList = await getWeeklyProducts();
-
-        setProducts(productsList as WeeklyProduct[]);
+        const outfit = await getOutfitById(outfitId)
 
         if (outfit) {
           setForm({
@@ -86,62 +80,78 @@ export default function AdminEditOutfitPage({
             occasion: outfit.occasion,
             season: outfit.season,
             styleType: outfit.styleType,
-            products: outfit.products || [],
-            totalPrice: outfit.totalPrice,
+            productLinks:
+              Array.isArray(outfit.productLinks) && outfit.productLinks.length > 0
+                ? outfit.productLinks
+                : [''],
             featured: outfit.featured,
             sortWeight: outfit.sortWeight,
-          });
+          })
         }
       } catch (err) {
-        console.error(err);
-        setError("Failed to load outfit.");
+        console.error(err)
+        setError('Failed to load outfit.')
       }
 
-      setLoading(false);
+      setLoading(false)
     }
 
-    load();
-  }, [outfitId]);
+    load()
+  }, [outfitId])
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-
-    try {
-      const payload: Partial<OutfitDocument> = {
-        ...form,
-        galleryImages: (form.galleryImages || []).map((x) => x.trim()),
-        products: form.products || [],
-        totalPrice: Number(form.totalPrice) || 0,
-        sortWeight: Number(form.sortWeight) || 0,
-      };
-
-      await updateOutfit(outfitId, payload);
-      router.push("/admin/outfits");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to update outfit.");
-    }
-
-    setSaving(false);
+  function updateLink(index: number, value: string) {
+    setForm((current) => ({
+      ...current,
+      productLinks: (current.productLinks || []).map((item, i) =>
+        i === index ? value : item
+      ),
+    }))
   }
 
-  const toggleProduct = (id: string) => {
-    const currentProducts = form.products || [];
+  function addLinkField() {
+    setForm((current) => ({
+      ...current,
+      productLinks: [...(current.productLinks || []), ''],
+    }))
+  }
 
-    if (currentProducts.includes(id)) {
-      setForm({
-        ...form,
-        products: currentProducts.filter((p) => p !== id),
-      });
-    } else {
-      setForm({
-        ...form,
-        products: [...currentProducts, id],
-      });
+  function removeLinkField(index: number) {
+    setForm((current) => {
+      const next = (current.productLinks || []).filter((_, i) => i !== index)
+      return {
+        ...current,
+        productLinks: next.length > 0 ? next : [''],
+      }
+    })
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+
+    try {
+      await updateOutfit(outfitId, {
+        title: (form.title || '').trim(),
+        description: (form.description || '').trim(),
+        heroImage: (form.heroImage || '').trim(),
+        galleryImages: (form.galleryImages || []).map((x) => x.trim()),
+        occasion: (form.occasion || '').trim(),
+        season: (form.season || '').trim(),
+        styleType: (form.styleType || '').trim(),
+        productLinks: sanitizeLinks(form.productLinks || []),
+        featured: Boolean(form.featured),
+        sortWeight: Number(form.sortWeight) || 0,
+      })
+
+      router.push('/admin/outfits')
+    } catch (err) {
+      console.error(err)
+      setError('Failed to update outfit.')
     }
-  };
+
+    setSaving(false)
+  }
 
   if (loading) {
     return (
@@ -152,13 +162,13 @@ export default function AdminEditOutfitPage({
           </Container>
         </PagePadding>
       </ProtectedRoute>
-    );
+    )
   }
 
   return (
     <ProtectedRoute>
       <PagePadding>
-        <Container className="py-12">
+        <Container className="py-12 max-w-4xl">
           <h1 className="text-3xl font-semibold mb-6">Edit Outfit</h1>
 
           {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -168,13 +178,13 @@ export default function AdminEditOutfitPage({
               <label className="block font-medium mb-1">Title</label>
               <input
                 className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.title || ""}
+                value={form.title || ''}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
               <p className="text-xs text-gray-500 mt-1">
                 URL slug will be:
                 <span className="ml-1 font-mono">
-                  /outfit-inspiration/{slugify(form.title || "")}
+                  /outfits/{slugify(form.title || '')}
                 </span>
               </p>
             </div>
@@ -184,7 +194,7 @@ export default function AdminEditOutfitPage({
               <textarea
                 className="w-full border rounded-md px-3 py-2 text-sm"
                 rows={3}
-                value={form.description || ""}
+                value={form.description || ''}
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
@@ -194,13 +204,13 @@ export default function AdminEditOutfitPage({
             <CMSImageUploadField
               label="Hero Image"
               folder="outfits"
-              documentSlug={slugify(form.title || "")}
+              documentSlug={slugify(form.title || '')}
               mode="single"
-              value={form.heroImage || ""}
+              value={form.heroImage || ''}
               onChange={(value) =>
                 setForm({
                   ...form,
-                  heroImage: typeof value === "string" ? value : "",
+                  heroImage: typeof value === 'string' ? value : '',
                 })
               }
               helpText="Replace or remove the main outfit image."
@@ -210,7 +220,7 @@ export default function AdminEditOutfitPage({
             <CMSImageUploadField
               label="Gallery Images"
               folder="outfits"
-              documentSlug={slugify(form.title || "")}
+              documentSlug={slugify(form.title || '')}
               mode="multiple"
               value={Array.isArray(form.galleryImages) ? form.galleryImages : []}
               onChange={(value) =>
@@ -227,7 +237,7 @@ export default function AdminEditOutfitPage({
               <label className="block font-medium mb-1">Occasion</label>
               <input
                 className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.occasion || ""}
+                value={form.occasion || ''}
                 onChange={(e) => setForm({ ...form, occasion: e.target.value })}
               />
             </div>
@@ -236,7 +246,7 @@ export default function AdminEditOutfitPage({
               <label className="block font-medium mb-1">Season</label>
               <input
                 className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.season || ""}
+                value={form.season || ''}
                 onChange={(e) => setForm({ ...form, season: e.target.value })}
               />
             </div>
@@ -245,7 +255,7 @@ export default function AdminEditOutfitPage({
               <label className="block font-medium mb-1">Style Type</label>
               <input
                 className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.styleType || ""}
+                value={form.styleType || ''}
                 onChange={(e) =>
                   setForm({ ...form, styleType: e.target.value })
                 }
@@ -253,38 +263,37 @@ export default function AdminEditOutfitPage({
             </div>
 
             <div>
-              <label className="block font-medium mb-2">
-                Products in this Outfit
-              </label>
+              <label className="block font-medium mb-2">Product Links</label>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {products.map((p) => (
-                  <label key={p.id} className="border p-2 rounded">
+              <div className="space-y-3">
+                {(form.productLinks || []).map((link, index) => (
+                  <div key={index} className="flex gap-3">
                     <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={form.products?.includes(p.id)}
-                      onChange={() => toggleProduct(p.id)}
+                      type="url"
+                      value={link}
+                      onChange={(e) => updateLink(index, e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 text-sm"
+                      placeholder="https://example.com/product"
                     />
-                    {p.title}
-                  </label>
+
+                    <button
+                      type="button"
+                      onClick={() => removeLinkField(index)}
+                      className="px-3 py-2 border rounded text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 ))}
               </div>
-            </div>
 
-            <div>
-              <label className="block font-medium mb-1">Total Price</label>
-              <input
-                type="number"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.totalPrice || 0}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    totalPrice: Number(e.target.value),
-                  })
-                }
-              />
+              <button
+                type="button"
+                onClick={addLinkField}
+                className="mt-3 text-sm underline"
+              >
+                + Add another link
+              </button>
             </div>
 
             <div>
@@ -317,11 +326,11 @@ export default function AdminEditOutfitPage({
               disabled={saving}
               className="px-4 py-2 rounded-md bg-black text-white text-sm disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </form>
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

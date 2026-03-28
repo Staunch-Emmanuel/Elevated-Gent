@@ -44,7 +44,7 @@ export const PAGINATION = {
   maxLimit: 50,
 } as const
 
-// Social Links (matching Webflow site)
+// Social Links
 export const SOCIAL_LINKS = [
   {
     name: 'Instagram',
@@ -62,17 +62,14 @@ export const API_ROUTES = {
   stripe: '/api/stripe',
 } as const
 
-// Wellness Article Categories
+// Wellness / Article Categories
 export const WELLNESS_CATEGORIES = [
   { id: 'all', name: 'All Articles', slug: 'all' },
   { id: 'blueprint', name: 'The Grooming Blueprint', slug: 'blueprint' },
-  { id: 'confidence', name: 'Confidence & Wellness', slug: 'confidence' },
-  { id: 'occasion', name: 'By Occasion', slug: 'occasion' },
-  { id: 'products', name: 'Product Reviews', slug: 'products' },
   { id: 'lifestyle', name: 'Lifestyle', slug: 'lifestyle' },
 ] as const
 
-// Article Occasions (maps to outfit categories)
+// Article Occasions
 export const ARTICLE_OCCASIONS = [
   { id: 'streetwear', name: 'Streetwear', slug: 'streetwear' },
   { id: 'casual', name: 'Casual', slug: 'casual' },
@@ -81,12 +78,8 @@ export const ARTICLE_OCCASIONS = [
   { id: 'vacation', name: 'Vacation', slug: 'vacation' },
 ] as const
 
-
 export const ARTICLE_NAV_CATEGORIES = [
   { name: 'Wellness', href: '/articles/category/wellness' },
   { name: 'Grooming Blueprint', href: '/articles/category/blueprint' },
-  { name: 'Confidence', href: '/articles/category/confidence' },
-  { name: 'By Occasion', href: '/articles/category/occasion' },
-  { name: 'Product Reviews', href: '/articles/category/products' },
   { name: 'Lifestyle', href: '/articles/category/lifestyle' },
 ] as const

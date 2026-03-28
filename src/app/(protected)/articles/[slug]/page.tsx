@@ -6,7 +6,6 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import StructuredData from '@/components/seo/StructuredData'
 
-import staticArticles from '@/lib/articles/data'
 import type { ArticleDocument } from '@/lib/types/articles'
 import { getArticleBySlugCMS } from '@/lib/firebase/articles'
 
@@ -61,11 +60,11 @@ function normalizeCategory(value: unknown): string {
 function getCategoryName(category: string): string {
   const categoryMap: Record<string, string> = {
     blueprint: 'Grooming Blueprint',
-    confidence: 'Confidence & Wellness',
-    occasion: 'By Occasion',
-    products: 'Product Review',
     lifestyle: 'Lifestyle',
     wellness: 'Wellness',
+    general: 'General',
+    grooming: 'Grooming',
+    style: 'Style',
   }
 
   return categoryMap[category] || category
@@ -101,22 +100,12 @@ export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
   const normalizedSlug = normalizeSlug(slug)
 
-  let article: ArticleDocument | null = await getArticleBySlugCMS(normalizedSlug)
-
-  if (!article) {
-    article =
-      (staticArticles as ArticleDocument[]).find((a) => {
-        const s = a.slug ? normalizeSlug(String(a.slug)) : ''
-        return s === normalizedSlug
-      }) ?? null
-  }
+  const article: ArticleDocument | null = await getArticleBySlugCMS(normalizedSlug)
 
   if (!article) notFound()
 
   const title = article.title ?? 'Article'
-  const heroImage =
-    article.heroImage ||
-    '/images/Image-10.jpeg'
+  const heroImage = article.heroImage || '/images/Image-10.jpeg'
 
   const category = normalizeCategory(article.category)
   const categoryLabel = getCategoryName(category)
@@ -171,28 +160,26 @@ export default async function ArticlePage({ params }: PageProps) {
         </PagePadding>
       </section>
 
-      {heroImage ? (
-        <section className="pb-10">
-          <PagePadding>
-            <Container>
-              <div className="max-w-5xl mx-auto">
-                <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                  <div className="relative w-full aspect-[16/9]">
-                    <Image
-                      src={heroImage}
-                      alt={title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 1200px"
-                      priority
-                    />
-                  </div>
+      <section className="pb-10">
+        <PagePadding>
+          <Container>
+            <div className="max-w-5xl mx-auto">
+              <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                <div className="relative w-full aspect-[16/9]">
+                  <Image
+                    src={heroImage}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    priority
+                  />
                 </div>
               </div>
-            </Container>
-          </PagePadding>
-        </section>
-      ) : null}
+            </div>
+          </Container>
+        </PagePadding>
+      </section>
 
       <section className="py-10">
         <PagePadding>

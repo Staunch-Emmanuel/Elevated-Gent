@@ -1,113 +1,105 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
 
 import {
   getAllOutfits,
   deleteOutfit,
-} from "@/lib/firebase/outfits";
+} from '@/lib/firebase/outfits'
 
-import type { OutfitDocument } from "@/lib/firebase/outfits";
+import type { OutfitDocument } from '@/lib/firebase/outfits'
 
 const OCCASION_OPTIONS = [
-  "Work",
-  "Casual",
-  "Date Night",
-  "Travel",
-  "Weekend",
-  "Formal Event",
-  "Cocktail Hour",
-  "Seasonal",
-];
+  'Work',
+  'Casual',
+  'Date Night',
+  'Travel',
+  'Weekend',
+  'Formal Event',
+  'Cocktail Hour',
+  'Seasonal',
+]
 
-const SEASON_OPTIONS = ["Spring", "Summer", "Fall", "Winter", "All Seasons"];
+const SEASON_OPTIONS = ['Spring', 'Summer', 'Fall', 'Winter', 'All Seasons']
 
 const STYLE_TYPES = [
-  "Minimalist",
-  "Classic",
-  "Modern",
-  "Streetwear",
-  "Business Casual",
-  "Smart Casual",
-  "Formal",
-  "Casual",
-];
+  'Minimalist',
+  'Classic',
+  'Modern',
+  'Streetwear',
+  'Business Casual',
+  'Smart Casual',
+  'Formal',
+  'Casual',
+]
 
 export default function AdminOutfitsPage() {
-  const router = useRouter();
+  const [outfits, setOutfits] = useState<OutfitDocument[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const [outfits, setOutfits] = useState<OutfitDocument[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [search, setSearch] = useState('')
+  const [filterOccasion, setFilterOccasion] = useState('all')
+  const [filterSeason, setFilterSeason] = useState('all')
+  const [filterStyle, setFilterStyle] = useState('all')
 
-  const [search, setSearch] = useState("");
-  const [filterOccasion, setFilterOccasion] = useState("all");
-  const [filterSeason, setFilterSeason] = useState("all");
-  const [filterStyle, setFilterStyle] = useState("all");
-
-  // Load all outfits
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      setLoading(true)
 
       try {
-        const docs = await getAllOutfits();
-        setOutfits(docs);
+        const docs = await getAllOutfits()
+        setOutfits(docs)
       } catch (err) {
-        console.error("Error loading outfits:", err);
+        console.error('Error loading outfits:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    load();
-  }, []);
+    load()
+  }, [])
 
-  // Delete handler
   async function handleDelete(id: string) {
-    if (!confirm("Delete this outfit?")) return;
+    if (!confirm('Delete this outfit?')) return
 
     try {
-      setDeletingId(id);
-      await deleteOutfit(id);
-      setOutfits((prev) => prev.filter((o) => o.id !== id));
+      setDeletingId(id)
+      await deleteOutfit(id)
+      setOutfits((prev) => prev.filter((o) => o.id !== id))
     } catch (err) {
-      console.error(err);
-      alert("Failed to delete outfit.");
+      console.error(err)
+      alert('Failed to delete outfit.')
     } finally {
-      setDeletingId(null);
+      setDeletingId(null)
     }
   }
 
-  // Filtering + search
   const filtered = outfits.filter((item) => {
     const matchSearch =
       item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase());
+      item.description.toLowerCase().includes(search.toLowerCase())
 
     const matchOccasion =
-      filterOccasion === "all" || item.occasion === filterOccasion;
+      filterOccasion === 'all' || item.occasion === filterOccasion
 
     const matchSeason =
-      filterSeason === "all" || item.season === filterSeason;
+      filterSeason === 'all' || item.season === filterSeason
 
     const matchStyle =
-      filterStyle === "all" || item.styleType === filterStyle;
+      filterStyle === 'all' || item.styleType === filterStyle
 
-    return matchSearch && matchOccasion && matchSeason && matchStyle;
-  });
+    return matchSearch && matchOccasion && matchSeason && matchStyle
+  })
 
   return (
     <ProtectedRoute>
       <PagePadding>
         <Container className="py-12 max-w-5xl">
-
-          {/* Header */}
           <div className="flex items-center justify-between mb-10">
             <h1 className="text-3xl font-bold">Outfits (Admin)</h1>
 
@@ -119,7 +111,6 @@ export default function AdminOutfitsPage() {
             </Link>
           </div>
 
-          {/* Filters */}
           <div className="space-y-4 mb-10">
             <input
               placeholder="Search outfits..."
@@ -129,7 +120,6 @@ export default function AdminOutfitsPage() {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
               <select
                 value={filterOccasion}
                 onChange={(e) => setFilterOccasion(e.target.value)}
@@ -171,7 +161,6 @@ export default function AdminOutfitsPage() {
             </div>
           </div>
 
-          {/* List */}
           {loading ? (
             <p>Loading outfits...</p>
           ) : filtered.length === 0 ? (
@@ -197,8 +186,7 @@ export default function AdminOutfitsPage() {
                     </p>
 
                     <p className="text-xs text-gray-400">
-                      {outfit.products.length} products • Total: $
-                      {outfit.totalPrice}
+                      {outfit.productLinks.length} links
                     </p>
                   </div>
 
@@ -215,7 +203,7 @@ export default function AdminOutfitsPage() {
                       disabled={deletingId === outfit.id}
                       className="text-red-600 text-sm underline disabled:opacity-40"
                     >
-                      {deletingId === outfit.id ? "Deleting…" : "Delete"}
+                      {deletingId === outfit.id ? 'Deleting…' : 'Delete'}
                     </button>
                   </div>
                 </div>
@@ -225,5 +213,5 @@ export default function AdminOutfitsPage() {
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

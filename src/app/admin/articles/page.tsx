@@ -1,88 +1,80 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
 
-import staticArticles from "@/lib/articles/data";
 import type { ArticleDocument } from "@/lib/types/articles";
-
 import {
   getAllArticlesCMS,
   deleteArticle,
 } from "@/lib/firebase/articles";
-
 import { reslugAllArticles } from "@/lib/firebase/articles.reslug";
 
-type CombinedArticle = ArticleDocument & {
-  source: "static" | "cms";
+type CmsArticle = ArticleDocument & {
   normalizedDate: number;
 };
+
+function normalizeDate(value: unknown): number {
+  try {
+    if (!value) return 0;
+
+    if (typeof value === "string" || typeof value === "number") {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+
+    if (typeof (value as { toDate?: () => Date })?.toDate === "function") {
+      const date = (value as { toDate: () => Date }).toDate();
+      return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+
+    return 0;
+  } catch {
+    return 0;
+  }
+}
 
 export default function AdminArticlesPage() {
   const router = useRouter();
 
-  const [combined, setCombined] = useState<CombinedArticle[]>([]);
+  const [articles, setArticles] = useState<CmsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
+  async function loadArticles() {
+    setLoading(true);
 
+    try {
       const cms = await getAllArticlesCMS();
 
-      const cmsMapped: CombinedArticle[] = cms.map((item) => ({
-        ...item,
-        source: "cms",
-        normalizedDate: item.createdAt
-          ? new Date(item.createdAt).getTime()
-          : Date.now(),
-      }));
+      const cmsMapped: CmsArticle[] = cms
+        .map((item) => ({
+          ...item,
+          normalizedDate: normalizeDate(
+            item.publishDate ?? item.datePublished ?? item.createdAt
+          ),
+        }))
+        .sort((a, b) => b.normalizedDate - a.normalizedDate);
 
-      const staticMapped: CombinedArticle[] = staticArticles.map((item) => {
-        const date =
-          item.datePublished ||
-          item.publishDate ||
-          item.createdAt ||
-          item.updatedAt ||
-          "";
-        const normalizedDate = date ? new Date(date).getTime() : Date.now();
-
-        return {
-          id: item.id,
-          slug: item.slug,
-          title: item.title,
-          excerpt: item.excerpt,
-          content: item.content,
-          heroImage: item.heroImage,
-          category: item.category,
-          tag: item.tag,
-          datePublished: item.datePublished,
-          publishDate: item.publishDate,
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt,
-          occasion: item.occasion,
-          source: "static",
-          normalizedDate,
-        };
-      });
-
-      const merged = [...cmsMapped, ...staticMapped].sort(
-        (a, b) => b.normalizedDate - a.normalizedDate
-      );
-
-      setCombined(merged);
+      setArticles(cmsMapped);
+    } catch (err) {
+      console.error("Failed to load CMS articles:", err);
+      setArticles([]);
+    } finally {
       setLoading(false);
     }
+  }
 
-    load();
+  useEffect(() => {
+    loadArticles();
   }, []);
 
   async function handleReslugAll() {
@@ -94,7 +86,7 @@ export default function AdminArticlesPage() {
       alert(
         `Reslug complete.\nUpdated ${result.updated} of ${result.total} articles.`
       );
-      location.reload();
+      await loadArticles();
     } catch (err) {
       console.error(err);
       alert("Reslug failed. Check console.");
@@ -103,18 +95,35 @@ export default function AdminArticlesPage() {
     }
   }
 
-  const filtered = combined.filter((article) => {
-    const matchesSearch =
-      !search ||
-      article.title?.toLowerCase().includes(search.toLowerCase()) ||
-      article.excerpt?.toLowerCase().includes(search.toLowerCase());
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this article?")) return;
 
-    const matchesCategory =
-      filterCategory === "all" ||
-      (article.category ?? "general") === filterCategory;
+    setDeletingId(id);
+    try {
+      await deleteArticle(id);
+      await loadArticles();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete article.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = useMemo(() => {
+    return articles.filter((article) => {
+      const matchesSearch =
+        !search ||
+        article.title?.toLowerCase().includes(search.toLowerCase()) ||
+        article.excerpt?.toLowerCase().includes(search.toLowerCase());
+
+      const matchesCategory =
+        filterCategory === "all" ||
+        (article.category ?? "general") === filterCategory;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [articles, search, filterCategory]);
 
   return (
     <ProtectedRoute requireAdmin>
@@ -157,13 +166,12 @@ export default function AdminArticlesPage() {
               <option value="all">All categories</option>
               <option value="general">General</option>
               <option value="wellness">Wellness</option>
-              <option value="style">Style</option>
-              <option value="grooming">Grooming</option>
+              <option value="blueprint">Grooming Blueprint</option>
               <option value="lifestyle">Lifestyle</option>
             </select>
           </div>
 
-          {loading && <p>Loading...</p>}
+          {loading ? <p>Loading...</p> : null}
 
           {!loading && (
             <div className="space-y-4">
@@ -187,14 +195,20 @@ export default function AdminArticlesPage() {
                       View
                     </Link>
 
-                    {article.source === "cms" && (
-                      <Link
-                        href={`/admin/articles/${article.id}`}
-                        className="text-sm underline"
-                      >
-                        Edit
-                      </Link>
-                    )}
+                    <Link
+                      href={`/admin/articles/${article.id}`}
+                      className="text-sm underline"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      onClick={() => handleDelete(article.id)}
+                      disabled={deletingId === article.id}
+                      className="text-sm text-red-600 underline disabled:opacity-50"
+                    >
+                      {deletingId === article.id ? "Deleting..." : "Delete"}
+                    </button>
                   </div>
                 </div>
               ))}
