@@ -16,13 +16,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the base URL from request headers or environment variable
-    const origin = request.headers.get('origin') ||
-                   request.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
-                   process.env.NEXT_PUBLIC_APP_URL ||
-                   'http://localhost:3001'
+    const origin =
+      request.headers.get('origin') ||
+      request.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      'http://localhost:3001'
 
-    // Create or retrieve Stripe customer
     let customer
     const existingCustomers = await stripe.customers.list({
       email: userEmail,
@@ -40,7 +39,6 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       payment_method_types: ['card'],
@@ -50,9 +48,10 @@ export async function POST(request: NextRequest) {
             currency: 'usd',
             product_data: {
               name: 'Monthly Subscription',
-              description: 'Access to all styling services, curated collections, and exclusive content',
+              description:
+                'Access to all styling services, curated collections, and exclusive content',
             },
-            unit_amount: 1000, // $10.00 in cents
+            unit_amount: 1000,
             recurring: {
               interval: 'month',
             },
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${origin}/account?subscription=success`,
+      success_url: `${origin}/personal-styling?subscription=success`,
       cancel_url: `${origin}/account?subscription=cancelled`,
       metadata: {
         userId: userId,
