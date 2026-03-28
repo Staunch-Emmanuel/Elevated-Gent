@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
@@ -30,6 +31,18 @@ export default async function OutfitInspirationDetailPage({
       <section className="py-16">
         <PagePadding>
           <Container className="space-y-12">
+
+            {/* ✅ BACK LINK */}
+            <div>
+              <Link
+                href="/outfit-inspiration"
+                className="text-sm text-muted hover:text-black font-serif"
+              >
+                ← Back to Outfit Inspiration
+              </Link>
+            </div>
+
+            {/* IMAGE */}
             <div className="w-full">
               <Image
                 src={item.imageUrl || '/images/placeholder-outfit.jpg'}
@@ -41,6 +54,7 @@ export default async function OutfitInspirationDetailPage({
               />
             </div>
 
+            {/* HEADER */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
                 {item.occasion ? <Label>{item.occasion}</Label> : null}
@@ -56,6 +70,7 @@ export default async function OutfitInspirationDetailPage({
               </p>
             </div>
 
+            {/* LINKS */}
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">Links for this look</h2>
 
@@ -83,6 +98,7 @@ export default async function OutfitInspirationDetailPage({
                 </div>
               )}
             </div>
+
           </Container>
         </PagePadding>
       </section>
