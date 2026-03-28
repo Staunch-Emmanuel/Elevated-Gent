@@ -61,8 +61,8 @@ export default function PersonalStylingPage() {
     return replaceFirstName(content.heroTitle, firstName)
   }, [content.heroTitle, firstName])
 
-  const handleBookSession = (serviceType?: string) => {
-    setSelectedService(serviceType || '')
+  const handleSelectPackage = (serviceType: ServiceType) => {
+    setSelectedService(serviceType)
 
     if (PREFERRED_FLOW === 'PAYMENT_FIRST') {
       setShowPayment(true)
@@ -96,10 +96,17 @@ export default function PersonalStylingPage() {
     setSelectedService('')
   }
 
+  const handleBookYourSession = () => {
+    const packagesSection = document.getElementById('packages-section')
+    if (packagesSection) {
+      packagesSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   const handleLearnMore = () => {
-    const faqSection = document.getElementById('faq-section')
-    if (faqSection) {
-      faqSection.scrollIntoView({ behavior: 'smooth' })
+    const howItWorksSection = document.getElementById('how-it-works-section')
+    if (howItWorksSection) {
+      howItWorksSection.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -107,7 +114,6 @@ export default function PersonalStylingPage() {
     <ProtectedRoute>
       <StructuredData pageKey="personal-styling" />
 
-      {/* HERO */}
       <section className="py-24 bg-[#E5E5E5]">
         <PagePadding>
           <Container>
@@ -123,7 +129,7 @@ export default function PersonalStylingPage() {
               </p>
 
               <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
-                <Button size="lg" onClick={() => handleBookSession('signature-refresh')}>
+                <Button size="lg" onClick={handleBookYourSession}>
                   Book Your Session
                 </Button>
 
@@ -136,16 +142,13 @@ export default function PersonalStylingPage() {
         </PagePadding>
       </section>
 
-      {/* PACKAGES (UNCHANGED DESIGN) */}
-      <section className="py-16">
+      <section id="packages-section" className="py-16">
         <PagePadding>
           <Container>
             {loadingContent ? (
               <p className="text-center">Loading...</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-                {/* FOUNDATION */}
                 <div className="border border-black p-8 flex flex-col h-full">
                   <div className="space-y-4 mb-6">
                     <div className="h-6" />
@@ -162,18 +165,20 @@ export default function PersonalStylingPage() {
                       {content.foundationPackage.price}
                     </div>
                     <ul className="space-y-2 font-serif text-sm">
-                      {content.foundationPackage.features.map((f, i) => (
-                        <li key={i}>• {f}</li>
+                      {content.foundationPackage.features.map((feature, index) => (
+                        <li key={index}>• {feature}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <Button className="w-full mt-6" onClick={() => handleBookSession('foundation-package')}>
+                  <Button
+                    className="w-full mt-6"
+                    onClick={() => handleSelectPackage('foundation-package')}
+                  >
                     Book Package
                   </Button>
                 </div>
 
-                {/* SIGNATURE */}
                 <div className="border border-black p-8 flex flex-col h-full">
                   <div className="space-y-4 mb-6">
                     {content.signatureRefresh.badge ? (
@@ -195,18 +200,20 @@ export default function PersonalStylingPage() {
                       {content.signatureRefresh.price}
                     </div>
                     <ul className="space-y-2 font-serif text-sm">
-                      {content.signatureRefresh.features.map((f, i) => (
-                        <li key={i}>• {f}</li>
+                      {content.signatureRefresh.features.map((feature, index) => (
+                        <li key={index}>• {feature}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <Button className="w-full mt-6" onClick={() => handleBookSession('signature-refresh')}>
+                  <Button
+                    className="w-full mt-6"
+                    onClick={() => handleSelectPackage('signature-refresh')}
+                  >
                     Book Package
                   </Button>
                 </div>
 
-                {/* PREMIUM */}
                 <div className="border border-black p-8 bg-background-muted flex flex-col h-full">
                   <div className="space-y-4 mb-6">
                     {content.gentlemensUpgrade.badge ? (
@@ -228,25 +235,26 @@ export default function PersonalStylingPage() {
                       {content.gentlemensUpgrade.price}
                     </div>
                     <ul className="space-y-2 font-serif text-sm">
-                      {content.gentlemensUpgrade.features.map((f, i) => (
-                        <li key={i}>• {f}</li>
+                      {content.gentlemensUpgrade.features.map((feature, index) => (
+                        <li key={index}>• {feature}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <Button className="w-full mt-6" onClick={() => handleBookSession('gentlemens-upgrade')}>
+                  <Button
+                    className="w-full mt-6"
+                    onClick={() => handleSelectPackage('gentlemens-upgrade')}
+                  >
                     Book Package
                   </Button>
                 </div>
-
               </div>
             )}
           </Container>
         </PagePadding>
       </section>
 
-      {/* PROCESS (UNCHANGED DESIGN) */}
-      <section className="py-16 bg-background-muted">
+      <section id="how-it-works-section" className="py-16 bg-background-muted">
         <PagePadding>
           <Container>
             <div className="text-center space-y-12">
@@ -255,10 +263,10 @@ export default function PersonalStylingPage() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {content.processSteps.map((step, i) => (
-                  <div key={i} className="text-center space-y-4">
+                {content.processSteps.map((step, index) => (
+                  <div key={index} className="text-center space-y-4">
                     <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-semibold mx-auto">
-                      {i + 1}
+                      {index + 1}
                     </div>
                     <h3 className="text-xl font-semibold font-sans">{step.title}</h3>
                     <p className="font-serif text-muted">{step.description}</p>
@@ -270,7 +278,6 @@ export default function PersonalStylingPage() {
         </PagePadding>
       </section>
 
-      {/* FAQ (UNCHANGED DESIGN) */}
       <section id="faq-section" className="py-16">
         <PagePadding>
           <Container size="medium">
@@ -280,8 +287,8 @@ export default function PersonalStylingPage() {
               </h2>
 
               <div className="text-left space-y-8">
-                {content.faqs.map((faq, i) => (
-                  <div key={i}>
+                {content.faqs.map((faq, index) => (
+                  <div key={index}>
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold font-sans">
                         {faq.question}
@@ -289,7 +296,7 @@ export default function PersonalStylingPage() {
                       <p className="font-serif text-muted">{faq.answer}</p>
                     </div>
 
-                    {i < content.faqs.length - 1 && <div className="divider mt-8" />}
+                    {index < content.faqs.length - 1 ? <div className="divider mt-8" /> : null}
                   </div>
                 ))}
               </div>
@@ -298,24 +305,52 @@ export default function PersonalStylingPage() {
         </PagePadding>
       </section>
 
-      {/* MODALS (UNCHANGED) */}
       {showBooking && (
-        <BookingForm
-          selectedService={selectedService}
-          onSuccess={handleBookingSuccess}
-          onCancel={handleBookingCancel}
-        />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <BookingForm
+              selectedService={selectedService}
+              onSuccess={handleBookingSuccess}
+              onCancel={handleBookingCancel}
+            />
+          </div>
+        </div>
       )}
 
       {showPayment && selectedService && (
-        <PaymentForm
-          serviceType={selectedService as ServiceType}
-          onSuccess={handlePaymentSuccess}
-          onCancel={handlePaymentCancel}
-        />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
+          <div className="bg-white rounded-lg p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={handlePaymentCancel}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+              aria-label="Close modal"
+            >
+              <svg className="w-5 h-5 text-gray-500 hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold font-sans mb-2">Complete Your Booking</h2>
+              <p className="text-gray-600 font-serif">Secure payment processing powered by Stripe</p>
+            </div>
+
+            <PaymentForm
+              serviceType={selectedService as ServiceType}
+              onSuccess={handlePaymentSuccess}
+              onCancel={handlePaymentCancel}
+            />
+          </div>
+        </div>
       )}
 
-      {showSuccess && <BookingSuccess onClose={handleSuccessClose} />}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
+          <div className="max-w-lg w-full">
+            <BookingSuccess onClose={handleSuccessClose} />
+          </div>
+        </div>
+      )}
     </ProtectedRoute>
   )
 }
