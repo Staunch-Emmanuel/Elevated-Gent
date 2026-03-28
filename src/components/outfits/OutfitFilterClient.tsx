@@ -1,30 +1,43 @@
+// src/components/outfits/OutfitFilterClient.tsx
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Label } from '@/components/ui'
-import OutfitCard from '@/components/products/OutfitCard'
 import type { OutfitLook } from '@/lib/products/types'
+import OutfitCard from '@/components/products/OutfitCard'
+import { Label } from '@/components/ui'
 
-type FilterMap = Record<string, string[]>
-
-type Props = {
-  outfits: Array<Partial<OutfitLook> & { id: string; title: string }>
-  filterMap: FilterMap
+interface OutfitFilterClientProps {
+  outfits: Array<Partial<OutfitLook> & { id: string }>
 }
 
-function toOutfitLook(input: Partial<OutfitLook> & { id: string; title: string }): OutfitLook {
+const occasionOptions = [
+  { id: 'all', label: 'All' },
+  { id: 'work', label: 'Work' },
+  { id: 'casual', label: 'Casual' },
+  { id: 'date-night', label: 'Date Night' },
+  { id: 'travel', label: 'Travel' },
+  { id: 'weekend', label: 'Weekend' },
+  { id: 'formal-event', label: 'Formal Event' },
+  { id: 'cocktail-hour', label: 'Cocktail Hour' },
+  { id: 'seasonal', label: 'Seasonal' },
+]
+
+function normalizeFilterValue(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, '-')
+}
+
+function normalizeOutfit(input: Partial<OutfitLook> & { id: string }): OutfitLook {
   return {
     id: input.id,
-    slug: input.slug ?? input.id,
-    title: input.title,
+    title: input.title ?? '',
     description: input.description ?? '',
-    heroImage: input.heroImage ?? '/images/placeholder-outfit.jpg',
-    gallery: input.gallery ?? [],
+    heroImage: input.heroImage ?? '',
+    gallery: Array.isArray(input.gallery) ? input.gallery : [],
+    slug: input.slug ?? input.id,
     occasion: input.occasion ?? '',
     season: input.season ?? '',
     styleType: input.styleType ?? '',
-    products: input.products ?? [],
-    totalPrice: typeof input.totalPrice === 'number' ? input.totalPrice : 0,
+    productLinks: Array.isArray(input.productLinks) ? input.productLinks : [],
     featured: typeof input.featured === 'boolean' ? input.featured : false,
     createdAt: input.createdAt,
     updatedAt: input.updatedAt,
@@ -36,60 +49,53 @@ function toOutfitLook(input: Partial<OutfitLook> & { id: string; title: string }
   }
 }
 
-export default function OutfitFilterClient({ outfits, filterMap }: Props) {
-  const [activeFilter, setActiveFilter] = useState<string>('all')
+export default function OutfitFilterClient({
+  outfits,
+}: OutfitFilterClientProps) {
+  const [activeOccasion, setActiveOccasion] = useState('all')
 
-  const normalizedOutfits: OutfitLook[] = useMemo(() => {
-    return (outfits || []).map(toOutfitLook)
+  const normalizedOutfits = useMemo(() => {
+    return outfits.map(normalizeOutfit)
   }, [outfits])
 
-  const filteredOutfits: OutfitLook[] = useMemo(() => {
-    if (activeFilter === 'all') return normalizedOutfits
+  const filteredOutfits = useMemo(() => {
+    if (activeOccasion === 'all') return normalizedOutfits
 
-    const matchTerms = filterMap?.[activeFilter] || []
-    if (matchTerms.length === 0) return normalizedOutfits
-
-    return normalizedOutfits.filter((outfit) =>
-      matchTerms.some(
-        (term) => outfit.occasion === term || outfit.styleType === term
-      )
-    )
-  }, [activeFilter, filterMap, normalizedOutfits])
-
-  const filterOptions = useMemo(() => {
-    const ids = Object.keys(filterMap || {})
-    if (!ids.includes('all')) ids.unshift('all')
-    return ids
-  }, [filterMap])
+    return normalizedOutfits.filter((outfit) => {
+      return normalizeFilterValue(outfit.occasion) === activeOccasion
+    })
+  }, [activeOccasion, normalizedOutfits])
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <div className="flex justify-center">
         <div className="flex gap-2 flex-wrap justify-center">
-          {filterOptions.map((id) => (
+          {occasionOptions.map((option) => (
             <Label
-              key={id}
-              variant={activeFilter === id ? 'inverse' : 'default'}
-              onClick={() => setActiveFilter(id)}
+              key={option.id}
+              variant={activeOccasion === option.id ? 'inverse' : 'default'}
+              onClick={() => setActiveOccasion(option.id)}
               className="cursor-pointer"
             >
-              {id === 'all' ? 'All' : id.replace(/-/g, ' ')}
+              {option.label}
             </Label>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredOutfits.map((outfit) => (
-          <OutfitCard key={outfit.id} outfit={outfit} />
-        ))}
-      </div>
-
       {filteredOutfits.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-sm text-gray-500">No outfits found yet.</p>
+        <div className="text-center py-12">
+          <p className="font-serif text-gray-500">
+            No outfits found in this category yet.
+          </p>
         </div>
-      ) : null}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredOutfits.map((outfit) => (
+            <OutfitCard key={outfit.id} outfit={outfit} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

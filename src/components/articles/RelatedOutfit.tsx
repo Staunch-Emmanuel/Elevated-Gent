@@ -1,81 +1,90 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
-import { outfitLooks } from '@/lib/products/data'
-import { Button } from '@/components/ui'
+import Image from 'next/image'
+import { Label, Button } from '@/components/ui'
+import type { OutfitLook } from '@/lib/products/types'
 
 interface RelatedOutfitProps {
-  outfitId: string
+  outfit?: OutfitLook | null
+  title?: string
 }
 
-export function RelatedOutfit({ outfitId }: RelatedOutfitProps) {
-  const outfit = outfitLooks.find(o => o.id === outfitId)
-
+export function RelatedOutfit({
+  outfit,
+  title = 'Related Outfit',
+}: RelatedOutfitProps) {
   if (!outfit) return null
 
+  const links = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
+
   return (
-    <section className="py-12 border-t border-gray-200">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold font-sans mb-2">
-            Complete The Look
-          </h2>
-          <p className="text-gray-600 font-serif">
-            Pair this grooming routine with the perfect outfit
-          </p>
+    <section className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <div className="aspect-[4/5] bg-background-muted relative overflow-hidden">
+        <Image
+          src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
+          alt={outfit.title || 'Outfit'}
+          fill
+          className="object-cover"
+        />
+
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          {outfit.occasion ? <Label>{outfit.occasion}</Label> : null}
+          {outfit.styleType ? <Label variant="inverse">{outfit.styleType}</Label> : null}
         </div>
+      </div>
 
-        <div className="bg-gray-50 rounded-lg p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
-          {/* Outfit Image */}
-          <div className="w-full md:w-1/2 aspect-square relative rounded overflow-hidden">
-            <Image
-              src={outfit.heroImage}
-              alt={outfit.title}
-              fill
-              className="object-cover"
-            />
-          </div>
+      <div className="p-6 space-y-4">
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-sans">
+            {title}
+          </p>
 
-          {/* Outfit Info */}
-          <div className="w-full md:w-1/2 space-y-4">
-            <div>
-              <p className="text-xs font-serif text-gray-500 uppercase tracking-wide mb-1">
-                {outfit.occasion} • {outfit.season}
-              </p>
-              <h3 className="text-2xl font-semibold font-sans">
-                {outfit.title}
-              </h3>
-            </div>
+          <h3 className="text-2xl font-semibold font-sans">
+            {outfit.title}
+          </h3>
 
-            <p className="font-serif text-gray-600">
+          {outfit.description ? (
+            <p className="font-serif text-muted">
               {outfit.description}
             </p>
+          ) : null}
+        </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-sans font-semibold">
-                {outfit.products.length} Pieces • ${outfit.totalPrice}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {outfit.products.slice(0, 3).map((product) => (
-                  <span
-                    key={product.id}
-                    className="text-xs px-2 py-1 bg-white border border-gray-200 rounded font-serif"
-                  >
-                    {product.brand}
-                  </span>
-                ))}
-              </div>
+        <div className="space-y-2">
+          <p className="text-sm font-sans font-semibold">
+            {links.length} {links.length === 1 ? 'Link' : 'Links'}
+          </p>
+
+          {links.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {links.slice(0, 3).map((link, index) => (
+                <a
+                  key={`${outfit.id}-link-${index}`}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs underline break-all"
+                >
+                  Link {index + 1}
+                </a>
+              ))}
             </div>
+          ) : (
+            <p className="text-sm font-serif text-gray-500">
+              No links added yet.
+            </p>
+          )}
+        </div>
 
-            <Link href="/weekly">
-              <Button size="lg" className="w-full md:w-auto">
-                Shop This Look
-              </Button>
-            </Link>
-          </div>
+        <div className="pt-2">
+          <Link href={`/outfit-inspiration/${outfit.slug}`}>
+            <Button className="w-full">View Outfit</Button>
+          </Link>
         </div>
       </div>
     </section>
   )
 }
+
+export default RelatedOutfit
