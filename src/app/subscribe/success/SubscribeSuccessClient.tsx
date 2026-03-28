@@ -64,7 +64,7 @@ export default function SubscribeSuccessClient() {
         setStatus("success");
 
         setTimeout(() => {
-          router.replace("/account");
+          router.replace("/personal-styling?subscription=success");
         }, 1200);
       } catch (err: any) {
         console.error(err);
@@ -92,7 +92,7 @@ export default function SubscribeSuccessClient() {
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
         <h1 className="text-3xl font-semibold mb-4">Subscription Activated 🎉</h1>
         <p className="text-gray-600 mb-8">
-          Your account has been updated. Redirecting you to your account...
+          Your subscription is active. Redirecting you to Personal Styling...
         </p>
       </div>
     );
@@ -136,10 +136,10 @@ export default function SubscribeSuccessClient() {
 
       <div className="space-y-4 w-full max-w-sm">
         <Link
-          href="/account"
+          href="/personal-styling"
           className="block w-full bg-black text-white py-3 rounded"
         >
-          Go to Account
+          Go to Personal Styling
         </Link>
 
         <Link
