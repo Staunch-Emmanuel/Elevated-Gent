@@ -7,35 +7,12 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 
 import {
-  getAllOutfits,
   deleteOutfit,
+  getAllOutfits,
+  OUTFIT_CATEGORY_OPTIONS,
 } from '@/lib/firebase/outfits'
 
 import type { OutfitDocument } from '@/lib/firebase/outfits'
-
-const OCCASION_OPTIONS = [
-  'Work',
-  'Casual',
-  'Date Night',
-  'Travel',
-  'Weekend',
-  'Formal Event',
-  'Cocktail Hour',
-  'Seasonal',
-]
-
-const SEASON_OPTIONS = ['Spring', 'Summer', 'Fall', 'Winter', 'All Seasons']
-
-const STYLE_TYPES = [
-  'Minimalist',
-  'Classic',
-  'Modern',
-  'Streetwear',
-  'Business Casual',
-  'Smart Casual',
-  'Formal',
-  'Casual',
-]
 
 export default function AdminOutfitsPage() {
   const [outfits, setOutfits] = useState<OutfitDocument[]>([])
@@ -43,9 +20,7 @@ export default function AdminOutfitsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
-  const [filterOccasion, setFilterOccasion] = useState('all')
-  const [filterSeason, setFilterSeason] = useState('all')
-  const [filterStyle, setFilterStyle] = useState('all')
+  const [filterCategory, setFilterCategory] = useState('all')
 
   useEffect(() => {
     async function load() {
@@ -80,20 +55,17 @@ export default function AdminOutfitsPage() {
   }
 
   const filtered = outfits.filter((item) => {
+    const searchValue = search.trim().toLowerCase()
+
     const matchSearch =
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase())
+      item.title.toLowerCase().includes(searchValue) ||
+      item.description.toLowerCase().includes(searchValue) ||
+      item.category.toLowerCase().includes(searchValue)
 
-    const matchOccasion =
-      filterOccasion === 'all' || item.occasion === filterOccasion
+    const matchCategory =
+      filterCategory === 'all' || item.category === filterCategory
 
-    const matchSeason =
-      filterSeason === 'all' || item.season === filterSeason
-
-    const matchStyle =
-      filterStyle === 'all' || item.styleType === filterStyle
-
-    return matchSearch && matchOccasion && matchSeason && matchStyle
+    return matchSearch && matchCategory
   })
 
   return (
@@ -119,45 +91,23 @@ export default function AdminOutfitsPage() {
               className="border p-2 rounded w-full"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <select
-                value={filterOccasion}
-                onChange={(e) => setFilterOccasion(e.target.value)}
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
                 className="border p-2 rounded"
               >
-                <option value="all">All Occasions</option>
-                {OCCASION_OPTIONS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
+                <option value="all">All Categories</option>
+                {OUTFIT_CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
                   </option>
                 ))}
               </select>
 
-              <select
-                value={filterSeason}
-                onChange={(e) => setFilterSeason(e.target.value)}
-                className="border p-2 rounded"
-              >
-                <option value="all">All Seasons</option>
-                {SEASON_OPTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filterStyle}
-                onChange={(e) => setFilterStyle(e.target.value)}
-                className="border p-2 rounded"
-              >
-                <option value="all">All Styles</option>
-                {STYLE_TYPES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              <div className="border rounded px-3 py-2 text-sm text-gray-500 flex items-center">
+                {filtered.length} {filtered.length === 1 ? 'outfit' : 'outfits'}
+              </div>
             </div>
           </div>
 
@@ -173,7 +123,7 @@ export default function AdminOutfitsPage() {
                   className="border p-4 rounded flex items-center gap-4"
                 >
                   <img
-                    src={outfit.heroImage}
+                    src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
                     alt={outfit.title}
                     className="w-24 h-24 object-cover rounded border"
                   />
@@ -182,10 +132,16 @@ export default function AdminOutfitsPage() {
                     <h3 className="font-semibold">{outfit.title}</h3>
 
                     <p className="text-sm text-gray-500">
-                      {outfit.occasion} • {outfit.styleType} • {outfit.season}
+                      {outfit.category || 'Uncategorized'}
                     </p>
 
-                    <p className="text-xs text-gray-400">
+                    {outfit.description ? (
+                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                        {outfit.description}
+                      </p>
+                    ) : null}
+
+                    <p className="text-xs text-gray-400 mt-1">
                       {outfit.productLinks.length} links
                     </p>
                   </div>

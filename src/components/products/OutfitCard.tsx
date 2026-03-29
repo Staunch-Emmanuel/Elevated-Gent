@@ -5,8 +5,12 @@ import Image from 'next/image'
 import { Button, Label } from '@/components/ui'
 import type { OutfitLook } from '@/lib/products/types'
 
+type OutfitCardLook = OutfitLook & {
+  category?: string
+}
+
 interface OutfitCardProps {
-  outfit: OutfitLook
+  outfit: OutfitCardLook
 }
 
 export function OutfitCard({ outfit }: OutfitCardProps) {
@@ -32,18 +36,18 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
           fill
           className="object-cover hover:scale-105 transition-transform duration-300"
         />
-        {outfit.occasion ? (
+
+        {outfit.category ? (
           <div className="absolute top-4 left-4">
-            <Label className="text-xs">{outfit.occasion}</Label>
+            <Label className="text-xs">{outfit.category}</Label>
           </div>
         ) : null}
-        {outfit.styleType ? (
-          <div className="absolute top-4 right-4">
-            <Label variant="inverse" className="text-xs">
-              {outfit.styleType}
-            </Label>
-          </div>
-        ) : null}
+
+        <div className="absolute top-4 right-4">
+          <Label variant="inverse" className="text-xs">
+            Inspiration
+          </Label>
+        </div>
       </div>
 
       <div className="p-6 space-y-4">
@@ -55,12 +59,6 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
               {outfit.description}
             </p>
           ) : null}
-
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-serif text-gray-500">
-              {outfit.season || 'Curated Look'}
-            </span>
-          </div>
         </div>
 
         <Button onClick={handleToggleLinks} className="w-full">

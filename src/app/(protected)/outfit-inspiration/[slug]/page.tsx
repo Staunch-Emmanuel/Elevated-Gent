@@ -31,8 +31,6 @@ export default async function OutfitInspirationDetailPage({
       <section className="py-16">
         <PagePadding>
           <Container className="space-y-12">
-
-            {/* ✅ BACK LINK */}
             <div>
               <Link
                 href="/outfit-inspiration"
@@ -42,7 +40,6 @@ export default async function OutfitInspirationDetailPage({
               </Link>
             </div>
 
-            {/* IMAGE */}
             <div className="w-full">
               <Image
                 src={item.imageUrl || '/images/placeholder-outfit.jpg'}
@@ -54,10 +51,9 @@ export default async function OutfitInspirationDetailPage({
               />
             </div>
 
-            {/* HEADER */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
-                {item.occasion ? <Label>{item.occasion}</Label> : null}
+                {item.category ? <Label>{item.category}</Label> : null}
                 <Label variant="inverse">Inspiration</Label>
               </div>
 
@@ -65,12 +61,17 @@ export default async function OutfitInspirationDetailPage({
                 {item.title}
               </h1>
 
-              <p className="font-serif text-lg max-w-3xl text-muted">
-                Curated outfit inspiration with direct links to shop each selection.
-              </p>
+              {item.description ? (
+                <p className="font-serif text-lg max-w-3xl text-muted">
+                  {item.description}
+                </p>
+              ) : (
+                <p className="font-serif text-lg max-w-3xl text-muted">
+                  Curated outfit inspiration with direct links to shop each selection.
+                </p>
+              )}
             </div>
 
-            {/* LINKS */}
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">Links for this look</h2>
 
@@ -98,7 +99,6 @@ export default async function OutfitInspirationDetailPage({
                 </div>
               )}
             </div>
-
           </Container>
         </PagePadding>
       </section>

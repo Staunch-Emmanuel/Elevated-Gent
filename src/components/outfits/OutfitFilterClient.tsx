@@ -1,32 +1,52 @@
-// src/components/outfits/OutfitFilterClient.tsx
 'use client'
 
 import { useMemo, useState } from 'react'
-import type { OutfitLook } from '@/lib/products/types'
 import OutfitCard from '@/components/products/OutfitCard'
 import { Label } from '@/components/ui'
+import type { OutfitLook } from '@/lib/products/types'
 
-interface OutfitFilterClientProps {
-  outfits: Array<Partial<OutfitLook> & { id: string }>
+type OutfitFilterItem = Partial<OutfitLook> & {
+  id: string
+  title?: string
+  description?: string
+  heroImage?: string
+  gallery?: string[]
+  slug?: string
+  category?: string
+  productLinks?: string[]
+  featured?: boolean
+  createdAt?: unknown
+  updatedAt?: unknown
+  sortWeight?: number
+  viewCount?: number
+  clickCount?: number
+  lastViewedAt?: unknown
+  lastClickedAt?: unknown
 }
 
-const occasionOptions = [
+type NormalizedOutfit = OutfitLook & {
+  category?: string
+}
+
+interface OutfitFilterClientProps {
+  outfits: OutfitFilterItem[]
+}
+
+const categoryOptions = [
   { id: 'all', label: 'All' },
-  { id: 'work', label: 'Work' },
-  { id: 'casual', label: 'Casual' },
+  { id: 'casual-style', label: 'Casual Style' },
+  { id: 'formal-wear', label: 'Formal Wear' },
+  { id: 'streetwear', label: 'Streetwear' },
   { id: 'date-night', label: 'Date Night' },
-  { id: 'travel', label: 'Travel' },
+  { id: 'weddings-events', label: 'Weddings/Events' },
   { id: 'weekend', label: 'Weekend' },
-  { id: 'formal-event', label: 'Formal Event' },
-  { id: 'cocktail-hour', label: 'Cocktail Hour' },
-  { id: 'seasonal', label: 'Seasonal' },
 ]
 
 function normalizeFilterValue(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, '-')
+  return value.trim().toLowerCase().replace(/[^\w/]+/g, '-').replace(/\//g, '-')
 }
 
-function normalizeOutfit(input: Partial<OutfitLook> & { id: string }): OutfitLook {
+function normalizeOutfit(input: OutfitFilterItem): NormalizedOutfit {
   return {
     id: input.id,
     title: input.title ?? '',
@@ -34,9 +54,9 @@ function normalizeOutfit(input: Partial<OutfitLook> & { id: string }): OutfitLoo
     heroImage: input.heroImage ?? '',
     gallery: Array.isArray(input.gallery) ? input.gallery : [],
     slug: input.slug ?? input.id,
-    occasion: input.occasion ?? '',
-    season: input.season ?? '',
-    styleType: input.styleType ?? '',
+    occasion: '',
+    season: '',
+    styleType: '',
     productLinks: Array.isArray(input.productLinks) ? input.productLinks : [],
     featured: typeof input.featured === 'boolean' ? input.featured : false,
     createdAt: input.createdAt,
@@ -46,35 +66,36 @@ function normalizeOutfit(input: Partial<OutfitLook> & { id: string }): OutfitLoo
     clickCount: input.clickCount,
     lastViewedAt: input.lastViewedAt,
     lastClickedAt: input.lastClickedAt,
+    category: input.category ?? '',
   }
 }
 
 export default function OutfitFilterClient({
   outfits,
 }: OutfitFilterClientProps) {
-  const [activeOccasion, setActiveOccasion] = useState('all')
+  const [activeCategory, setActiveCategory] = useState('all')
 
   const normalizedOutfits = useMemo(() => {
     return outfits.map(normalizeOutfit)
   }, [outfits])
 
   const filteredOutfits = useMemo(() => {
-    if (activeOccasion === 'all') return normalizedOutfits
+    if (activeCategory === 'all') return normalizedOutfits
 
     return normalizedOutfits.filter((outfit) => {
-      return normalizeFilterValue(outfit.occasion) === activeOccasion
+      return normalizeFilterValue(outfit.category ?? '') === activeCategory
     })
-  }, [activeOccasion, normalizedOutfits])
+  }, [activeCategory, normalizedOutfits])
 
   return (
     <div className="space-y-12">
       <div className="flex justify-center">
         <div className="flex gap-2 flex-wrap justify-center">
-          {occasionOptions.map((option) => (
+          {categoryOptions.map((option) => (
             <Label
               key={option.id}
-              variant={activeOccasion === option.id ? 'inverse' : 'default'}
-              onClick={() => setActiveOccasion(option.id)}
+              variant={activeCategory === option.id ? 'inverse' : 'default'}
+              onClick={() => setActiveCategory(option.id)}
               className="cursor-pointer"
             >
               {option.label}

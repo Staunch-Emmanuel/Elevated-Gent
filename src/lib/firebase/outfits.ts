@@ -15,14 +15,23 @@ import { db } from '@/lib/firebase/config'
 
 const COLLECTION = 'outfits'
 
+export const OUTFIT_CATEGORY_OPTIONS = [
+  'Casual Style',
+  'Formal Wear',
+  'Streetwear',
+  'Date Night',
+  'Weddings/Events',
+  'Weekend',
+] as const
+
+export type OutfitCategory = (typeof OUTFIT_CATEGORY_OPTIONS)[number]
+
 export interface OutfitInput {
   title: string
   description: string
   heroImage: string
   galleryImages?: string[]
-  occasion: string
-  season: string
-  styleType: string
+  category: string
   productLinks: string[]
   featured?: boolean
   slug?: string
@@ -54,9 +63,27 @@ function slugify(text: string): string {
 
 function sanitizeLinks(value: unknown): string[] {
   if (!Array.isArray(value)) return []
+
   return value
     .map((item) => (typeof item === 'string' ? item.trim() : ''))
     .filter(Boolean)
+}
+
+function sanitizeCategory(value: unknown): string {
+  if (typeof value !== 'string') return ''
+  return value.trim()
+}
+
+function mapLegacyCategory(data: any): string {
+  if (typeof data.category === 'string' && data.category.trim()) {
+    return data.category.trim()
+  }
+
+  if (typeof data.occasion === 'string' && data.occasion.trim()) {
+    return data.occasion.trim()
+  }
+
+  return ''
 }
 
 function mapDocToOutfit(id: string, data: any): OutfitDocument {
@@ -67,12 +94,12 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
     id,
     title: data.title || '',
     description: data.description || '',
-    heroImage: data.heroImage || '',
+    heroImage: data.heroImage || data.imageUrl || '',
     galleryImages: Array.isArray(data.gallery) ? data.gallery : [],
-    occasion: data.occasion || '',
-    season: data.season || '',
-    styleType: data.styleType || '',
-    productLinks: sanitizeLinks(data.productLinks),
+    category: mapLegacyCategory(data),
+    productLinks: sanitizeLinks(
+      Array.isArray(data.productLinks) ? data.productLinks : data.links
+    ),
     featured: !!data.featured,
     slug: data.slug || slugify(data.title || id),
     sortWeight: typeof data.sortWeight === 'number' ? data.sortWeight : 0,
@@ -94,9 +121,7 @@ export async function createOutfit(input: OutfitInput): Promise<string> {
     description: input.description,
     heroImage: input.heroImage,
     gallery: input.galleryImages ?? [],
-    occasion: input.occasion,
-    season: input.season,
-    styleType: input.styleType,
+    category: sanitizeCategory(input.category),
     productLinks: sanitizeLinks(input.productLinks),
     featured: input.featured ?? false,
     slug: input.slug || slugify(input.title),
@@ -142,6 +167,7 @@ export async function getOutfitBySlug(slug: string): Promise<OutfitDocument | nu
   for (const d of snap.docs) {
     const data: any = d.data()
     const docSlug = data.slug || slugify(data.title || d.id)
+
     if (docSlug === slug) {
       return mapDocToOutfit(d.id, data)
     }
@@ -166,10 +192,10 @@ export async function updateOutfit(
   if (input.description !== undefined) payload.description = input.description
   if (input.heroImage !== undefined) payload.heroImage = input.heroImage
   if (input.galleryImages !== undefined) payload.gallery = input.galleryImages
-  if (input.occasion !== undefined) payload.occasion = input.occasion
-  if (input.season !== undefined) payload.season = input.season
-  if (input.styleType !== undefined) payload.styleType = input.styleType
-  if (input.productLinks !== undefined) payload.productLinks = sanitizeLinks(input.productLinks)
+  if (input.category !== undefined) payload.category = sanitizeCategory(input.category)
+  if (input.productLinks !== undefined) {
+    payload.productLinks = sanitizeLinks(input.productLinks)
+  }
   if (input.featured !== undefined) payload.featured = input.featured
   if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight
   if (input.published !== undefined) payload.published = input.published
