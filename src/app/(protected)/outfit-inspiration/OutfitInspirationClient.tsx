@@ -47,7 +47,7 @@ function mapCmsOutfitsToLooks(
     occasion: '',
     season: '',
     styleType: '',
-    category: doc.category ?? 'Weddings/Events',
+    category: doc.category ?? '',
     productLinks: Array.isArray(doc.links) ? doc.links : [],
     featured: Boolean(doc.featured),
   }))

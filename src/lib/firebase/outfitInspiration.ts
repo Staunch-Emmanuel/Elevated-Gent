@@ -38,13 +38,61 @@ function toDateValue(value: any): number {
   return 0
 }
 
-function mapLegacyCategory(data: any): string {
-  if (typeof data.category === 'string' && data.category.trim()) {
-    return data.category.trim()
+function normalizeCategory(data: any): string {
+  const category = typeof data.category === 'string' ? data.category.trim() : ''
+  const occasion = typeof data.occasion === 'string' ? data.occasion.trim() : ''
+  const styleType = typeof data.styleType === 'string' ? data.styleType.trim() : ''
+  const title = typeof data.title === 'string' ? data.title.trim() : ''
+
+  if (category) return category
+
+  const occasionLower = occasion.toLowerCase()
+  const styleLower = styleType.toLowerCase()
+  const titleLower = title.toLowerCase()
+
+  if (
+    occasionLower.includes('work') ||
+    styleLower.includes('formal') ||
+    styleLower.includes('business')
+  ) {
+    return 'Formal Wear'
   }
 
-  if (typeof data.occasion === 'string' && data.occasion.trim()) {
-    return data.occasion.trim()
+  if (
+    occasionLower.includes('casual') ||
+    titleLower.includes('casual')
+  ) {
+    return 'Casual Style'
+  }
+
+  if (
+    styleLower.includes('streetwear') ||
+    styleLower.includes('modern') ||
+    titleLower.includes('streetwear')
+  ) {
+    return 'Streetwear'
+  }
+
+  if (
+    occasionLower.includes('date') ||
+    occasionLower.includes('cocktail') ||
+    titleLower.includes('date')
+  ) {
+    return 'Date Night'
+  }
+
+  if (
+    occasionLower.includes('wedding') ||
+    occasionLower.includes('event')
+  ) {
+    return 'Weddings/Events'
+  }
+
+  if (
+    occasionLower.includes('weekend') ||
+    titleLower.includes('weekend')
+  ) {
+    return 'Weekend'
   }
 
   return ''
@@ -74,7 +122,7 @@ export async function getAllOutfitInspiration(): Promise<OutfitInspirationDocume
           : Array.isArray(data.links)
             ? data.links
             : [],
-        category: mapLegacyCategory(data),
+        category: normalizeCategory(data),
         featured: Boolean(data.featured),
         slug: data.slug ?? doc.id,
         published: typeof data.published === 'boolean' ? data.published : true,
