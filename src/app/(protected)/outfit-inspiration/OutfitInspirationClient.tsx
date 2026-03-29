@@ -9,83 +9,58 @@ import { OutfitCard } from '@/components/products/OutfitCard'
 import type { OutfitLook } from '@/lib/products/types'
 import type { OutfitInspirationDocument } from '@/lib/firebase/outfitInspiration'
 
+type OutfitInspirationLook = OutfitLook & {
+  category?: string
+}
+
 type Props = {
   cmsOutfits: OutfitInspirationDocument[]
 }
 
 const filterOptions = [
   { id: 'all', label: 'All' },
-  { id: 'casual', label: 'Casual Style' },
-  { id: 'formal', label: 'Formal Wear' },
+  { id: 'casual-style', label: 'Casual Style' },
+  { id: 'formal-wear', label: 'Formal Wear' },
   { id: 'streetwear', label: 'Streetwear' },
   { id: 'date-night', label: 'Date Night' },
   { id: 'weddings-events', label: 'Weddings/Events' },
+  { id: 'weekend', label: 'Weekend' },
 ] as const
 
-function mapCmsOutfitsToLooks(cmsOutfits: OutfitInspirationDocument[]): OutfitLook[] {
+function normalizeFilterValue(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w/]+/g, '-')
+    .replace(/\//g, '-')
+}
+
+function mapCmsOutfitsToLooks(
+  cmsOutfits: OutfitInspirationDocument[]
+): OutfitInspirationLook[] {
   return (cmsOutfits || []).map((doc) => ({
     id: doc.id,
     slug: doc.slug ?? doc.id,
     title: doc.title ?? '',
-    description: '',
+    description: doc.description ?? '',
     heroImage: doc.imageUrl ?? '',
-    occasion: doc.occasion ?? 'Weddings/Events',
+    occasion: '',
     season: '',
-    styleType: 'Inspiration',
+    styleType: '',
+    category: doc.category ?? 'Weddings/Events',
     productLinks: Array.isArray(doc.links) ? doc.links : [],
     featured: Boolean(doc.featured),
   }))
 }
 
-function getOutfitsByFilter(outfits: OutfitLook[], filterId: string) {
+function getOutfitsByFilter(
+  outfits: OutfitInspirationLook[],
+  filterId: string
+) {
   if (filterId === 'all') return outfits
 
   return outfits.filter((outfit) => {
-    const occasion = (outfit.occasion || '').toLowerCase()
-    const styleType = (outfit.styleType || '').toLowerCase()
-    const title = (outfit.title || '').toLowerCase()
-
-    switch (filterId) {
-      case 'casual':
-        return (
-          occasion.includes('casual') ||
-          occasion.includes('weekend') ||
-          styleType.includes('casual') ||
-          title.includes('casual')
-        )
-
-      case 'formal':
-        return (
-          occasion.includes('formal') ||
-          occasion.includes('work') ||
-          styleType.includes('formal') ||
-          styleType.includes('business')
-        )
-
-      case 'streetwear':
-        return (
-          styleType.includes('streetwear') ||
-          styleType.includes('modern') ||
-          title.includes('streetwear')
-        )
-
-      case 'date-night':
-        return (
-          occasion.includes('date') ||
-          occasion.includes('cocktail') ||
-          title.includes('date')
-        )
-
-      case 'weddings-events':
-        return (
-          occasion.includes('wedding') ||
-          occasion.includes('event') ||
-          occasion.includes('formal')
-        )
-
-      default:
-        return true
-    }
+    return normalizeFilterValue(outfit.category ?? '') === filterId
   })
 }
 
@@ -126,7 +101,11 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredOutfits.map((outfit) => (
-            <Link key={outfit.id} href={`/outfit-inspiration/${outfit.slug}`} className="block">
+            <Link
+              key={outfit.id}
+              href={`/outfit-inspiration/${outfit.slug}`}
+              className="block"
+            >
               <OutfitCard outfit={outfit} />
             </Link>
           ))}
