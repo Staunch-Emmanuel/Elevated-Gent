@@ -7,8 +7,10 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
-import { createOutfit } from '@/lib/firebase/outfits'
-import { OUTFIT_OCCASIONS, STYLE_TYPES } from '@/lib/products/types'
+import {
+  createOutfit,
+  OUTFIT_CATEGORY_OPTIONS,
+} from '@/lib/firebase/outfits'
 
 function slugify(text: string): string {
   return text
@@ -29,10 +31,9 @@ export default function AdminNewOutfitPage() {
   const [description, setDescription] = useState('')
   const [heroImage, setHeroImage] = useState('')
   const [galleryImages, setGalleryImages] = useState<string[]>([])
-  const [occasion, setOccasion] = useState<string>('')
-  const [season, setSeason] = useState<string>('All Seasons')
-  const [styleType, setStyleType] = useState<string>('')
+  const [category, setCategory] = useState<string>('')
   const [featured, setFeatured] = useState(false)
+  const [published, setPublished] = useState(true)
   const [sortWeight, setSortWeight] = useState<number>(0)
   const [productLinks, setProductLinks] = useState<string[]>([''])
 
@@ -40,7 +41,9 @@ export default function AdminNewOutfitPage() {
   const [error, setError] = useState<string | null>(null)
 
   function updateLink(index: number, value: string) {
-    setProductLinks((current) => current.map((item, i) => (i === index ? value : item)))
+    setProductLinks((current) =>
+      current.map((item, i) => (i === index ? value : item))
+    )
   }
 
   function addLinkField() {
@@ -65,6 +68,16 @@ export default function AdminNewOutfitPage() {
       return
     }
 
+    if (!description.trim()) {
+      setError('Description is required.')
+      return
+    }
+
+    if (!category.trim()) {
+      setError('Category is required.')
+      return
+    }
+
     if (!heroImage.trim()) {
       setError('Hero image is required.')
       return
@@ -84,11 +97,10 @@ export default function AdminNewOutfitPage() {
         description: description.trim(),
         heroImage: heroImage.trim(),
         galleryImages,
-        occasion: occasion.trim(),
-        season: season.trim(),
-        styleType: styleType.trim(),
+        category: category.trim(),
         productLinks: cleanedLinks,
         featured,
+        published,
         sortWeight: Number(sortWeight) || 0,
       })
 
@@ -147,6 +159,23 @@ export default function AdminNewOutfitPage() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm"
+                required
+              >
+                <option value="">Select category</option>
+                {OUTFIT_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <CMSImageUploadField
               label="Hero Image"
               folder="outfits"
@@ -169,60 +198,7 @@ export default function AdminNewOutfitPage() {
               disabled={saving}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Occasion
-                </label>
-                <select
-                  value={occasion}
-                  onChange={(e) => setOccasion(e.target.value)}
-                  className="w-full border rounded px-3 py-2 text-sm"
-                >
-                  <option value="">Select occasion</option>
-                  {OUTFIT_OCCASIONS.map((occ) => (
-                    <option key={occ} value={occ}>
-                      {occ}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Season</label>
-                <select
-                  value={season}
-                  onChange={(e) => setSeason(e.target.value)}
-                  className="w-full border rounded px-3 py-2 text-sm"
-                >
-                  <option value="All Seasons">All Seasons</option>
-                  <option value="Spring">Spring</option>
-                  <option value="Summer">Summer</option>
-                  <option value="Fall">Fall</option>
-                  <option value="Winter">Winter</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Style Type
-                </label>
-                <select
-                  value={styleType}
-                  onChange={(e) => setStyleType(e.target.value)}
-                  className="w-full border rounded px-3 py-2 text-sm"
-                >
-                  <option value="">Select style</option>
-                  {STYLE_TYPES.map((style) => (
-                    <option key={style} value={style}>
-                      {style}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 flex-wrap">
               <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -230,6 +206,15 @@ export default function AdminNewOutfitPage() {
                   onChange={(e) => setFeatured(e.target.checked)}
                 />
                 <span>Featured outfit</span>
+              </label>
+
+              <label className="inline-flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                />
+                <span>Published</span>
               </label>
 
               <div>

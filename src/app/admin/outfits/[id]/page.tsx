@@ -7,7 +7,11 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
-import { getOutfitById, updateOutfit } from '@/lib/firebase/outfits'
+import {
+  getOutfitById,
+  updateOutfit,
+  OUTFIT_CATEGORY_OPTIONS,
+} from '@/lib/firebase/outfits'
 import type { OutfitDocument } from '@/lib/firebase/outfits'
 
 type AdminEditOutfitPageProps = {
@@ -42,10 +46,13 @@ export default function AdminEditOutfitPage({
   const [form, setForm] = useState<Partial<OutfitDocument>>({
     galleryImages: [],
     productLinks: [''],
+    category: '',
+    description: '',
   })
 
   useEffect(() => {
     let mounted = true
+
     ;(async () => {
       try {
         const resolved = await params
@@ -77,16 +84,17 @@ export default function AdminEditOutfitPage({
             description: outfit.description,
             heroImage: outfit.heroImage,
             galleryImages: outfit.galleryImages || [],
-            occasion: outfit.occasion,
-            season: outfit.season,
-            styleType: outfit.styleType,
+            category: outfit.category || '',
             productLinks:
               Array.isArray(outfit.productLinks) && outfit.productLinks.length > 0
                 ? outfit.productLinks
                 : [''],
             featured: outfit.featured,
             sortWeight: outfit.sortWeight,
+            published: outfit.published,
           })
+        } else {
+          setError('Outfit not found.')
         }
       } catch (err) {
         console.error(err)
@@ -136,12 +144,11 @@ export default function AdminEditOutfitPage({
         description: (form.description || '').trim(),
         heroImage: (form.heroImage || '').trim(),
         galleryImages: (form.galleryImages || []).map((x) => x.trim()),
-        occasion: (form.occasion || '').trim(),
-        season: (form.season || '').trim(),
-        styleType: (form.styleType || '').trim(),
+        category: (form.category || '').trim(),
         productLinks: sanitizeLinks(form.productLinks || []),
         featured: Boolean(form.featured),
         sortWeight: Number(form.sortWeight) || 0,
+        published: typeof form.published === 'boolean' ? form.published : true,
       })
 
       router.push('/admin/outfits')
@@ -169,7 +176,17 @@ export default function AdminEditOutfitPage({
     <ProtectedRoute>
       <PagePadding>
         <Container className="py-12 max-w-4xl">
-          <h1 className="text-3xl font-semibold mb-6">Edit Outfit</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-semibold">Edit Outfit</h1>
+
+            <button
+              type="button"
+              onClick={() => router.push('/admin/outfits')}
+              className="text-sm text-gray-500 underline"
+            >
+              Back to Outfits
+            </button>
+          </div>
 
           {error && <p className="text-red-600 mb-4">{error}</p>}
 
@@ -184,7 +201,7 @@ export default function AdminEditOutfitPage({
               <p className="text-xs text-gray-500 mt-1">
                 URL slug will be:
                 <span className="ml-1 font-mono">
-                  /outfits/{slugify(form.title || '')}
+                  /outfit-inspiration/{slugify(form.title || '')}
                 </span>
               </p>
             </div>
@@ -192,13 +209,29 @@ export default function AdminEditOutfitPage({
             <div>
               <label className="block font-medium mb-1">Description</label>
               <textarea
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                rows={3}
+                className="w-full border rounded-md px-3 py-2 text-sm min-h-[120px]"
+                rows={4}
                 value={form.description || ''}
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
               />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">Category</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={form.category || ''}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                <option value="">Select category</option>
+                {OUTFIT_CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <CMSImageUploadField
@@ -234,35 +267,6 @@ export default function AdminEditOutfitPage({
             />
 
             <div>
-              <label className="block font-medium mb-1">Occasion</label>
-              <input
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.occasion || ''}
-                onChange={(e) => setForm({ ...form, occasion: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Season</label>
-              <input
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.season || ''}
-                onChange={(e) => setForm({ ...form, season: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Style Type</label>
-              <input
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={form.styleType || ''}
-                onChange={(e) =>
-                  setForm({ ...form, styleType: e.target.value })
-                }
-              />
-            </div>
-
-            <div>
               <label className="block font-medium mb-2">Product Links</label>
 
               <div className="space-y-3">
@@ -296,15 +300,28 @@ export default function AdminEditOutfitPage({
               </button>
             </div>
 
-            <div>
-              <label className="block font-medium mb-1">Featured</label>
-              <input
-                type="checkbox"
-                checked={form.featured || false}
-                onChange={(e) =>
-                  setForm({ ...form, featured: e.target.checked })
-                }
-              />
+            <div className="flex items-center gap-6 flex-wrap">
+              <label className="inline-flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={form.featured || false}
+                  onChange={(e) =>
+                    setForm({ ...form, featured: e.target.checked })
+                  }
+                />
+                <span>Featured outfit</span>
+              </label>
+
+              <label className="inline-flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={form.published !== false}
+                  onChange={(e) =>
+                    setForm({ ...form, published: e.target.checked })
+                  }
+                />
+                <span>Published</span>
+              </label>
             </div>
 
             <div>
