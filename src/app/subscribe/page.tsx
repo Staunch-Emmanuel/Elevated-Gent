@@ -39,6 +39,9 @@ export default function SubscribePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          serviceType: 'monthly-subscription',
+        }),
       })
 
       if (!res.ok) {

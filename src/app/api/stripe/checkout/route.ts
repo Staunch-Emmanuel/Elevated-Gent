@@ -5,20 +5,26 @@ import { adminAuth, adminDb } from "@/lib/firebase/admin";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 function resolveBaseUrl(request: NextRequest) {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+
+  if (appUrl) {
+    return appUrl.replace(/\/+$/, "");
   }
 
   if (process.env.VERCEL_URL) {
-    if (process.env.VERCEL_URL.startsWith("http")) {
-      return process.env.VERCEL_URL;
+    const vercelUrl = process.env.VERCEL_URL.trim();
+
+    if (vercelUrl.startsWith("http")) {
+      return vercelUrl.replace(/\/+$/, "");
     }
 
-    return `https://${process.env.VERCEL_URL}`;
+    return `https://${vercelUrl.replace(/\/+$/, "")}`;
   }
 
   const origin = request.headers.get("origin");
-  if (origin) return origin;
+  if (origin) {
+    return origin.replace(/\/+$/, "");
+  }
 
   throw new Error("Unable to determine app URL");
 }
@@ -62,6 +68,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         appUid: decoded.uid,
         appEmail: email,
+        serviceType: "monthly-subscription",
       },
       line_items: [
         {
