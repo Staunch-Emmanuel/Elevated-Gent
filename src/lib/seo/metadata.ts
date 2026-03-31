@@ -86,21 +86,21 @@ export const seoPages = {
         {
           '@type': 'Offer',
           name: 'The Foundation Package',
-          price: '250',
+          price: '500',
           priceCurrency: 'USD',
           description: 'Seasonal lookbook and personal shopping guidance'
         },
         {
           '@type': 'Offer',
           name: 'The Signature Refresh',
-          price: '500',
+          price: '750',
           priceCurrency: 'USD',
           description: 'Comprehensive style refresh with consultation'
         },
         {
           '@type': 'Offer',
           name: 'The Gentlemen\'s Upgrade',
-          price: '750',
+          price: '1000',
           priceCurrency: 'USD',
           description: 'Most comprehensive package with full consultation'
         }

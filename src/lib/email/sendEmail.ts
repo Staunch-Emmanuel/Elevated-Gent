@@ -17,7 +17,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
   }
 
   await resend.emails.send({
-    from: "Elevated Gentleman <noreply@elevatedgentleman.com>",
+    from: "Elevated Gentleman <noreply@theelevatedgentleman.com>",
     to,
     subject,
     html,
