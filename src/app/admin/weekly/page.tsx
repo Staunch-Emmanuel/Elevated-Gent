@@ -10,6 +10,7 @@ import {
   deleteWeekly,
   type WeeklyItem,
 } from '@/lib/firebase/weekly'
+import { PRODUCT_CATEGORIES } from '@/lib/products/types'
 
 export default function WeeklyAdminPage() {
   const [items, setItems] = useState<WeeklyItem[]>([])
@@ -90,14 +91,11 @@ export default function WeeklyAdminPage() {
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
             <option value="all">All Categories</option>
-            <option value="Finds of the Week">Finds of the Week</option>
-            <option value="Deals of the Week">Deals of the Week</option>
-            <option value="Fashion on a Budget">Fashion on a Budget</option>
-            <option value="High Roller List">High Roller List</option>
-            <option value="Best Accessories">Best Accessories</option>
-            <option value="Emerging Brand Spotlight">
-              Emerging Brand Spotlight
-            </option>
+            {PRODUCT_CATEGORIES.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </div>
 

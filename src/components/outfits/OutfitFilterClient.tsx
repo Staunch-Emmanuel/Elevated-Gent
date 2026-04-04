@@ -40,6 +40,7 @@ const categoryOptions = [
   { id: 'date-night', label: 'Date Night' },
   { id: 'weddings-events', label: 'Weddings/Events' },
   { id: 'weekend', label: 'Weekend' },
+  { id: 'marks-favorites', label: "Mark's Favorites" },
 ]
 
 function normalizeFilterValue(value: string): string {

@@ -22,6 +22,7 @@ export const OUTFIT_CATEGORY_OPTIONS = [
   'Date Night',
   'Weddings/Events',
   'Weekend',
+  "Mark's Favorites",
 ] as const
 
 export type OutfitCategory = (typeof OUTFIT_CATEGORY_OPTIONS)[number]

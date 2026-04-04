@@ -52,6 +52,8 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   { id: 'high-roller-list', name: 'High Roller List', slug: 'high-roller-list' },
   { id: 'best-accessories', name: 'Best Accessories', slug: 'best-accessories' },
   { id: 'emerging-brand-spotlight', name: 'Emerging Brand Spotlight', slug: 'emerging-brand-spotlight' },
+  { id: 'closet-staples', name: 'Closet Staples', slug: 'closet-staples' },
+  { id: 'marks-investment-pieces', name: "Mark's Investment Pieces", slug: 'marks-investment-pieces' },
 ]
 
 export const OUTFIT_OCCASIONS = [
