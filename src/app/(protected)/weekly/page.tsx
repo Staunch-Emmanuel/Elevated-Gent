@@ -44,7 +44,9 @@ function categoryToSlug(category: string): string {
   return (category || '')
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')
+    .replace(/'/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 export default function WeeklyPage() {

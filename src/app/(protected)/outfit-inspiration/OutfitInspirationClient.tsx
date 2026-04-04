@@ -32,8 +32,10 @@ function normalizeFilterValue(value: string): string {
   return value
     .trim()
     .toLowerCase()
+    .replace(/'/g, '')
     .replace(/[^\w/]+/g, '-')
     .replace(/\//g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 function mapCmsOutfitsToLooks(
