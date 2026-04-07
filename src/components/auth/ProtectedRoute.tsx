@@ -8,7 +8,7 @@ import { getUserData } from "@/lib/firebase/getUserData";
 export default function ProtectedRoute({
   children,
   requireAdmin = false,
-  requireSubscription = false,
+  requireSubscription = true, // 🔥 DEFAULT TRUE NOW
 }: {
   children: ReactNode;
   requireAdmin?: boolean;
@@ -36,11 +36,13 @@ export default function ProtectedRoute({
 
         if (!mounted) return;
 
+        // 🔒 ADMIN CHECK
         if (requireAdmin && data.role !== "admin") {
           router.replace("/");
           return;
         }
 
+        // 🔒 SUBSCRIPTION CHECK (NOW ALWAYS ACTIVE)
         if (
           requireSubscription &&
           data.role !== "admin" &&
@@ -53,7 +55,7 @@ export default function ProtectedRoute({
         setAllowed(true);
       } catch (error) {
         console.error("ProtectedRoute access check failed:", error);
-        router.replace("/");
+        router.replace("/subscribe");
       }
     }
 
