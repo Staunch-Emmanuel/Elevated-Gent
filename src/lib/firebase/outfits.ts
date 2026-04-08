@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
+import type { ShoppableLink } from '@/lib/products/types'
 
 const COLLECTION = 'outfits'
 
@@ -33,7 +34,7 @@ export interface OutfitInput {
   heroImage: string
   galleryImages?: string[]
   category: string
-  productLinks: string[]
+  productLinks: Array<string | ShoppableLink>
   featured?: boolean
   slug?: string
   sortWeight?: number
@@ -62,12 +63,38 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-function sanitizeLinks(value: unknown): string[] {
+function sanitizeLinks(value: unknown): Array<string | ShoppableLink> {
   if (!Array.isArray(value)) return []
 
   return value
-    .map((item) => (typeof item === 'string' ? item.trim() : ''))
-    .filter(Boolean)
+    .map((item) => {
+      if (typeof item === 'string') {
+        const url = item.trim()
+        return url ? url : null
+      }
+
+      if (
+        item &&
+        typeof item === 'object' &&
+        typeof (item as { url?: unknown }).url === 'string'
+      ) {
+        const url = (item as { url: string }).url.trim()
+        const rawLabel =
+          typeof (item as { label?: unknown }).label === 'string'
+            ? (item as { label: string }).label.trim()
+            : ''
+
+        if (!url) return null
+
+        return {
+          label: rawLabel || url,
+          url,
+        }
+      }
+
+      return null
+    })
+    .filter((item): item is string | ShoppableLink => Boolean(item))
 }
 
 function sanitizeCategory(value: unknown): string {

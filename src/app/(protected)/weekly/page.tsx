@@ -120,11 +120,11 @@ export default function WeeklyPage() {
             ) : featuredProducts.length === 0 ? (
               <p className="text-center text-gray-600">No featured weekly products yet.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 {featuredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 p-6"
+                    className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 p-6 self-start"
                   >
                     <ProductCard product={product} />
                   </div>
@@ -158,9 +158,11 @@ export default function WeeklyPage() {
             ) : filteredProducts.length === 0 ? (
               <p className="text-center text-gray-600">No weekly products found.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                 {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <div key={product.id} className="self-start">
+                    <ProductCard product={product} />
+                  </div>
                 ))}
               </div>
             )}

@@ -11,6 +11,7 @@ import {
   createOutfit,
   OUTFIT_CATEGORY_OPTIONS,
 } from '@/lib/firebase/outfits'
+import type { ShoppableLink } from '@/lib/products/types'
 
 function slugify(text: string): string {
   return text
@@ -20,8 +21,13 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-function sanitizeLinks(links: string[]): string[] {
-  return links.map((link) => link.trim()).filter(Boolean)
+function sanitizeLinks(links: ShoppableLink[]): ShoppableLink[] {
+  return links
+    .map((link) => ({
+      label: link.label.trim(),
+      url: link.url.trim(),
+    }))
+    .filter((link) => Boolean(link.url))
 }
 
 export default function AdminNewOutfitPage() {
@@ -35,25 +41,29 @@ export default function AdminNewOutfitPage() {
   const [featured, setFeatured] = useState(false)
   const [published, setPublished] = useState(true)
   const [sortWeight, setSortWeight] = useState<number>(0)
-  const [productLinks, setProductLinks] = useState<string[]>([''])
+  const [productLinks, setProductLinks] = useState<ShoppableLink[]>([
+    { label: '', url: '' },
+  ])
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function updateLink(index: number, value: string) {
+  function updateLink(index: number, field: keyof ShoppableLink, value: string) {
     setProductLinks((current) =>
-      current.map((item, i) => (i === index ? value : item))
+      current.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
     )
   }
 
   function addLinkField() {
-    setProductLinks((current) => [...current, ''])
+    setProductLinks((current) => [...current, { label: '', url: '' }])
   }
 
   function removeLinkField(index: number) {
     setProductLinks((current) => {
       const next = current.filter((_, i) => i !== index)
-      return next.length > 0 ? next : ['']
+      return next.length > 0 ? next : [{ label: '', url: '' }]
     })
   }
 
@@ -114,7 +124,7 @@ export default function AdminNewOutfitPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="py-10 max-w-4xl">
           <div className="flex items-center justify-between mb-8">
@@ -128,11 +138,11 @@ export default function AdminNewOutfitPage() {
             </button>
           </div>
 
-          {error && (
+          {error ? (
             <div className="mb-6 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
-          )}
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
@@ -235,24 +245,39 @@ export default function AdminNewOutfitPage() {
                 Product Links
               </label>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {productLinks.map((link, index) => (
-                  <div key={index} className="flex gap-3">
-                    <input
-                      type="url"
-                      value={link}
-                      onChange={(e) => updateLink(index, e.target.value)}
-                      className="w-full border rounded px-3 py-2 text-sm"
-                      placeholder="https://example.com/product"
-                    />
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Link Name
+                      </label>
+                      <input
+                        type="text"
+                        value={link.label}
+                        onChange={(e) => updateLink(index, 'label', e.target.value)}
+                        className="w-full border rounded px-3 py-2 text-sm"
+                        placeholder="e.g. Blazer, Shoes, Watch"
+                      />
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => removeLinkField(index)}
-                      className="px-3 py-2 border rounded text-sm"
-                    >
-                      Remove
-                    </button>
+                    <div className="flex gap-3">
+                      <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => updateLink(index, 'url', e.target.value)}
+                        className="w-full border rounded px-3 py-2 text-sm"
+                        placeholder="https://example.com/product"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => removeLinkField(index)}
+                        className="px-3 py-2 border rounded text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -266,7 +291,7 @@ export default function AdminNewOutfitPage() {
               </button>
 
               <p className="mt-2 text-xs text-gray-500">
-                Add one or more external product URLs for this outfit.
+                Add one or more external product URLs and optional custom names for each one.
               </p>
             </div>
 

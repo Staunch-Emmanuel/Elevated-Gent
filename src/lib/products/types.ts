@@ -17,6 +17,11 @@ export interface Product {
   colors?: string[]
 }
 
+export type ShoppableLink = {
+  label: string
+  url: string
+}
+
 export interface OutfitLook {
   id: string
   title: string
@@ -27,7 +32,7 @@ export interface OutfitLook {
   occasion: string
   season: string
   styleType: string
-  productLinks: string[]
+  productLinks: Array<string | ShoppableLink>
   featured: boolean
   createdAt?: string
   updatedAt?: string

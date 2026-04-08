@@ -12,22 +12,26 @@ interface ProductCardProps {
   className?: string
 }
 
-export function ProductCard({ product, showFullDetails = true, className = '' }: ProductCardProps) {
+export function ProductCard({
+  product,
+  showFullDetails = true,
+  className = '',
+}: ProductCardProps) {
   const [showDetails, setShowDetails] = useState(false)
 
-  const handleShopNow = () => {
-    if (showFullDetails) {
-      setShowDetails(!showDetails)
-    } else {
-      // If not showing full details, just open the link directly
+  const handleToggleDetails = () => {
+    if (!showFullDetails) {
       handleBuyProduct()
+      return
     }
+
+    setShowDetails((value) => !value)
   }
 
   const handleBuyProduct = () => {
     const url = getShoppableLink(product)
     trackAffiliateClick(product.id, product.affiliateLink)
-    window.open(url, '_blank')
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -41,129 +45,130 @@ export function ProductCard({ product, showFullDetails = true, className = '' }:
         />
         <div className="absolute inset-0 bg-black/10" />
 
-        {/* Category Label */}
         <div className="absolute top-4 left-4">
           <Label>{product.category}</Label>
         </div>
 
-        {/* Sale Badge */}
-        {product.originalPrice && (
+        {product.originalPrice ? (
           <div className="absolute top-4 right-4">
-            <Label variant="inverse" className="text-xs">SALE</Label>
+            <Label variant="inverse" className="text-xs">
+              SALE
+            </Label>
           </div>
-        )}
+        ) : null}
 
-        {/* Stock Status */}
-        {!product.inStock && (
+        {!product.inStock ? (
           <div className="absolute bottom-4 left-4 right-4">
             <div className="bg-red-600 text-white text-xs px-2 py-1 rounded text-center font-semibold">
               OUT OF STOCK
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
-      <div className="space-y-2">
-        {/* Brand and Price */}
-        <div className="flex items-center justify-between">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-serif text-gray-500 uppercase tracking-wide">
             {product.brand}
           </span>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-lg font-semibold">{product.price}</span>
-            {product.originalPrice && (
+            {product.originalPrice ? (
               <span className="text-sm text-gray-500 line-through">
                 {product.originalPrice}
               </span>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {/* Title */}
-        <h3 className="text-lg font-semibold font-sans">
-          {product.title}
-        </h3>
+        <h3 className="text-lg font-semibold font-sans">{product.title}</h3>
 
-        {/* Description - Always show as preview */}
-        {showFullDetails && (
-          <p className="font-serif text-muted text-sm overflow-hidden"
-             style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+        {showFullDetails && product.description ? (
+          <p
+            className={`font-serif text-muted text-sm whitespace-pre-line ${
+              showDetails ? '' : 'line-clamp-2'
+            }`}
+          >
             {product.description}
           </p>
-        )}
+        ) : null}
 
-        {/* Shop Now Button */}
         <Button
           size="sm"
-          onClick={handleShopNow}
+          onClick={handleToggleDetails}
           disabled={!product.inStock}
           className="w-full"
         >
-          {showDetails ? 'Hide Details' : (product.affiliateLink ? 'Shop Now' : 'View Product')}
+          {showDetails ? 'Hide Details' : 'View Product'}
         </Button>
 
-        {/* Expanded Details Dropdown */}
-        {showFullDetails && showDetails && (
+        {showFullDetails && showDetails ? (
           <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
             <h4 className="font-semibold font-sans text-sm uppercase tracking-wide">
               Product Details
             </h4>
 
-            {/* Tags */}
-            <div>
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
-                Features
-              </span>
-              <div className="flex gap-1 flex-wrap">
-                {product.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-serif uppercase tracking-wide"
-                  >
-                    {tag}
-                  </span>
-                ))}
+            {Array.isArray(product.tags) && product.tags.length > 0 ? (
+              <div>
+                <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
+                  Features
+                </span>
+                <div className="flex gap-1 flex-wrap">
+                  {product.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-serif uppercase tracking-wide"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            {/* Sizes (if available) */}
-            {product.sizes && (
+            {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
               <div>
                 <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
                   Available Sizes
                 </span>
                 <div className="flex gap-1 flex-wrap">
                   {product.sizes.map((size) => (
-                    <span key={size} className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600">
+                    <span
+                      key={size}
+                      className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600"
+                    >
                       {size}
                     </span>
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {/* Colors (if available) */}
-            {product.colors && (
+            {Array.isArray(product.colors) && product.colors.length > 0 ? (
               <div>
                 <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
                   Available Colors
                 </span>
                 <div className="flex gap-1 flex-wrap">
                   {product.colors.map((color) => (
-                    <span key={color} className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600">
+                    <span
+                      key={color}
+                      className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600"
+                    >
                       {color}
                     </span>
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {/* Category */}
             <div className="pt-3 border-t border-gray-200">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-serif text-gray-500">
                   Category: {product.category}
                 </span>
+
                 <Button
                   size="sm"
                   onClick={handleBuyProduct}
@@ -174,8 +179,10 @@ export function ProductCard({ product, showFullDetails = true, className = '' }:
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )
 }
+
+export default ProductCard

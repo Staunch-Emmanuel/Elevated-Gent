@@ -6,13 +6,14 @@ import {
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
+import type { ShoppableLink } from '@/lib/products/types'
 
 export interface OutfitInspirationDocument {
   id: string
   title: string
   description: string
   imageUrl: string
-  links: string[]
+  links: Array<string | ShoppableLink>
   category?: string
   featured?: boolean
   slug?: string
@@ -36,6 +37,40 @@ function toDateValue(value: any): number {
   }
 
   return 0
+}
+
+function sanitizeLinks(value: unknown): Array<string | ShoppableLink> {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map((item) => {
+      if (typeof item === 'string') {
+        const url = item.trim()
+        return url ? url : null
+      }
+
+      if (
+        item &&
+        typeof item === 'object' &&
+        typeof (item as { url?: unknown }).url === 'string'
+      ) {
+        const url = (item as { url: string }).url.trim()
+        const rawLabel =
+          typeof (item as { label?: unknown }).label === 'string'
+            ? (item as { label: string }).label.trim()
+            : ''
+
+        if (!url) return null
+
+        return {
+          label: rawLabel,
+          url,
+        }
+      }
+
+      return null
+    })
+    .filter((item): item is string | ShoppableLink => Boolean(item))
 }
 
 function normalizeCategory(data: any): string {
@@ -117,11 +152,13 @@ export async function getAllOutfitInspiration(): Promise<OutfitInspirationDocume
         title: data.title ?? '',
         description: data.description ?? '',
         imageUrl: data.heroImage ?? data.imageUrl ?? '',
-        links: Array.isArray(data.productLinks)
-          ? data.productLinks
-          : Array.isArray(data.links)
-            ? data.links
-            : [],
+        links: sanitizeLinks(
+          Array.isArray(data.productLinks)
+            ? data.productLinks
+            : Array.isArray(data.links)
+              ? data.links
+              : []
+        ),
         category: normalizeCategory(data),
         featured: Boolean(data.featured),
         slug: data.slug ?? doc.id,

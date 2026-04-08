@@ -1,106 +1,126 @@
-"use client";
+'use client'
 
-import { useEffect, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
-import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
 import {
   getArticleById,
   updateArticle,
   deleteArticle,
-} from "@/lib/firebase/articles";
+} from '@/lib/firebase/articles'
 
-import type { ArticleDocument } from "@/lib/types/articles";
+import type { ArticleDocument } from '@/lib/types/articles'
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 function slugify(title: string): string {
   return title
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function normalizeCategory(value: string) {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  if (
+    normalized === 'general' ||
+    normalized === 'wellness' ||
+    normalized === 'style' ||
+    normalized === 'grooming' ||
+    normalized === 'lifestyle'
+  ) {
+    return normalized
+  }
+
+  return 'general'
 }
 
 export default function AdminEditArticlePage({ params }: PageProps) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [articleId, setArticleId] = useState<string>("");
+  const [articleId, setArticleId] = useState<string>('')
 
-  const [article, setArticle] = useState<ArticleDocument | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [article, setArticle] = useState<ArticleDocument | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [category, setCategory] = useState("general");
-  const [heroImage, setHeroImage] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState('')
+  const [excerpt, setExcerpt] = useState('')
+  const [category, setCategory] = useState('general')
+  const [heroImage, setHeroImage] = useState('')
+  const [content, setContent] = useState('')
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
+    let mounted = true
+    ;(async () => {
       try {
-        const resolved = await params;
-        if (!mounted) return;
-        setArticleId(resolved.id);
+        const resolved = await params
+        if (!mounted) return
+        setArticleId(resolved.id)
       } catch (e) {
-        console.error(e);
-        if (!mounted) return;
-        setError("Invalid route params.");
-        setLoading(false);
+        console.error(e)
+        if (!mounted) return
+        setError('Invalid route params.')
+        setLoading(false)
       }
-    })();
+    })()
     return () => {
-      mounted = false;
-    };
-  }, [params]);
+      mounted = false
+    }
+  }, [params])
 
   useEffect(() => {
     async function load() {
-      if (!articleId) return;
+      if (!articleId) return
 
-      setLoading(true);
-      const doc = await getArticleById(articleId);
+      setLoading(true)
+      const doc = await getArticleById(articleId)
 
       if (!doc) {
-        setError("Article not found");
-        setLoading(false);
-        return;
+        setError('Article not found')
+        setLoading(false)
+        return
       }
 
-      setArticle(doc);
-      setTitle(doc.title ?? "");
-      setExcerpt(doc.excerpt ?? "");
-      setCategory(doc.category ?? "general");
-      setHeroImage(doc.heroImage ?? "");
-      setContent(doc.content ?? "");
-      setLoading(false);
+      setArticle(doc)
+      setTitle(doc.title ?? '')
+      setExcerpt(doc.excerpt ?? '')
+      setCategory(normalizeCategory(doc.category ?? 'general'))
+      setHeroImage(doc.heroImage ?? '')
+      setContent(doc.content ?? '')
+      setLoading(false)
     }
 
-    load();
-  }, [articleId]);
+    load()
+  }, [articleId])
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!article) return;
+    e.preventDefault()
+    if (!article) return
 
-    setSaving(true);
-    setError("");
+    setSaving(true)
+    setError('')
 
-    const slug = slugify(title);
+    const slug = slugify(title)
 
     if (!slug) {
-      setError("Invalid title. Slug could not be generated.");
-      setSaving(false);
-      return;
+      setError('Invalid title. Slug could not be generated.')
+      setSaving(false)
+      return
     }
 
     try {
@@ -108,51 +128,51 @@ export default function AdminEditArticlePage({ params }: PageProps) {
         title,
         slug,
         excerpt,
-        category,
+        category: normalizeCategory(category),
         heroImage,
         content,
-      });
+      })
 
-      router.push("/admin/articles");
+      router.push('/admin/articles')
     } catch (err) {
-      console.error(err);
-      setError("Failed to update article.");
-      setSaving(false);
+      console.error(err)
+      setError('Failed to update article.')
+      setSaving(false)
     }
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this article?")) return;
-    await deleteArticle(articleId);
-    router.push("/admin/articles");
+    if (!confirm('Delete this article?')) return
+    await deleteArticle(articleId)
+    router.push('/admin/articles')
   }
 
   if (loading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
             <p>Loading...</p>
           </Container>
         </PagePadding>
       </ProtectedRoute>
-    );
+    )
   }
 
   if (!article) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
             <p>Article not found.</p>
           </Container>
         </PagePadding>
       </ProtectedRoute>
-    );
+    )
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-2xl">
           <div className="flex items-center justify-between mb-6">
@@ -167,11 +187,11 @@ export default function AdminEditArticlePage({ params }: PageProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {error ? (
               <p className="text-sm text-red-600 border border-red-200 rounded-md px-3 py-2">
                 {error}
               </p>
-            )}
+            ) : null}
 
             <div>
               <label className="block text-sm font-medium mb-1">Title</label>
@@ -201,7 +221,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               <label className="block text-sm font-medium mb-1">Category</label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => setCategory(normalizeCategory(e.target.value))}
                 className="w-full border rounded-md px-3 py-2 text-sm"
               >
                 <option value="general">General</option>
@@ -218,7 +238,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               documentSlug={slugify(title)}
               mode="single"
               value={heroImage}
-              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              onChange={(value) => setHeroImage(typeof value === 'string' ? value : '')}
               helpText="Replace or remove the current article hero image."
               disabled={saving}
             />
@@ -240,11 +260,11 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               disabled={saving}
               className="px-4 py-2 rounded-md bg-black text-white text-sm disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </form>
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

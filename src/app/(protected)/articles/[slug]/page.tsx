@@ -54,17 +54,23 @@ function formatDate(value: unknown): string {
 }
 
 function normalizeCategory(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase()
+  const normalized = String(value ?? '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  return normalized
 }
 
 function getCategoryName(category: string): string {
   const categoryMap: Record<string, string> = {
-    blueprint: 'Grooming Blueprint',
-    lifestyle: 'Lifestyle',
-    wellness: 'Wellness',
     general: 'General',
-    grooming: 'Grooming',
+    wellness: 'Wellness',
     style: 'Style',
+    grooming: 'Grooming',
+    lifestyle: 'Lifestyle',
   }
 
   return categoryMap[category] || category

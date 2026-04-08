@@ -7,6 +7,60 @@ import { PagePadding, Container } from '@/components/layout'
 import { Button, Label } from '@/components/ui'
 
 import { getAllOutfitInspiration } from '@/lib/firebase/outfitInspiration'
+import type { ShoppableLink } from '@/lib/products/types'
+
+function normalizeLink(
+  link: string | ShoppableLink,
+  index: number
+): ShoppableLink {
+  if (typeof link === 'string') {
+    return {
+      label: '',
+      url: link,
+    }
+  }
+
+  return {
+    label: typeof link.label === 'string' ? link.label.trim() : '',
+    url: link.url,
+  }
+}
+
+function getReadableUrl(url: string): string {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return ''
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const path = parsed.pathname.replace(/\/+$/, '')
+    return `${host}${path}` || host
+  } catch {
+    return trimmed
+      .replace(/^https?:\/\//i, '')
+      .replace(/^www\./i, '')
+  }
+}
+
+function getFallbackLabel(url: string, index: number): string {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return `Link ${index + 1}`
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const segments = parsed.pathname.split('/').filter(Boolean)
+    const lastSegment = segments[segments.length - 1] || ''
+
+    if (lastSegment) {
+      return `${host} / ${lastSegment.replace(/[-_]+/g, ' ')}`
+    }
+
+    return host
+  } catch {
+    return `Link ${index + 1}`
+  }
+}
 
 export default async function OutfitInspirationDetailPage({
   params,
@@ -18,13 +72,41 @@ export default async function OutfitInspirationDetailPage({
   const items = await getAllOutfitInspiration()
 
   const item =
-    items.find((entry) => (entry.slug ?? entry.id) === slug && entry.published !== false) || null
+    items.find(
+      (entry) => (entry.slug ?? entry.id) === slug && entry.published !== false
+    ) || null
 
   if (!item) {
     return notFound()
   }
 
-  const links = Array.isArray(item.links) ? item.links.filter(Boolean) : []
+  const links = Array.isArray(item.links) ? item.links : []
+
+  const normalizedLinks = links
+    .map((link, index) => {
+      const normalized = normalizeLink(link, index)
+      const url = String(normalized.url || '').trim()
+
+      if (!url) return null
+
+      return {
+        label:
+          normalized.label && normalized.label !== url
+            ? normalized.label
+            : getFallbackLabel(url, index),
+        url,
+        readableUrl: getReadableUrl(url),
+      }
+    })
+    .filter(
+      (
+        link
+      ): link is {
+        label: string
+        url: string
+        readableUrl: string
+      } => Boolean(link)
+    )
 
   return (
     <ProtectedRoute>
@@ -51,7 +133,7 @@ export default async function OutfitInspirationDetailPage({
               />
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 w-full">
               <div className="flex items-center gap-3 flex-wrap">
                 {item.category ? <Label>{item.category}</Label> : null}
                 <Label variant="inverse">Inspiration</Label>
@@ -62,36 +144,42 @@ export default async function OutfitInspirationDetailPage({
               </h1>
 
               {item.description ? (
-                <p className="font-serif text-lg max-w-3xl text-muted">
-                  {item.description}
-                </p>
+                <div className="w-full">
+                  <p className="font-serif text-lg text-muted leading-relaxed whitespace-pre-line w-full max-w-none">
+                    {item.description}
+                  </p>
+                </div>
               ) : (
-                <p className="font-serif text-lg max-w-3xl text-muted">
-                  Curated outfit inspiration with direct links to shop each selection.
-                </p>
+                <div className="w-full">
+                  <p className="font-serif text-lg text-muted leading-relaxed w-full max-w-none">
+                    Curated outfit inspiration with direct links to shop each selection.
+                  </p>
+                </div>
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 w-full">
               <h2 className="text-2xl font-bold">Links for this look</h2>
 
-              {links.length === 0 ? (
+              {normalizedLinks.length === 0 ? (
                 <p className="text-muted">No links added yet.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {links.map((link, index) => (
+                  {normalizedLinks.map((link, index) => (
                     <div
                       key={`${item.id}-link-${index}`}
                       className="border rounded-lg p-5 space-y-4"
                     >
                       <div className="space-y-2">
-                        <p className="text-xs uppercase tracking-wide text-muted">
-                          Link {index + 1}
+                        <p className="text-base font-semibold text-black break-words">
+                          {link.label}
                         </p>
-                        <p className="break-all font-serif text-sm">{link}</p>
+                        <p className="break-all font-serif text-sm text-muted">
+                          {link.readableUrl}
+                        </p>
                       </div>
 
-                      <a href={link} target="_blank" rel="noreferrer">
+                      <a href={link.url} target="_blank" rel="noreferrer">
                         <Button>Open Link</Button>
                       </a>
                     </div>

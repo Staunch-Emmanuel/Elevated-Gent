@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 
 import { Label } from '@/components/ui'
 import { OutfitCard } from '@/components/products/OutfitCard'
@@ -104,13 +103,7 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredOutfits.map((outfit) => (
-            <Link
-              key={outfit.id}
-              href={`/outfit-inspiration/${outfit.slug}`}
-              className="block"
-            >
-              <OutfitCard outfit={outfit} />
-            </Link>
+            <OutfitCard key={outfit.id} outfit={outfit} />
           ))}
         </div>
       )}

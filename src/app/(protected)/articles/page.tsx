@@ -15,12 +15,20 @@ import { getAllArticlesCMS } from '@/lib/firebase/articles'
 const categoryOptions = [
   { id: 'all', label: 'All' },
   { id: 'wellness', label: 'Wellness' },
-  { id: 'blueprint', label: 'Grooming Blueprint' },
+  { id: 'grooming', label: 'Grooming' },
+  { id: 'style', label: 'Style' },
   { id: 'lifestyle', label: 'Lifestyle' },
 ] as const
 
 function normalizeCategory(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase()
+  const normalized = String(value ?? '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  return normalized || 'general'
 }
 
 function normalizeDate(value: unknown): number {
@@ -66,7 +74,7 @@ function mapArticleForCard(article: ArticleDocument): ArticleCardArticle {
     title: article.title ?? '',
     excerpt: article.excerpt ?? '',
     heroImage: article.heroImage ?? '',
-    category: article.category ?? 'general',
+    category: normalizeCategory(article.category ?? 'general'),
     publishDate:
       article.publishDate ??
       article.datePublished ??

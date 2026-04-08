@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { MouseEvent, useMemo, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Button, Label } from '@/components/ui'
-import type { OutfitLook } from '@/lib/products/types'
+import type { OutfitLook, ShoppableLink } from '@/lib/products/types'
 
 type OutfitCardLook = OutfitLook & {
   category?: string
@@ -13,59 +14,170 @@ interface OutfitCardProps {
   outfit: OutfitCardLook
 }
 
+function normalizeLink(
+  link: string | ShoppableLink,
+  index: number
+): ShoppableLink {
+  if (typeof link === 'string') {
+    return {
+      label: '',
+      url: link,
+    }
+  }
+
+  return {
+    label: typeof link.label === 'string' ? link.label.trim() : '',
+    url: link.url,
+  }
+}
+
+function getReadableUrl(url: string): string {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return ''
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const path = parsed.pathname.replace(/\/+$/, '')
+    return `${host}${path}` || host
+  } catch {
+    return trimmed
+      .replace(/^https?:\/\//i, '')
+      .replace(/^www\./i, '')
+  }
+}
+
+function getFallbackLabel(url: string, index: number): string {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return `Link ${index + 1}`
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const segments = parsed.pathname.split('/').filter(Boolean)
+    const lastSegment = segments[segments.length - 1] || ''
+
+    if (lastSegment) {
+      return `${host} / ${lastSegment.replace(/[-_]+/g, ' ')}`
+    }
+
+    return host
+  } catch {
+    return `Link ${index + 1}`
+  }
+}
+
 export function OutfitCard({ outfit }: OutfitCardProps) {
   const [showLinks, setShowLinks] = useState(false)
 
-  const links = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
+  const href = `/outfit-inspiration/${outfit.slug || outfit.id}`
 
-  const handleToggleLinks = () => {
+  const links = useMemo(() => {
+    const source = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
+
+    return source
+      .map((link, index) => {
+        const normalized = normalizeLink(link, index)
+        const url = String(normalized.url || '').trim()
+
+        if (!url) return null
+
+        const label =
+          normalized.label && normalized.label !== url
+            ? normalized.label
+            : getFallbackLabel(url, index)
+
+        return {
+          label,
+          url,
+          readableUrl: getReadableUrl(url),
+        }
+      })
+      .filter(
+        (
+          item
+        ): item is {
+          label: string
+          url: string
+          readableUrl: string
+        } => Boolean(item)
+      )
+  }, [outfit.productLinks])
+
+  const handleToggleLinks = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
     setShowLinks((value) => !value)
   }
 
-  const handleOpenLink = (url: string) => {
+  const handleOpenLink = (
+    event: MouseEvent<HTMLButtonElement>,
+    url: string
+  ) => {
+    event.preventDefault()
+    event.stopPropagation()
     if (!url) return
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-      <div className="aspect-[4/5] bg-background-muted relative overflow-hidden">
-        <Image
-          src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
-          alt={outfit.title || 'Outfit'}
-          fill
-          className="object-cover hover:scale-105 transition-transform duration-300"
-        />
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full">
+      <Link href={href} className="block">
+        <div className="aspect-[4/5] bg-background-muted relative overflow-hidden">
+          <Image
+            src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
+            alt={outfit.title || 'Outfit'}
+            fill
+            className="object-cover hover:scale-105 transition-transform duration-300"
+          />
 
-        {outfit.category ? (
-          <div className="absolute top-4 left-4">
-            <Label className="text-xs">{outfit.category}</Label>
+          {outfit.category ? (
+            <div className="absolute top-4 left-4">
+              <Label className="text-xs">{outfit.category}</Label>
+            </div>
+          ) : null}
+
+          <div className="absolute top-4 right-4">
+            <Label variant="inverse" className="text-xs">
+              Inspiration
+            </Label>
           </div>
-        ) : null}
-
-        <div className="absolute top-4 right-4">
-          <Label variant="inverse" className="text-xs">
-            Inspiration
-          </Label>
         </div>
-      </div>
+      </Link>
 
       <div className="p-6 space-y-4">
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold font-sans">{outfit.title}</h3>
+          <Link href={href} className="block">
+            <h3 className="text-xl font-semibold font-sans hover:underline">
+              {outfit.title}
+            </h3>
+          </Link>
 
           {outfit.description ? (
-            <p className="font-serif text-gray-600 text-sm">
+            <p
+              className={`font-serif text-gray-600 text-sm whitespace-pre-line ${
+                showLinks ? '' : 'line-clamp-2'
+              }`}
+            >
               {outfit.description}
             </p>
           ) : null}
         </div>
 
-        <Button onClick={handleToggleLinks} className="w-full">
-          {showLinks ? 'Hide Links' : 'Shop the Look'}
-        </Button>
+        <div className="space-y-3">
+          <Button onClick={handleToggleLinks} className="w-full">
+            {showLinks ? 'Hide Details' : 'Shop the Look'}
+          </Button>
 
-        {showLinks && (
+          <Link
+            href={href}
+            className="block w-full border border-black px-4 py-3 text-center text-sm font-medium uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+          >
+            View Details
+          </Link>
+        </div>
+
+        {showLinks ? (
           <div className="mt-6 space-y-4 border-t border-gray-200 pt-4">
             <h4 className="font-semibold font-sans text-sm uppercase tracking-wide">
               Product Links ({links.length})
@@ -81,16 +193,18 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
                     className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="flex-grow min-w-0">
-                      <div className="text-xs font-serif text-gray-500 uppercase tracking-wide">
-                        Link {index + 1}
+                      <div className="text-sm font-semibold text-gray-900 break-words">
+                        {link.label}
                       </div>
-                      <div className="font-semibold text-sm truncate">{link}</div>
+                      <div className="text-xs text-gray-500 break-all mt-1">
+                        {link.readableUrl}
+                      </div>
                     </div>
 
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleOpenLink(link)}
+                      onClick={(event) => handleOpenLink(event, link.url)}
                       className="flex-shrink-0 text-xs"
                     >
                       Open
@@ -100,7 +214,7 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
               </div>
             )}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )

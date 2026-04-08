@@ -27,30 +27,25 @@ const CATEGORY_CONFIG: Record<
     description: string
   }
 > = {
+  general: {
+    title: 'GENERAL',
+    description:
+      'Editorial pieces and guidance across style, wellness, and modern living.',
+  },
   wellness: {
     title: 'WELLNESS',
     description:
-      'Guidance on wellness, grooming, and healthy routines that support confidence and personal style.',
+      'Guidance on wellness, healthy routines, and everyday habits that support confidence and personal style.',
   },
-  blueprint: {
-    title: 'THE GROOMING BLUEPRINT',
+  grooming: {
+    title: 'GROOMING',
     description:
       'Foundational grooming advice for the modern gentleman, from skincare to maintenance routines.',
   },
-  confidence: {
-    title: 'CONFIDENCE & WELLNESS',
+  style: {
+    title: 'STYLE',
     description:
-      'Editorial content focused on self-presentation, confidence, and everyday wellness.',
-  },
-  occasion: {
-    title: 'BY OCCASION',
-    description:
-      'Category-based article selections for different moments, settings, and lifestyle needs.',
-  },
-  products: {
-    title: 'PRODUCT REVIEWS',
-    description:
-      'Curated reviews and recommendations on products that support grooming, lifestyle, and style.',
+      'Editorial content focused on dressing well, shopping better, and refining personal style.',
   },
   lifestyle: {
     title: 'LIFESTYLE',
@@ -60,7 +55,14 @@ const CATEGORY_CONFIG: Record<
 }
 
 function normalizeCategory(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase()
+  const normalized = String(value ?? '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  return normalized || 'general'
 }
 
 function normalizeDate(value: unknown): number {
@@ -124,7 +126,7 @@ function mapArticleForCard(article: CombinedArticle): ArticleCardArticle {
     title: article.title ?? '',
     excerpt: article.excerpt ?? '',
     heroImage: article.heroImage ?? '',
-    category: article.category ?? 'general',
+    category: normalizeCategory(article.category ?? 'general'),
     publishDate:
       article.publishDate ??
       article.datePublished ??
@@ -151,12 +153,14 @@ export default async function ArticleCategoryPage({ params }: PageProps) {
 
   const cmsMapped: CombinedArticle[] = (cms ?? []).map((a) => ({
     ...a,
+    category: normalizeCategory(a.category),
     source: 'cms',
     normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
   }))
 
   const staticMapped: CombinedArticle[] = (staticArticles ?? []).map((a) => ({
     ...a,
+    category: normalizeCategory(a.category),
     source: 'static',
     normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
   }))

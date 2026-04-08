@@ -13,6 +13,7 @@ import {
   OUTFIT_CATEGORY_OPTIONS,
 } from '@/lib/firebase/outfits'
 import type { OutfitDocument } from '@/lib/firebase/outfits'
+import type { ShoppableLink } from '@/lib/products/types'
 
 type AdminEditOutfitPageProps = {
   params: Promise<{
@@ -28,8 +29,20 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-function sanitizeLinks(links: string[]): string[] {
-  return links.map((link) => link.trim()).filter(Boolean)
+function sanitizeLinks(links: Array<string | ShoppableLink>): ShoppableLink[] {
+  return links
+    .map((link) => {
+      if (typeof link === 'string') {
+        const url = link.trim()
+        return url ? { label: url, url } : null
+      }
+
+      const label = link.label.trim()
+      const url = link.url.trim()
+
+      return url ? { label: label || url, url } : null
+    })
+    .filter((item): item is ShoppableLink => Boolean(item))
 }
 
 export default function AdminEditOutfitPage({
@@ -45,7 +58,7 @@ export default function AdminEditOutfitPage({
 
   const [form, setForm] = useState<Partial<OutfitDocument>>({
     galleryImages: [],
-    productLinks: [''],
+    productLinks: [{ label: '', url: '' }],
     category: '',
     description: '',
   })
@@ -79,6 +92,8 @@ export default function AdminEditOutfitPage({
         const outfit = await getOutfitById(outfitId)
 
         if (outfit) {
+          const normalizedLinks = sanitizeLinks(outfit.productLinks || [])
+
           setForm({
             title: outfit.title,
             description: outfit.description,
@@ -86,9 +101,9 @@ export default function AdminEditOutfitPage({
             galleryImages: outfit.galleryImages || [],
             category: outfit.category || '',
             productLinks:
-              Array.isArray(outfit.productLinks) && outfit.productLinks.length > 0
-                ? outfit.productLinks
-                : [''],
+              normalizedLinks.length > 0
+                ? normalizedLinks
+                : [{ label: '', url: '' }],
             featured: outfit.featured,
             sortWeight: outfit.sortWeight,
             published: outfit.published,
@@ -107,28 +122,42 @@ export default function AdminEditOutfitPage({
     load()
   }, [outfitId])
 
-  function updateLink(index: number, value: string) {
-    setForm((current) => ({
-      ...current,
-      productLinks: (current.productLinks || []).map((item, i) =>
-        i === index ? value : item
-      ),
-    }))
+  function updateLink(index: number, field: keyof ShoppableLink, value: string) {
+    setForm((current) => {
+      const normalized = (current.productLinks || []).map((item) =>
+        typeof item === 'string' ? { label: item, url: item } : item
+      )
+
+      return {
+        ...current,
+        productLinks: normalized.map((item, i) =>
+          i === index ? { ...item, [field]: value } : item
+        ),
+      }
+    })
   }
 
   function addLinkField() {
-    setForm((current) => ({
-      ...current,
-      productLinks: [...(current.productLinks || []), ''],
-    }))
+    setForm((current) => {
+      const normalized = (current.productLinks || []).map((item) =>
+        typeof item === 'string' ? { label: item, url: item } : item
+      )
+
+      return {
+        ...current,
+        productLinks: [...normalized, { label: '', url: '' }],
+      }
+    })
   }
 
   function removeLinkField(index: number) {
     setForm((current) => {
-      const next = (current.productLinks || []).filter((_, i) => i !== index)
+      const normalized = sanitizeLinks(current.productLinks || [])
+      const next = normalized.filter((_, i) => i !== index)
+
       return {
         ...current,
-        productLinks: next.length > 0 ? next : [''],
+        productLinks: next.length > 0 ? next : [{ label: '', url: '' }],
       }
     })
   }
@@ -160,9 +189,16 @@ export default function AdminEditOutfitPage({
     setSaving(false)
   }
 
+  const editableLinks = (form.productLinks || []).map((item) =>
+    typeof item === 'string' ? { label: item, url: item } : item
+  )
+
+  const displayedLinks =
+    editableLinks.length > 0 ? editableLinks : [{ label: '', url: '' }]
+
   if (loading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
             <p>Loading...</p>
@@ -173,7 +209,7 @@ export default function AdminEditOutfitPage({
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="py-12 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
@@ -188,7 +224,7 @@ export default function AdminEditOutfitPage({
             </button>
           </div>
 
-          {error && <p className="text-red-600 mb-4">{error}</p>}
+          {error ? <p className="text-red-600 mb-4">{error}</p> : null}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -269,24 +305,39 @@ export default function AdminEditOutfitPage({
             <div>
               <label className="block font-medium mb-2">Product Links</label>
 
-              <div className="space-y-3">
-                {(form.productLinks || []).map((link, index) => (
-                  <div key={index} className="flex gap-3">
-                    <input
-                      type="url"
-                      value={link}
-                      onChange={(e) => updateLink(index, e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 text-sm"
-                      placeholder="https://example.com/product"
-                    />
+              <div className="space-y-4">
+                {displayedLinks.map((link, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Link Name
+                      </label>
+                      <input
+                        type="text"
+                        value={link.label}
+                        onChange={(e) => updateLink(index, 'label', e.target.value)}
+                        className="w-full border rounded-md px-3 py-2 text-sm"
+                        placeholder="e.g. Blazer, Shoes, Watch"
+                      />
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => removeLinkField(index)}
-                      className="px-3 py-2 border rounded text-sm"
-                    >
-                      Remove
-                    </button>
+                    <div className="flex gap-3">
+                      <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => updateLink(index, 'url', e.target.value)}
+                        className="w-full border rounded-md px-3 py-2 text-sm"
+                        placeholder="https://example.com/product"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => removeLinkField(index)}
+                        className="px-3 py-2 border rounded text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -1,75 +1,96 @@
-"use client";
+'use client'
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
-import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
-import { createArticle } from "@/lib/firebase/articles";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
+import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
+import { createArticle } from '@/lib/firebase/articles'
 
 function slugify(value: string) {
   return value
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function normalizeCategory(value: string) {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  if (
+    normalized === 'general' ||
+    normalized === 'wellness' ||
+    normalized === 'style' ||
+    normalized === 'grooming' ||
+    normalized === 'lifestyle'
+  ) {
+    return normalized
+  }
+
+  return 'general'
 }
 
 export default function AdminNewArticlePage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [category, setCategory] = useState("general");
-  const [heroImage, setHeroImage] = useState("");
-  const [content, setContent] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [title, setTitle] = useState('')
+  const [slug, setSlug] = useState('')
+  const [excerpt, setExcerpt] = useState('')
+  const [category, setCategory] = useState('general')
+  const [heroImage, setHeroImage] = useState('')
+  const [content, setContent] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   function handleTitleChange(value: string) {
-    setTitle(value);
+    setTitle(value)
     if (!slug) {
-      setSlug(slugify(value));
+      setSlug(slugify(value))
     }
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
+    e.preventDefault()
+    setSaving(true)
+    setError('')
 
     try {
       await createArticle({
         title,
         slug,
         excerpt,
-        category,
+        category: normalizeCategory(category),
         heroImage,
         content,
-      });
+      })
 
-      router.push("/admin/articles");
+      router.push('/admin/articles')
     } catch (err) {
-      console.error(err);
-      setError("Failed to create article. Please try again.");
-      setSaving(false);
+      console.error(err)
+      setError('Failed to create article. Please try again.')
+      setSaving(false)
     }
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-2xl">
           <h1 className="text-3xl font-bold mb-6">New Article</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {error ? (
               <p className="text-sm text-red-600 border border-red-200 rounded-md px-3 py-2">
                 {error}
               </p>
-            )}
+            ) : null}
 
             <div>
               <label className="block text-sm font-medium mb-1">Title</label>
@@ -105,7 +126,7 @@ export default function AdminNewArticlePage() {
               <label className="block text-sm font-medium mb-1">Category</label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => setCategory(normalizeCategory(e.target.value))}
                 className="w-full border rounded-md px-3 py-2 text-sm"
               >
                 <option value="general">General</option>
@@ -122,7 +143,7 @@ export default function AdminNewArticlePage() {
               documentSlug={slug || slugify(title)}
               mode="single"
               value={heroImage}
-              onChange={(value) => setHeroImage(typeof value === "string" ? value : "")}
+              onChange={(value) => setHeroImage(typeof value === 'string' ? value : '')}
               helpText="Upload the main article image to Firebase Storage."
               disabled={saving}
             />
@@ -144,11 +165,11 @@ export default function AdminNewArticlePage() {
               disabled={saving}
               className="px-4 py-2 rounded-md bg-black text-white text-sm disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Create Article"}
+              {saving ? 'Saving...' : 'Create Article'}
             </button>
           </form>
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

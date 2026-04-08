@@ -3,11 +3,48 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Label, Button } from '@/components/ui'
-import type { OutfitLook } from '@/lib/products/types'
+import type { OutfitLook, ShoppableLink } from '@/lib/products/types'
 
 interface RelatedOutfitProps {
   outfit?: OutfitLook | null
   title?: string
+}
+
+function normalizeLink(
+  link: string | ShoppableLink,
+  index: number
+): ShoppableLink {
+  if (typeof link === 'string') {
+    return {
+      label: '',
+      url: link,
+    }
+  }
+
+  return {
+    label: typeof link.label === 'string' ? link.label.trim() : '',
+    url: link.url,
+  }
+}
+
+function getFallbackLabel(url: string, index: number): string {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return `Link ${index + 1}`
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const segments = parsed.pathname.split('/').filter(Boolean)
+    const lastSegment = segments[segments.length - 1] || ''
+
+    if (lastSegment) {
+      return `${host} / ${lastSegment.replace(/[-_]+/g, ' ')}`
+    }
+
+    return host
+  } catch {
+    return `Link ${index + 1}`
+  }
 }
 
 export function RelatedOutfit({
@@ -17,6 +54,30 @@ export function RelatedOutfit({
   if (!outfit) return null
 
   const links = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
+
+  const normalizedLinks = links
+    .map((link, index) => {
+      const normalized = normalizeLink(link, index)
+      const url = String(normalized.url || '').trim()
+
+      if (!url) return null
+
+      return {
+        label:
+          normalized.label && normalized.label !== url
+            ? normalized.label
+            : getFallbackLabel(url, index),
+        url,
+      }
+    })
+    .filter(
+      (
+        link
+      ): link is {
+        label: string
+        url: string
+      } => Boolean(link)
+    )
 
   return (
     <section className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -53,20 +114,20 @@ export function RelatedOutfit({
 
         <div className="space-y-2">
           <p className="text-sm font-sans font-semibold">
-            {links.length} {links.length === 1 ? 'Link' : 'Links'}
+            {normalizedLinks.length} {normalizedLinks.length === 1 ? 'Link' : 'Links'}
           </p>
 
-          {links.length > 0 ? (
+          {normalizedLinks.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {links.slice(0, 3).map((link, index) => (
+              {normalizedLinks.slice(0, 3).map((link, index) => (
                 <a
                   key={`${outfit.id}-link-${index}`}
-                  href={link}
+                  href={link.url}
                   target="_blank"
                   rel="noreferrer"
                   className="text-xs underline break-all"
                 >
-                  Link {index + 1}
+                  {link.label}
                 </a>
               ))}
             </div>

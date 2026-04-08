@@ -1,59 +1,84 @@
-"use client";
+'use client'
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { PagePadding, Container } from "@/components/layout";
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { PagePadding, Container } from '@/components/layout'
 
-import type { ArticleDocument } from "@/lib/types/articles";
+import type { ArticleDocument } from '@/lib/types/articles'
 import {
   getAllArticlesCMS,
   deleteArticle,
-} from "@/lib/firebase/articles";
-import { reslugAllArticles } from "@/lib/firebase/articles.reslug";
+} from '@/lib/firebase/articles'
+import { reslugAllArticles } from '@/lib/firebase/articles.reslug'
 
 type CmsArticle = ArticleDocument & {
-  normalizedDate: number;
-};
+  normalizedDate: number
+}
 
 function normalizeDate(value: unknown): number {
   try {
-    if (!value) return 0;
+    if (!value) return 0
 
-    if (typeof value === "string" || typeof value === "number") {
-      const date = new Date(value);
-      return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    if (typeof value === 'string' || typeof value === 'number') {
+      const date = new Date(value)
+      return Number.isNaN(date.getTime()) ? 0 : date.getTime()
     }
 
-    if (typeof (value as { toDate?: () => Date })?.toDate === "function") {
-      const date = (value as { toDate: () => Date }).toDate();
-      return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    if (typeof (value as { toDate?: () => Date })?.toDate === 'function') {
+      const date = (value as { toDate: () => Date }).toDate()
+      return Number.isNaN(date.getTime()) ? 0 : date.getTime()
     }
 
-    return 0;
+    return 0
   } catch {
-    return 0;
+    return 0
   }
 }
 
+function normalizeCategory(value: unknown): string {
+  const normalized = String(value ?? '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  return normalized || 'general'
+}
+
+function getCategoryLabel(value: unknown): string {
+  const category = normalizeCategory(value)
+
+  const labels: Record<string, string> = {
+    general: 'General',
+    wellness: 'Wellness',
+    grooming: 'Grooming',
+    style: 'Style',
+    lifestyle: 'Lifestyle',
+  }
+
+  return labels[category] || 'General'
+}
+
 export default function AdminArticlesPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [articles, setArticles] = useState<CmsArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [articles, setArticles] = useState<CmsArticle[]>([])
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("all");
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('all')
 
   async function loadArticles() {
-    setLoading(true);
+    setLoading(true)
 
     try {
-      const cms = await getAllArticlesCMS();
+      const cms = await getAllArticlesCMS()
 
       const cmsMapped: CmsArticle[] = cms
         .map((item) => ({
@@ -62,51 +87,51 @@ export default function AdminArticlesPage() {
             item.publishDate ?? item.datePublished ?? item.createdAt
           ),
         }))
-        .sort((a, b) => b.normalizedDate - a.normalizedDate);
+        .sort((a, b) => b.normalizedDate - a.normalizedDate)
 
-      setArticles(cmsMapped);
+      setArticles(cmsMapped)
     } catch (err) {
-      console.error("Failed to load CMS articles:", err);
-      setArticles([]);
+      console.error('Failed to load CMS articles:', err)
+      setArticles([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadArticles();
-  }, []);
+    loadArticles()
+  }, [])
 
   async function handleReslugAll() {
-    if (!confirm("Reslug ALL CMS articles from their titles?")) return;
+    if (!confirm('Reslug ALL CMS articles from their titles?')) return
 
-    setBusy(true);
+    setBusy(true)
     try {
-      const result = await reslugAllArticles();
+      const result = await reslugAllArticles()
       alert(
         `Reslug complete.\nUpdated ${result.updated} of ${result.total} articles.`
-      );
-      await loadArticles();
+      )
+      await loadArticles()
     } catch (err) {
-      console.error(err);
-      alert("Reslug failed. Check console.");
+      console.error(err)
+      alert('Reslug failed. Check console.')
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this article?")) return;
+    if (!confirm('Delete this article?')) return
 
-    setDeletingId(id);
+    setDeletingId(id)
     try {
-      await deleteArticle(id);
-      await loadArticles();
+      await deleteArticle(id)
+      await loadArticles()
     } catch (err) {
-      console.error(err);
-      alert("Failed to delete article.");
+      console.error(err)
+      alert('Failed to delete article.')
     } finally {
-      setDeletingId(null);
+      setDeletingId(null)
     }
   }
 
@@ -115,15 +140,15 @@ export default function AdminArticlesPage() {
       const matchesSearch =
         !search ||
         article.title?.toLowerCase().includes(search.toLowerCase()) ||
-        article.excerpt?.toLowerCase().includes(search.toLowerCase());
+        article.excerpt?.toLowerCase().includes(search.toLowerCase())
 
       const matchesCategory =
-        filterCategory === "all" ||
-        (article.category ?? "general") === filterCategory;
+        filterCategory === 'all' ||
+        normalizeCategory(article.category ?? 'general') === filterCategory
 
-      return matchesSearch && matchesCategory;
-    });
-  }, [articles, search, filterCategory]);
+      return matchesSearch && matchesCategory
+    })
+  }, [articles, search, filterCategory])
 
   return (
     <ProtectedRoute requireAdmin>
@@ -138,11 +163,11 @@ export default function AdminArticlesPage() {
                 disabled={busy}
                 className="px-4 py-2 rounded-md border text-sm disabled:opacity-50"
               >
-                {busy ? "Reslugging..." : "Reslug All Articles"}
+                {busy ? 'Reslugging...' : 'Reslug All Articles'}
               </button>
 
               <button
-                onClick={() => router.push("/admin/articles/new")}
+                onClick={() => router.push('/admin/articles/new')}
                 className="px-4 py-2 rounded-md bg-black text-white text-sm"
               >
                 New Article
@@ -166,14 +191,15 @@ export default function AdminArticlesPage() {
               <option value="all">All categories</option>
               <option value="general">General</option>
               <option value="wellness">Wellness</option>
-              <option value="blueprint">Grooming Blueprint</option>
+              <option value="grooming">Grooming</option>
+              <option value="style">Style</option>
               <option value="lifestyle">Lifestyle</option>
             </select>
           </div>
 
           {loading ? <p>Loading...</p> : null}
 
-          {!loading && (
+          {!loading ? (
             <div className="space-y-4">
               {filtered.map((article) => (
                 <div
@@ -184,6 +210,9 @@ export default function AdminArticlesPage() {
                     <p className="font-medium">{article.title}</p>
                     <p className="text-xs text-gray-500">
                       /articles/{article.slug}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {getCategoryLabel(article.category)}
                     </p>
                   </div>
 
@@ -207,15 +236,15 @@ export default function AdminArticlesPage() {
                       disabled={deletingId === article.id}
                       className="text-sm text-red-600 underline disabled:opacity-50"
                     >
-                      {deletingId === article.id ? "Deleting..." : "Delete"}
+                      {deletingId === article.id ? 'Deleting...' : 'Delete'}
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </Container>
       </PagePadding>
     </ProtectedRoute>
-  );
+  )
 }

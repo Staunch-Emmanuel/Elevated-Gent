@@ -21,6 +21,17 @@ export interface ArticleCardProps {
   article: ArticleCardArticle
 }
 
+function normalizeCategory(value: string): string {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  if (normalized === 'blueprint') return 'grooming'
+  if (normalized === 'confidence') return 'wellness'
+  if (normalized === 'products' || normalized === 'occasion') return 'style'
+  if (normalized === 'lifetime') return 'lifestyle'
+
+  return normalized
+}
+
 export const ArticleCard = ({ article }: ArticleCardProps) => {
   const publishDate = new Date(article.publishDate).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -32,16 +43,17 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
   const hasHeroImage = Boolean(article.heroImage && article.heroImage.trim())
 
   const getCategoryName = (category: string) => {
+    const normalized = normalizeCategory(category)
+
     const categoryMap: Record<string, string> = {
-      blueprint: 'Grooming Blueprint',
-      confidence: 'Confidence & Wellness',
-      occasion: 'By Occasion',
-      products: 'Product Review',
-      lifestyle: 'Lifestyle',
+      general: 'General',
       wellness: 'Wellness',
+      style: 'Style',
+      grooming: 'Grooming',
+      lifestyle: 'Lifestyle',
     }
 
-    return categoryMap[category] || category
+    return categoryMap[normalized] || category
   }
 
   return (
