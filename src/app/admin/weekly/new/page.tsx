@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
-import { PRODUCT_CATEGORIES } from '@/lib/products/types'
 import { createWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
+import { getContentCategories } from '@/lib/firebase/contentCategories'
+import type { ProductCategory } from '@/lib/products/types'
 
 function slugify(value: string) {
   return value
@@ -20,6 +21,7 @@ function slugify(value: string) {
 export default function NewWeeklyPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<ProductCategory[]>([])
 
   const [title, setTitle] = useState('')
   const [brand, setBrand] = useState('')
@@ -29,19 +31,38 @@ export default function NewWeeklyPage() {
 
   const [price, setPrice] = useState('')
   const [originalPrice, setOriginalPrice] = useState('')
-  const [category, setCategory] = useState('Finds of the Week')
+  const [category, setCategory] = useState('')
 
   const [productLink, setProductLink] = useState('')
   const [affiliateLink, setAffiliateLink] = useState('')
 
   const [featured, setFeatured] = useState(false)
   const [inStock, setInStock] = useState(true)
+  const [published, setPublished] = useState(true)
 
   const [tagsInput, setTagsInput] = useState('')
   const [sizesInput, setSizesInput] = useState('')
   const [colorsInput, setColorsInput] = useState('')
 
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const docs = await getContentCategories('weekly')
+        setCategories(docs)
+        if (!category && docs.length > 0) {
+          setCategory(docs[0].name)
+        }
+      } catch (err) {
+        console.error('Failed to load weekly categories:', err)
+      }
+    }
+
+    loadCategories()
+  }, [category])
+
+  const computedSlug = useMemo(() => slugify(title), [title])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -56,7 +77,7 @@ export default function NewWeeklyPage() {
 
     const payload: WeeklyItem = {
       id: '',
-      slug: slugify(title),
+      slug: computedSlug,
       title,
       brand,
       description,
@@ -71,6 +92,7 @@ export default function NewWeeklyPage() {
       inStock,
       sizes,
       colors,
+      published,
     }
 
     try {
@@ -84,10 +106,22 @@ export default function NewWeeklyPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="py-10 max-w-3xl">
-          <h1 className="text-2xl font-semibold mb-6">New Weekly Item</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-semibold">New Weekly Item</h1>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => router.push('/admin/categories?section=weekly')}
+                className="px-4 py-2 border border-gray-300 rounded text-sm"
+              >
+                Manage Categories
+              </button>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error ? (
@@ -106,7 +140,7 @@ export default function NewWeeklyPage() {
               />
               <p className="mt-1 text-xs text-gray-500">
                 URL slug will be:
-                <span className="ml-1 font-mono">/weekly/{slugify(title)}</span>
+                <span className="ml-1 font-mono">/weekly/{computedSlug}</span>
               </p>
             </div>
 
@@ -180,8 +214,10 @@ export default function NewWeeklyPage() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="border p-2 rounded w-full"
+                required
               >
-                {PRODUCT_CATEGORIES.map((cat) => (
+                <option value="">Select category</option>
+                {categories.map((cat) => (
                   <option key={cat.id} value={cat.name}>
                     {cat.name}
                   </option>
@@ -237,7 +273,7 @@ export default function NewWeeklyPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 flex-wrap">
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -254,6 +290,15 @@ export default function NewWeeklyPage() {
                   onChange={(e) => setInStock(e.target.checked)}
                 />
                 In Stock
+              </label>
+
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                />
+                Published
               </label>
             </div>
 

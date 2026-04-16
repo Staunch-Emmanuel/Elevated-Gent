@@ -61,7 +61,7 @@ function normalizeCategory(value: unknown): string {
   if (normalized === 'products' || normalized === 'occasion') return 'style'
   if (normalized === 'lifetime') return 'lifestyle'
 
-  return normalized
+  return normalized || 'general'
 }
 
 function getCategoryName(category: string): string {
@@ -76,18 +76,26 @@ function getCategoryName(category: string): string {
   return categoryMap[category] || category
 }
 
+function sanitizeArticleHtml(content: string): string {
+  return String(content || '')
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/<\/?(html|head|meta|title|link)[^>]*>/gi, '')
+    .replace(/\s(on\w+)=(".*?"|'.*?'|[^\s>]+)/gi, '')
+}
+
 function renderRichText(content: string) {
-  const safe = (content || '').trim()
+  const safe = String(content || '').trim()
   if (!safe) return null
 
   const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(safe)
 
   if (looksLikeHtml) {
+    const cleanedHtml = sanitizeArticleHtml(safe)
+
     return (
-      <div
-        className="prose prose-lg max-w-none font-serif"
-        dangerouslySetInnerHTML={{ __html: safe }}
-      />
+      <div className="article-content max-w-none">
+        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+      </div>
     )
   }
 
@@ -95,12 +103,146 @@ function renderRichText(content: string) {
     const text = line.trim()
     if (!text) return <div key={idx} className="h-4" />
     return (
-      <p key={idx} className="font-serif text-[17px] leading-relaxed text-gray-800">
+      <p key={idx} className="font-serif text-[17px] leading-relaxed text-inherit">
         {text}
       </p>
     )
   })
 }
+
+const articleContentStyles = `
+  .article-content {
+    color: inherit;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .article-content > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  .article-content > *:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .article-content h1,
+  .article-content h2,
+  .article-content h3,
+  .article-content h4,
+  .article-content h5,
+  .article-content h6 {
+    color: inherit;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: 2.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .article-content h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .article-content h2 {
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+  }
+
+  .article-content h3 {
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  }
+
+  .article-content h4 {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+  }
+
+  .article-content h5 {
+    font-size: 1.125rem;
+  }
+
+  .article-content h6 {
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .article-content p,
+  .article-content ul,
+  .article-content ol,
+  .article-content blockquote,
+  .article-content table,
+  .article-content figure {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+  }
+
+  .article-content ul,
+  .article-content ol {
+    padding-left: 1.5rem;
+  }
+
+  .article-content li {
+    margin-bottom: 0.45rem;
+  }
+
+  .article-content a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .article-content strong {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  .article-content em {
+    font-style: italic;
+  }
+
+  .article-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .article-content blockquote {
+    border-left: 3px solid rgba(0, 0, 0, 0.18);
+    padding-left: 1rem;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  .article-content hr {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 2rem 0;
+  }
+
+  .article-content table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .article-content th,
+  .article-content td {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .article-content iframe,
+  .article-content video {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0.75rem;
+    margin: 1.5rem 0;
+  }
+`
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
@@ -125,81 +267,85 @@ export default async function ArticlePage({ params }: PageProps) {
     <ProtectedRoute>
       <StructuredData pageKey="article" />
 
-      <section className="py-16">
-        <PagePadding>
-          <Container>
-            <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <Link
-                  href="/articles"
-                  className="text-sm font-serif text-gray-500 hover:text-black"
-                >
-                  ← Back to Articles
-                </Link>
-              </div>
+      <style dangerouslySetInnerHTML={{ __html: articleContentStyles }} />
 
-              <div className="text-center space-y-6">
-                {categoryLabel ? (
-                  <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-sans">
-                    {categoryLabel}
-                  </p>
-                ) : null}
+      <div className="min-h-screen">
+        <section className="py-16">
+          <PagePadding>
+            <Container>
+              <div className="mx-auto max-w-3xl">
+                <div className="mb-8">
+                  <Link
+                    href="/articles"
+                    className="text-sm font-serif opacity-70 transition-opacity hover:opacity-100"
+                  >
+                    ← Back to Articles
+                  </Link>
+                </div>
 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold font-sans leading-tight">
-                  {title}
-                </h1>
+                <div className="space-y-6 text-center">
+                  {categoryLabel ? (
+                    <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
+                      {categoryLabel}
+                    </p>
+                  ) : null}
 
-                {article.excerpt ? (
-                  <p className="text-lg md:text-xl font-serif text-muted leading-relaxed">
-                    {article.excerpt}
-                  </p>
-                ) : null}
+                  <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
+                    {title}
+                  </h1>
 
-                {publishedLabel ? (
-                  <div className="text-sm text-gray-500 font-serif">
-                    Published · {publishedLabel}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
+                  {article.excerpt ? (
+                    <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
+                      {article.excerpt}
+                    </p>
+                  ) : null}
 
-      <section className="pb-10">
-        <PagePadding>
-          <Container>
-            <div className="max-w-5xl mx-auto">
-              <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                <div className="relative w-full aspect-[16/9]">
-                  <Image
-                    src={heroImage}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                    priority
-                  />
+                  {publishedLabel ? (
+                    <div className="font-serif text-sm opacity-70">
+                      Published · {publishedLabel}
+                    </div>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
+            </Container>
+          </PagePadding>
+        </section>
 
-      <section className="py-10">
-        <PagePadding>
-          <Container>
-            <div className="max-w-3xl mx-auto space-y-5">
-              {article.content ? (
-                renderRichText(article.content)
-              ) : (
-                <p className="font-serif text-gray-600">No content yet.</p>
-              )}
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
+        <section className="pb-10">
+          <PagePadding>
+            <Container>
+              <div className="mx-auto max-w-5xl">
+                <div className="relative overflow-hidden rounded-lg">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={heroImage}
+                      alt={title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 1200px"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+            </Container>
+          </PagePadding>
+        </section>
+
+        <section className="py-10">
+          <PagePadding>
+            <Container>
+              <div className="mx-auto max-w-3xl space-y-5">
+                {article.content ? (
+                  renderRichText(article.content)
+                ) : (
+                  <p className="font-serif opacity-70">No content yet.</p>
+                )}
+              </div>
+            </Container>
+          </PagePadding>
+        </section>
+      </div>
     </ProtectedRoute>
   )
 }

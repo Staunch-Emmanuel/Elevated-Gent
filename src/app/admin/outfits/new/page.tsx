@@ -1,17 +1,15 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
-import {
-  createOutfit,
-  OUTFIT_CATEGORY_OPTIONS,
-} from '@/lib/firebase/outfits'
-import type { ShoppableLink } from '@/lib/products/types'
+import { createOutfit } from '@/lib/firebase/outfits'
+import { getContentCategories } from '@/lib/firebase/contentCategories'
+import type { ShoppableLink, ProductCategory } from '@/lib/products/types'
 
 function slugify(text: string): string {
   return text
@@ -33,6 +31,8 @@ function sanitizeLinks(links: ShoppableLink[]): ShoppableLink[] {
 export default function AdminNewOutfitPage() {
   const router = useRouter()
 
+  const [categories, setCategories] = useState<ProductCategory[]>([])
+
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [heroImage, setHeroImage] = useState('')
@@ -47,6 +47,22 @@ export default function AdminNewOutfitPage() {
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const docs = await getContentCategories('outfits')
+        setCategories(docs)
+        if (!category && docs.length > 0) {
+          setCategory(docs[0].name)
+        }
+      } catch (err) {
+        console.error('Failed to load outfit categories:', err)
+      }
+    }
+
+    loadCategories()
+  }, [category])
 
   function updateLink(index: number, field: keyof ShoppableLink, value: string) {
     setProductLinks((current) =>
@@ -129,13 +145,24 @@ export default function AdminNewOutfitPage() {
         <Container className="py-10 max-w-4xl">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-semibold">New Outfit Look</h1>
-            <button
-              type="button"
-              onClick={() => router.push('/admin/outfits')}
-              className="text-sm text-gray-500 underline"
-            >
-              Back to Outfits
-            </button>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => router.push('/admin/categories?section=outfits')}
+                className="text-sm border border-gray-300 px-4 py-2 rounded"
+              >
+                Manage Categories
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push('/admin/outfits')}
+                className="text-sm text-gray-500 underline"
+              >
+                Back to Outfits
+              </button>
+            </div>
           </div>
 
           {error ? (
@@ -178,9 +205,9 @@ export default function AdminNewOutfitPage() {
                 required
               >
                 <option value="">Select category</option>
-                {OUTFIT_CATEGORY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                {categories.map((option) => (
+                  <option key={option.id} value={option.name}>
+                    {option.name}
                   </option>
                 ))}
               </select>

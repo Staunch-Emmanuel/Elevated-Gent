@@ -7,6 +7,9 @@ export const IMAGE_UPLOAD_FOLDERS = [
   "wellness",
   "weekly",
   "outfits",
+  "auth",
+  "homepage",
+  "personal-styling",
 ] as const;
 
 export type ImageUploadFolder = (typeof IMAGE_UPLOAD_FOLDERS)[number];

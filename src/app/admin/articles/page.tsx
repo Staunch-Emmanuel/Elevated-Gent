@@ -8,11 +8,10 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 
 import type { ArticleDocument } from '@/lib/types/articles'
-import {
-  getAllArticlesCMS,
-  deleteArticle,
-} from '@/lib/firebase/articles'
+import { getAllArticlesCMS, deleteArticle } from '@/lib/firebase/articles'
 import { reslugAllArticles } from '@/lib/firebase/articles.reslug'
+import { getContentCategories } from '@/lib/firebase/contentCategories'
+import type { ProductCategory } from '@/lib/products/types'
 
 type CmsArticle = ArticleDocument & {
   normalizedDate: number
@@ -39,46 +38,68 @@ function normalizeDate(value: unknown): number {
 }
 
 function normalizeCategory(value: unknown): string {
-  const normalized = String(value ?? '').trim().toLowerCase()
-
-  if (normalized === 'blueprint') return 'grooming'
-  if (normalized === 'confidence') return 'wellness'
-  if (normalized === 'products' || normalized === 'occasion') return 'style'
-  if (normalized === 'lifetime') return 'lifestyle'
-
-  return normalized || 'general'
+  return String(value ?? '').trim().toLowerCase() || 'general'
 }
 
-function getCategoryLabel(value: unknown): string {
-  const category = normalizeCategory(value)
+function getCategoryLabel(
+  value: unknown,
+  categories: ProductCategory[]
+): string {
+  const normalized = normalizeCategory(value)
 
-  const labels: Record<string, string> = {
-    general: 'General',
-    wellness: 'Wellness',
-    grooming: 'Grooming',
-    style: 'Style',
-    lifestyle: 'Lifestyle',
-  }
+  const match = categories.find(
+    (item) =>
+      item.slug.toLowerCase() === normalized ||
+      item.name.toLowerCase() === normalized
+  )
 
-  return labels[category] || 'General'
+  if (match?.name) return match.name
+  if (normalized === 'general') return 'General'
+
+  return normalized
+}
+
+function ensureGeneralCategory(categories: ProductCategory[]): ProductCategory[] {
+  const hasGeneral = categories.some(
+    (item) =>
+      item.slug?.toLowerCase() === 'general' ||
+      item.name?.toLowerCase() === 'general'
+  )
+
+  if (hasGeneral) return categories
+
+  return [
+    {
+      id: 'general',
+      name: 'General',
+      slug: 'general',
+      section: 'articles',
+    },
+    ...categories,
+  ]
 }
 
 export default function AdminArticlesPage() {
   const router = useRouter()
 
   const [articles, setArticles] = useState<CmsArticle[]>([])
+  const [categories, setCategories] = useState<ProductCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('all')
 
   async function loadArticles() {
     setLoading(true)
 
     try {
-      const cms = await getAllArticlesCMS()
+      const [cms, categoryDocs] = await Promise.all([
+        getAllArticlesCMS(),
+        getContentCategories('articles'),
+      ])
 
       const cmsMapped: CmsArticle[] = cms
         .map((item) => ({
@@ -90,38 +111,42 @@ export default function AdminArticlesPage() {
         .sort((a, b) => b.normalizedDate - a.normalizedDate)
 
       setArticles(cmsMapped)
+      setCategories(ensureGeneralCategory(categoryDocs))
     } catch (err) {
       console.error('Failed to load CMS articles:', err)
       setArticles([])
+      setCategories(
+        ensureGeneralCategory([])
+      )
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadArticles()
+    void loadArticles()
   }, [])
 
   async function handleReslugAll() {
-    if (!confirm('Reslug ALL CMS articles from their titles?')) return
+    if (!window.confirm('Reslug ALL CMS articles from their titles?')) return
 
     setBusy(true)
     try {
       const result = await reslugAllArticles()
-      alert(
+      window.alert(
         `Reslug complete.\nUpdated ${result.updated} of ${result.total} articles.`
       )
       await loadArticles()
     } catch (err) {
       console.error(err)
-      alert('Reslug failed. Check console.')
+      window.alert('Reslug failed. Check console.')
     } finally {
       setBusy(false)
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this article?')) return
+    if (!window.confirm('Delete this article?')) return
 
     setDeletingId(id)
     try {
@@ -129,7 +154,7 @@ export default function AdminArticlesPage() {
       await loadArticles()
     } catch (err) {
       console.error(err)
-      alert('Failed to delete article.')
+      window.alert('Failed to delete article.')
     } finally {
       setDeletingId(null)
     }
@@ -142,58 +167,80 @@ export default function AdminArticlesPage() {
         article.title?.toLowerCase().includes(search.toLowerCase()) ||
         article.excerpt?.toLowerCase().includes(search.toLowerCase())
 
+      const articleCategory = normalizeCategory(article.category)
       const matchesCategory =
         filterCategory === 'all' ||
-        normalizeCategory(article.category ?? 'general') === filterCategory
+        articleCategory === filterCategory.toLowerCase()
 
-      return matchesSearch && matchesCategory
+      const articleStatus = article.status || 'published'
+      const matchesStatus =
+        filterStatus === 'all' || articleStatus === filterStatus
+
+      return matchesSearch && matchesCategory && matchesStatus
     })
-  }, [articles, search, filterCategory])
+  }, [articles, search, filterCategory, filterStatus])
 
   return (
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container>
-          <div className="flex flex-wrap gap-4 justify-between mb-6">
+          <div className="mb-6 flex flex-wrap justify-between gap-4">
             <h1 className="text-3xl font-bold">Articles (Admin)</h1>
 
             <div className="flex gap-3">
               <button
                 onClick={handleReslugAll}
                 disabled={busy}
-                className="px-4 py-2 rounded-md border text-sm disabled:opacity-50"
+                className="rounded-md border px-4 py-2 text-sm disabled:opacity-50"
               >
                 {busy ? 'Reslugging...' : 'Reslug All Articles'}
               </button>
 
               <button
+                onClick={() => router.push('/admin/categories?section=articles')}
+                className="rounded-md border px-4 py-2 text-sm"
+              >
+                Manage Categories
+              </button>
+
+              <button
                 onClick={() => router.push('/admin/articles/new')}
-                className="px-4 py-2 rounded-md bg-black text-white text-sm"
+                className="rounded-md bg-black px-4 py-2 text-sm text-white"
               >
                 New Article
               </button>
             </div>
           </div>
 
-          <div className="flex gap-4 mb-6">
+          <div className="mb-6 flex flex-wrap gap-4">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="border rounded-md px-3 py-2 text-sm w-full max-w-xs"
+              className="w-full max-w-xs rounded-md border px-3 py-2 text-sm"
             />
 
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="border rounded-md px-3 py-2 text-sm"
+              className="rounded-md border px-3 py-2 text-sm"
             >
               <option value="all">All categories</option>
-              <option value="general">General</option>
-              <option value="wellness">Wellness</option>
-              <option value="grooming">Grooming</option>
-              <option value="style">Style</option>
-              <option value="lifestyle">Lifestyle</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.slug}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="rounded-md border px-3 py-2 text-sm"
+            >
+              <option value="all">All statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
             </select>
           </div>
 
@@ -204,16 +251,16 @@ export default function AdminArticlesPage() {
               {filtered.map((article) => (
                 <div
                   key={article.id}
-                  className="border rounded-lg px-4 py-3 flex justify-between items-center"
+                  className="flex items-center justify-between rounded-lg border px-4 py-3"
                 >
                   <div>
                     <p className="font-medium">{article.title}</p>
-                    <p className="text-xs text-gray-500">
-                      /articles/{article.slug}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {getCategoryLabel(article.category)}
-                    </p>
+                    <p className="text-xs text-gray-500">/articles/{article.slug}</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <span>{getCategoryLabel(article.category, categories)}</span>
+                      <span>•</span>
+                      <span className="capitalize">{article.status || 'published'}</span>
+                    </div>
                   </div>
 
                   <div className="flex gap-3">

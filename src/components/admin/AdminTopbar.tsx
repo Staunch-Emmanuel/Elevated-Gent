@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const publicLinks = [
-  { label: "View Site", href: "/" },
+  { label: "Home", href: "/home" },
+  { label: "Personal-styling", href: "/personal-styling" },
   { label: "Articles", href: "/articles" },
   { label: "Weekly Finds", href: "/weekly" },
   { label: "Outfit Inspiration", href: "/outfit-inspiration" },

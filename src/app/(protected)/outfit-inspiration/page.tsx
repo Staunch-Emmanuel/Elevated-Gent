@@ -33,8 +33,7 @@ export default async function OutfitInspirationPage() {
               </div>
 
               <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                Shop curated collections from our trusted partners. Each piece is carefully selected
-                for quality, style, and versatility to help you elevate your wardrobe.
+                Shop our curated selection of the most stylish outfits. Each piece is carefully selected for quality, style, and versatility to help you elevate your wardrobe.
               </p>
             </div>
           </Container>

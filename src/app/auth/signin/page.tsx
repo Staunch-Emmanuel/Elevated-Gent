@@ -1,5 +1,3 @@
-// src/app/auth/signin/page.tsx
-
 import { Suspense } from "react";
 import SignInClient from "./SignInClient";
 

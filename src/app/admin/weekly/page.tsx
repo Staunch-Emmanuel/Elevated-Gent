@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 
 import { PagePadding, Container } from '@/components/layout'
@@ -10,10 +10,12 @@ import {
   deleteWeekly,
   type WeeklyItem,
 } from '@/lib/firebase/weekly'
-import { PRODUCT_CATEGORIES } from '@/lib/products/types'
+import { getContentCategories } from '@/lib/firebase/contentCategories'
+import type { ProductCategory } from '@/lib/products/types'
 
 export default function WeeklyAdminPage() {
   const [items, setItems] = useState<WeeklyItem[]>([])
+  const [categories, setCategories] = useState<ProductCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -22,8 +24,12 @@ export default function WeeklyAdminPage() {
   async function load() {
     setLoading(true)
     try {
-      const cms = await getAllWeekly()
+      const [cms, categoryDocs] = await Promise.all([
+        getAllWeekly(),
+        getContentCategories('weekly'),
+      ])
       setItems(cms)
+      setCategories(categoryDocs)
     } catch (err) {
       console.error('Error loading weekly:', err)
     } finally {
@@ -48,20 +54,22 @@ export default function WeeklyAdminPage() {
     }
   }
 
-  const filtered = items.filter((item) => {
-    const q = search.toLowerCase()
+  const filtered = useMemo(() => {
+    return items.filter((item) => {
+      const q = search.toLowerCase().trim()
 
-    const matchesSearch =
-      item.title.toLowerCase().includes(q) ||
-      item.brand.toLowerCase().includes(q) ||
-      item.description.toLowerCase().includes(q)
+      const matchesSearch =
+        item.title.toLowerCase().includes(q) ||
+        item.brand.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q)
 
-    const matchesCategory =
-      categoryFilter === 'all' ||
-      item.category.toLowerCase() === categoryFilter.toLowerCase()
+      const matchesCategory =
+        categoryFilter === 'all' ||
+        item.category.toLowerCase() === categoryFilter.toLowerCase()
 
-    return matchesSearch && matchesCategory
-  })
+      return matchesSearch && matchesCategory
+    })
+  }, [items, search, categoryFilter])
 
   return (
     <PagePadding>
@@ -69,12 +77,21 @@ export default function WeeklyAdminPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">Weekly Products (Admin)</h1>
 
-          <Link
-            href="/admin/weekly/new"
-            className="px-4 py-2 bg-black text-white rounded text-sm"
-          >
-            + Add Weekly Item
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              href="/admin/categories?section=weekly"
+              className="px-4 py-2 border border-gray-300 rounded text-sm"
+            >
+              Manage Categories
+            </Link>
+
+            <Link
+              href="/admin/weekly/new"
+              className="px-4 py-2 bg-black text-white rounded text-sm"
+            >
+              + Add Weekly Item
+            </Link>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 mb-8">
@@ -86,12 +103,12 @@ export default function WeeklyAdminPage() {
           />
 
           <select
-            className="border p-2 rounded min-w-[200px]"
+            className="border p-2 rounded min-w-[220px]"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
             <option value="all">All Categories</option>
-            {PRODUCT_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <option key={category.id} value={category.name}>
                 {category.name}
               </option>
@@ -124,10 +141,20 @@ export default function WeeklyAdminPage() {
                     </p>
                     <p className="text-sm text-gray-500">{item.price}</p>
 
-                    <div className="mt-1 flex gap-2">
+                    <div className="mt-2 flex gap-2 flex-wrap">
                       <span className="text-xs bg-green-200 px-2 py-1 rounded">
                         CMS
                       </span>
+
+                      {item.published === false ? (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                          Draft
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          Published
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

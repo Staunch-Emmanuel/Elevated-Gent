@@ -10,10 +10,11 @@ import ArticleCard from '@/components/articles/ArticleCard'
 
 import type { ArticleDocument } from '@/lib/types/articles'
 import type { ArticleCardArticle } from '@/components/articles/ArticleCard'
-import { getAllArticlesCMS } from '@/lib/firebase/articles'
+import { getPublishedArticlesCMS } from '@/lib/firebase/articles'
 
 const categoryOptions = [
   { id: 'all', label: 'All' },
+  { id: 'general', label: 'General' },
   { id: 'wellness', label: 'Wellness' },
   { id: 'grooming', label: 'Grooming' },
   { id: 'style', label: 'Style' },
@@ -95,7 +96,7 @@ export default function ArticlesPage() {
   useEffect(() => {
     async function loadArticles() {
       try {
-        const items = await getAllArticlesCMS()
+        const items = await getPublishedArticlesCMS()
         const sorted = [...items].sort((a, b) => {
           const aDate = normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt)
           const bDate = normalizeDate(b.publishDate ?? b.datePublished ?? b.createdAt)
@@ -110,7 +111,7 @@ export default function ArticlesPage() {
       }
     }
 
-    loadArticles()
+    void loadArticles()
   }, [])
 
   const mappedArticles = useMemo(() => {

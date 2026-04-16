@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PagePadding, Container } from "@/components/layout";
+import CMSImageUploadField from "@/components/admin/CMSImageUploadField";
 
 import {
   defaultPersonalStylingContent,
@@ -169,7 +170,7 @@ export default function AdminPersonalStylingPage() {
         <Container className="py-10 max-w-5xl">
           <div className="mb-8">
             <h1 className="text-3xl font-semibold">Personal Styling</h1>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="mt-2 text-sm text-gray-500">
               Edit the personal styling page content here. Use{" "}
               <span className="font-mono">{"{firstName}"}</span> in the hero title
               if you want the user&apos;s first name to appear dynamically.
@@ -189,13 +190,13 @@ export default function AdminPersonalStylingPage() {
           ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-10">
-            <section className="border rounded-lg p-6 space-y-4">
+            <section className="space-y-4 rounded-lg border p-6">
               <h2 className="text-xl font-semibold">Hero Section</h2>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Hero Title</label>
+                <label className="mb-1 block text-sm font-medium">Hero Title</label>
                 <input
-                  className="w-full border rounded px-3 py-2 text-sm"
+                  className="w-full rounded border px-3 py-2 text-sm"
                   value={content.heroTitle}
                   onChange={(e) =>
                     setContent({ ...content, heroTitle: e.target.value })
@@ -204,15 +205,31 @@ export default function AdminPersonalStylingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Hero Subtitle</label>
+                <label className="mb-1 block text-sm font-medium">Hero Subtitle</label>
                 <textarea
-                  className="w-full border rounded px-3 py-2 text-sm min-h-[120px]"
+                  className="min-h-[120px] w-full rounded border px-3 py-2 text-sm"
                   value={content.heroSubtitle}
                   onChange={(e) =>
                     setContent({ ...content, heroSubtitle: e.target.value })
                   }
                 />
               </div>
+
+              <CMSImageUploadField
+                label="Hero Background Image"
+                folder="homepage"
+                documentSlug="personal-styling-hero"
+                mode="single"
+                value={content.heroBackgroundImage}
+                onChange={(value) =>
+                  setContent({
+                    ...content,
+                    heroBackgroundImage: typeof value === "string" ? value : "",
+                  })
+                }
+                helpText="This image will replace the flat grey hero background and display with a dark overlay."
+                disabled={saving}
+              />
             </section>
 
             {[
@@ -228,13 +245,13 @@ export default function AdminPersonalStylingPage() {
               const pkg = content[packageKey];
 
               return (
-                <section key={packageKey} className="border rounded-lg p-6 space-y-4">
+                <section key={packageKey} className="space-y-4 rounded-lg border p-6">
                   <h2 className="text-xl font-semibold">{label}</h2>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <label className="mb-1 block text-sm font-medium">Name</label>
                     <input
-                      className="w-full border rounded px-3 py-2 text-sm"
+                      className="w-full rounded border px-3 py-2 text-sm"
                       value={pkg.name}
                       onChange={(e) =>
                         setContent({
@@ -249,9 +266,9 @@ export default function AdminPersonalStylingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Price</label>
+                    <label className="mb-1 block text-sm font-medium">Price</label>
                     <input
-                      className="w-full border rounded px-3 py-2 text-sm"
+                      className="w-full rounded border px-3 py-2 text-sm"
                       value={pkg.price}
                       onChange={(e) =>
                         setContent({
@@ -266,9 +283,9 @@ export default function AdminPersonalStylingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <label className="mb-1 block text-sm font-medium">Description</label>
                     <textarea
-                      className="w-full border rounded px-3 py-2 text-sm min-h-[100px]"
+                      className="min-h-[100px] w-full rounded border px-3 py-2 text-sm"
                       value={pkg.description}
                       onChange={(e) =>
                         setContent({
@@ -283,9 +300,9 @@ export default function AdminPersonalStylingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Badge (optional)</label>
+                    <label className="mb-1 block text-sm font-medium">Badge (optional)</label>
                     <input
-                      className="w-full border rounded px-3 py-2 text-sm"
+                      className="w-full rounded border px-3 py-2 text-sm"
                       value={pkg.badge ?? ""}
                       onChange={(e) =>
                         setContent({
@@ -300,9 +317,9 @@ export default function AdminPersonalStylingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Badge Variant</label>
+                    <label className="mb-1 block text-sm font-medium">Badge Variant</label>
                     <select
-                      className="w-full border rounded px-3 py-2 text-sm"
+                      className="w-full rounded border px-3 py-2 text-sm"
                       value={pkg.badgeVariant ?? "default"}
                       onChange={(e) =>
                         setContent({
@@ -325,7 +342,7 @@ export default function AdminPersonalStylingPage() {
                     {pkg.features.map((feature, index) => (
                       <div key={index} className="flex gap-3">
                         <input
-                          className="w-full border rounded px-3 py-2 text-sm"
+                          className="w-full rounded border px-3 py-2 text-sm"
                           value={feature}
                           onChange={(e) =>
                             setContent(updateFeature(content, packageKey, index, e.target.value))
@@ -336,7 +353,7 @@ export default function AdminPersonalStylingPage() {
                           onClick={() =>
                             setContent(removeFeature(content, packageKey, index))
                           }
-                          className="px-3 py-2 border rounded text-sm"
+                          className="rounded border px-3 py-2 text-sm"
                         >
                           Remove
                         </button>
@@ -355,13 +372,13 @@ export default function AdminPersonalStylingPage() {
               );
             })}
 
-            <section className="border rounded-lg p-6 space-y-4">
+            <section className="space-y-4 rounded-lg border p-6">
               <h2 className="text-xl font-semibold">Process Section</h2>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Section Title</label>
+                <label className="mb-1 block text-sm font-medium">Section Title</label>
                 <input
-                  className="w-full border rounded px-3 py-2 text-sm"
+                  className="w-full rounded border px-3 py-2 text-sm"
                   value={content.processTitle}
                   onChange={(e) =>
                     setContent({ ...content, processTitle: e.target.value })
@@ -371,13 +388,13 @@ export default function AdminPersonalStylingPage() {
 
               <div className="space-y-6">
                 {content.processSteps.map((step, index) => (
-                  <div key={index} className="border rounded p-4 space-y-3">
+                  <div key={index} className="space-y-3 rounded border p-4">
                     <h3 className="font-medium">Step {index + 1}</h3>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Title</label>
+                      <label className="mb-1 block text-sm font-medium">Title</label>
                       <input
-                        className="w-full border rounded px-3 py-2 text-sm"
+                        className="w-full rounded border px-3 py-2 text-sm"
                         value={step.title}
                         onChange={(e) =>
                           setContent(updateProcessStep(content, index, "title", e.target.value))
@@ -386,9 +403,9 @@ export default function AdminPersonalStylingPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Description</label>
+                      <label className="mb-1 block text-sm font-medium">Description</label>
                       <textarea
-                        className="w-full border rounded px-3 py-2 text-sm min-h-[100px]"
+                        className="min-h-[100px] w-full rounded border px-3 py-2 text-sm"
                         value={step.description}
                         onChange={(e) =>
                           setContent(
@@ -402,13 +419,13 @@ export default function AdminPersonalStylingPage() {
               </div>
             </section>
 
-            <section className="border rounded-lg p-6 space-y-4">
+            <section className="space-y-4 rounded-lg border p-6">
               <h2 className="text-xl font-semibold">FAQ Section</h2>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Section Title</label>
+                <label className="mb-1 block text-sm font-medium">Section Title</label>
                 <input
-                  className="w-full border rounded px-3 py-2 text-sm"
+                  className="w-full rounded border px-3 py-2 text-sm"
                   value={content.faqTitle}
                   onChange={(e) =>
                     setContent({ ...content, faqTitle: e.target.value })
@@ -418,11 +435,11 @@ export default function AdminPersonalStylingPage() {
 
               <div className="space-y-6">
                 {content.faqs.map((faq, index) => (
-                  <div key={index} className="border rounded p-4 space-y-3">
+                  <div key={index} className="space-y-3 rounded border p-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Question</label>
+                      <label className="mb-1 block text-sm font-medium">Question</label>
                       <input
-                        className="w-full border rounded px-3 py-2 text-sm"
+                        className="w-full rounded border px-3 py-2 text-sm"
                         value={faq.question}
                         onChange={(e) =>
                           setContent(updateFaq(content, index, "question", e.target.value))
@@ -431,9 +448,9 @@ export default function AdminPersonalStylingPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Answer</label>
+                      <label className="mb-1 block text-sm font-medium">Answer</label>
                       <textarea
-                        className="w-full border rounded px-3 py-2 text-sm min-h-[120px]"
+                        className="min-h-[120px] w-full rounded border px-3 py-2 text-sm"
                         value={faq.answer}
                         onChange={(e) =>
                           setContent(updateFaq(content, index, "answer", e.target.value))
@@ -465,7 +482,7 @@ export default function AdminPersonalStylingPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center px-4 py-2 rounded bg-black text-white text-sm disabled:opacity-60"
+                className="inline-flex items-center rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
               >
                 {saving ? "Saving..." : "Save Personal Styling Page"}
               </button>

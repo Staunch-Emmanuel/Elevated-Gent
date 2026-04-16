@@ -16,18 +16,6 @@ import type { ShoppableLink } from '@/lib/products/types'
 
 const COLLECTION = 'outfits'
 
-export const OUTFIT_CATEGORY_OPTIONS = [
-  'Casual Style',
-  'Formal Wear',
-  'Streetwear',
-  'Date Night',
-  'Weddings/Events',
-  'Weekend',
-  "Mark's Favorites",
-] as const
-
-export type OutfitCategory = (typeof OUTFIT_CATEGORY_OPTIONS)[number]
-
 export interface OutfitInput {
   title: string
   description: string

@@ -110,7 +110,7 @@ export function Footer() {
 
               {/* Brand */}
               <div className="lg:col-span-2 space-y-6">
-                <Link href="https://theelevatedgentleman.com">
+                <Link href="/home">
                   <Image
                     src="/images/The Elevated gentleman.svg"
                     alt="The Elevated Gentleman"
@@ -175,8 +175,6 @@ export function Footer() {
               <div>
                 <h3 className="text-sm font-semibold uppercase mb-4">Company</h3>
                 <ul className="space-y-2">
-
-                  {/* ✅ MAILTO FIX */}
                   <li>
                     <a
                       href="mailto:theelevatedgentlemann@gmail.com"
@@ -193,7 +191,6 @@ export function Footer() {
                       Privacy Policy
                     </Link>
                   </li>
-
                 </ul>
               </div>
 

@@ -114,26 +114,59 @@ export default function PersonalStylingPage() {
     <ProtectedRoute>
       <StructuredData pageKey="personal-styling" />
 
-      <section className="py-24 bg-[#E5E5E5]">
+      <section className="relative overflow-hidden py-24">
+        {content.heroBackgroundImage ? (
+          <>
+            <div className="absolute inset-0">
+              <img
+                src={content.heroBackgroundImage}
+                alt="Personal styling hero background"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.45)_45%,rgba(0,0,0,0.5)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.3)_85%)]" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-[#E5E5E5]" />
+        )}
+
         <PagePadding>
-          <Container>
-            <div className="text-center space-y-8">
+          <Container className="relative z-10">
+            <div className="space-y-8 text-center">
               <div className="overflow-hidden">
-                <h1 className="text-6xl font-semibold font-sans leading-tight text-black">
+                <h1
+                  className={`font-sans text-5xl font-semibold leading-tight md:text-6xl ${
+                    content.heroBackgroundImage ? 'text-white' : 'text-black'
+                  }`}
+                >
                   {heroTitle}
                 </h1>
               </div>
 
-              <p className="text-xl font-serif text-black/80 max-w-3xl mx-auto leading-relaxed">
+              <p
+                className={`mx-auto max-w-3xl font-serif text-xl leading-relaxed ${
+                  content.heroBackgroundImage ? 'text-white/85' : 'text-black/80'
+                }`}
+              >
                 {content.heroSubtitle}
               </p>
 
-              <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
                 <Button size="lg" onClick={handleBookYourSession}>
                   Book Your Session
                 </Button>
 
-                <Button size="lg" variant="outline" onClick={handleLearnMore}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleLearnMore}
+                  className={
+                    content.heroBackgroundImage
+                      ? 'border-white bg-transparent text-white hover:bg-white hover:text-black'
+                      : undefined
+                  }
+                >
                   Learn More
                 </Button>
               </div>
@@ -148,11 +181,11 @@ export default function PersonalStylingPage() {
             {loadingContent ? (
               <p className="text-center">Loading...</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="border border-black p-8 flex flex-col h-full">
-                  <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex h-full flex-col border border-black p-8">
+                  <div className="mb-6 space-y-4">
                     <div className="h-6" />
-                    <h3 className="text-2xl font-semibold font-sans">
+                    <h3 className="font-sans text-2xl font-semibold">
                       {content.foundationPackage.name}
                     </h3>
                     <p className="font-serif text-muted">
@@ -160,7 +193,7 @@ export default function PersonalStylingPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-4 flex-grow">
+                  <div className="flex-grow space-y-4">
                     <div className="text-3xl font-semibold">
                       {content.foundationPackage.price}
                     </div>
@@ -172,22 +205,22 @@ export default function PersonalStylingPage() {
                   </div>
 
                   <Button
-                    className="w-full mt-6"
+                    className="mt-6 w-full"
                     onClick={() => handleSelectPackage('foundation-package')}
                   >
                     Book Package
                   </Button>
                 </div>
 
-                <div className="border border-black p-8 flex flex-col h-full">
-                  <div className="space-y-4 mb-6">
+                <div className="flex h-full flex-col border border-black p-8">
+                  <div className="mb-6 space-y-4">
                     {content.signatureRefresh.badge ? (
                       <Label>{content.signatureRefresh.badge}</Label>
                     ) : (
                       <div className="h-6" />
                     )}
 
-                    <h3 className="text-2xl font-semibold font-sans">
+                    <h3 className="font-sans text-2xl font-semibold">
                       {content.signatureRefresh.name}
                     </h3>
                     <p className="font-serif text-muted">
@@ -195,7 +228,7 @@ export default function PersonalStylingPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-4 flex-grow">
+                  <div className="flex-grow space-y-4">
                     <div className="text-3xl font-semibold">
                       {content.signatureRefresh.price}
                     </div>
@@ -207,22 +240,22 @@ export default function PersonalStylingPage() {
                   </div>
 
                   <Button
-                    className="w-full mt-6"
+                    className="mt-6 w-full"
                     onClick={() => handleSelectPackage('signature-refresh')}
                   >
                     Book Package
                   </Button>
                 </div>
 
-                <div className="border border-black p-8 bg-background-muted flex flex-col h-full">
-                  <div className="space-y-4 mb-6">
+                <div className="bg-background-muted flex h-full flex-col border border-black p-8">
+                  <div className="mb-6 space-y-4">
                     {content.gentlemensUpgrade.badge ? (
                       <Label variant="inverse">{content.gentlemensUpgrade.badge}</Label>
                     ) : (
                       <div className="h-6" />
                     )}
 
-                    <h3 className="text-2xl font-semibold font-sans">
+                    <h3 className="font-sans text-2xl font-semibold">
                       {content.gentlemensUpgrade.name}
                     </h3>
                     <p className="font-serif text-muted">
@@ -230,7 +263,7 @@ export default function PersonalStylingPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-4 flex-grow">
+                  <div className="flex-grow space-y-4">
                     <div className="text-3xl font-semibold">
                       {content.gentlemensUpgrade.price}
                     </div>
@@ -242,7 +275,7 @@ export default function PersonalStylingPage() {
                   </div>
 
                   <Button
-                    className="w-full mt-6"
+                    className="mt-6 w-full"
                     onClick={() => handleSelectPackage('gentlemens-upgrade')}
                   >
                     Book Package
@@ -254,21 +287,21 @@ export default function PersonalStylingPage() {
         </PagePadding>
       </section>
 
-      <section id="how-it-works-section" className="py-16 bg-background-muted">
+      <section id="how-it-works-section" className="bg-background-muted py-16">
         <PagePadding>
           <Container>
-            <div className="text-center space-y-12">
-              <h2 className="text-4xl font-semibold font-sans">
+            <div className="space-y-12 text-center">
+              <h2 className="font-sans text-4xl font-semibold">
                 {content.processTitle}
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                 {content.processSteps.map((step, index) => (
-                  <div key={index} className="text-center space-y-4">
-                    <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-semibold mx-auto">
+                  <div key={index} className="space-y-4 text-center">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-black text-2xl font-semibold text-white">
                       {index + 1}
                     </div>
-                    <h3 className="text-xl font-semibold font-sans">{step.title}</h3>
+                    <h3 className="font-sans text-xl font-semibold">{step.title}</h3>
                     <p className="font-serif text-muted">{step.description}</p>
                   </div>
                 ))}
@@ -281,16 +314,16 @@ export default function PersonalStylingPage() {
       <section id="faq-section" className="py-16">
         <PagePadding>
           <Container size="medium">
-            <div className="text-center space-y-12">
-              <h2 className="text-4xl font-semibold font-sans">
+            <div className="space-y-12 text-center">
+              <h2 className="font-sans text-4xl font-semibold">
                 {content.faqTitle}
               </h2>
 
-              <div className="text-left space-y-8">
+              <div className="space-y-8 text-left">
                 {content.faqs.map((faq, index) => (
                   <div key={index}>
                     <div className="space-y-4">
-                      <h3 className="text-xl font-semibold font-sans">
+                      <h3 className="font-sans text-xl font-semibold">
                         {faq.question}
                       </h3>
                       <p className="font-serif text-muted">{faq.answer}</p>
@@ -306,8 +339,8 @@ export default function PersonalStylingPage() {
       </section>
 
       {showBooking && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
-          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto">
             <BookingForm
               selectedService={selectedService}
               onSuccess={handleBookingSuccess}
@@ -318,21 +351,21 @@ export default function PersonalStylingPage() {
       )}
 
       {showPayment && selectedService && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-white rounded-lg p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-8">
             <button
               onClick={handlePaymentCancel}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 hover:bg-gray-100"
               aria-label="Close modal"
             >
-              <svg className="w-5 h-5 text-gray-500 hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 text-gray-500 hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold font-sans mb-2">Complete Your Booking</h2>
-              <p className="text-gray-600 font-serif">Secure payment processing powered by Stripe</p>
+              <h2 className="mb-2 font-sans text-2xl font-semibold">Complete Your Booking</h2>
+              <p className="font-serif text-gray-600">Secure payment processing powered by Stripe</p>
             </div>
 
             <PaymentForm
@@ -345,8 +378,8 @@ export default function PersonalStylingPage() {
       )}
 
       {showSuccess && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
-          <div className="max-w-lg w-full">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg">
             <BookingSuccess onClose={handleSuccessClose} />
           </div>
         </div>

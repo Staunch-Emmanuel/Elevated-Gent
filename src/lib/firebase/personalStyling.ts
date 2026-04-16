@@ -34,6 +34,7 @@ export interface PersonalStylingFaq {
 export interface PersonalStylingContent {
   heroTitle: string;
   heroSubtitle: string;
+  heroBackgroundImage: string;
   foundationPackage: PersonalStylingPackage;
   signatureRefresh: PersonalStylingPackage;
   gentlemensUpgrade: PersonalStylingPackage;
@@ -46,9 +47,10 @@ export interface PersonalStylingContent {
 }
 
 export const defaultPersonalStylingContent: PersonalStylingContent = {
-  heroTitle: "Welcome back, {firstName}",
+  heroTitle: "Your Style, Elevated",
   heroSubtitle:
     "Choose from our professional styling services designed to help you develop a signature look that reflects your personality, lifestyle, and professional goals.",
+  heroBackgroundImage: "",
 
   foundationPackage: {
     name: "The Foundation Package",
@@ -81,7 +83,7 @@ export const defaultPersonalStylingContent: PersonalStylingContent = {
 
   gentlemensUpgrade: {
     name: "The Gentlemen's Upgrade",
-    price: "$1,000",
+    price: "$1,250",
     description:
       "Our most comprehensive package with full consultation, extensive lookbook, and hands-on styling support.",
     badge: "Premium",
@@ -169,6 +171,10 @@ function normalizeContent(data: any): PersonalStylingContent {
     heroTitle: data?.heroTitle ?? defaultPersonalStylingContent.heroTitle,
     heroSubtitle:
       data?.heroSubtitle ?? defaultPersonalStylingContent.heroSubtitle,
+    heroBackgroundImage:
+      typeof data?.heroBackgroundImage === "string"
+        ? data.heroBackgroundImage.trim()
+        : defaultPersonalStylingContent.heroBackgroundImage,
 
     foundationPackage: normalizePackage(
       data?.foundationPackage,
@@ -227,6 +233,7 @@ function cleanContent(content: PersonalStylingContent) {
   return {
     heroTitle: content.heroTitle ?? "",
     heroSubtitle: content.heroSubtitle ?? "",
+    heroBackgroundImage: content.heroBackgroundImage ?? "",
     foundationPackage: cleanPackage(content.foundationPackage),
     signatureRefresh: cleanPackage(content.signatureRefresh),
     gentlemensUpgrade: cleanPackage(content.gentlemensUpgrade),

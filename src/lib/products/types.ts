@@ -15,6 +15,7 @@ export interface Product {
   inStock?: boolean
   sizes?: string[]
   colors?: string[]
+  published?: boolean
 }
 
 export type ShoppableLink = {
@@ -34,6 +35,7 @@ export interface OutfitLook {
   styleType: string
   productLinks: Array<string | ShoppableLink>
   featured: boolean
+  published?: boolean
   createdAt?: string
   updatedAt?: string
   sortWeight?: number
@@ -48,17 +50,60 @@ export interface ProductCategory {
   name: string
   description?: string
   slug: string
+  section?: 'weekly' | 'outfits' | 'articles'
+  createdAt?: string
+  updatedAt?: string
 }
 
 export const PRODUCT_CATEGORIES: ProductCategory[] = [
-  { id: 'finds-of-the-week', name: 'Finds of the Week', slug: 'finds-of-the-week' },
-  { id: 'deals-of-the-week', name: 'Deals of the Week', slug: 'deals-of-the-week' },
-  { id: 'fashion-on-a-budget', name: 'Fashion on a Budget', slug: 'fashion-on-a-budget' },
-  { id: 'high-roller-list', name: 'High Roller List', slug: 'high-roller-list' },
-  { id: 'best-accessories', name: 'Best Accessories', slug: 'best-accessories' },
-  { id: 'emerging-brand-spotlight', name: 'Emerging Brand Spotlight', slug: 'emerging-brand-spotlight' },
-  { id: 'closet-staples', name: 'Closet Staples', slug: 'closet-staples' },
-  { id: 'marks-investment-pieces', name: "Mark's Investment Pieces", slug: 'marks-investment-pieces' },
+  {
+    id: 'finds-of-the-week',
+    name: 'Finds of the Week',
+    slug: 'finds-of-the-week',
+    section: 'weekly',
+  },
+  {
+    id: 'deals-of-the-week',
+    name: 'Deals of the Week',
+    slug: 'deals-of-the-week',
+    section: 'weekly',
+  },
+  {
+    id: 'fashion-on-a-budget',
+    name: 'Fashion on a Budget',
+    slug: 'fashion-on-a-budget',
+    section: 'weekly',
+  },
+  {
+    id: 'high-roller-list',
+    name: 'High Roller List',
+    slug: 'high-roller-list',
+    section: 'weekly',
+  },
+  {
+    id: 'best-accessories',
+    name: 'Best Accessories',
+    slug: 'best-accessories',
+    section: 'weekly',
+  },
+  {
+    id: 'emerging-brand-spotlight',
+    name: 'Emerging Brand Spotlight',
+    slug: 'emerging-brand-spotlight',
+    section: 'weekly',
+  },
+  {
+    id: 'closet-staples',
+    name: 'Closet Staples',
+    slug: 'closet-staples',
+    section: 'weekly',
+  },
+  {
+    id: 'marks-investment-pieces',
+    name: "Mark's Investment Pieces",
+    slug: 'marks-investment-pieces',
+    section: 'weekly',
+  },
 ]
 
 export const OUTFIT_OCCASIONS = [

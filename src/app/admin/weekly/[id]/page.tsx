@@ -1,13 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
-import { PRODUCT_CATEGORIES } from '@/lib/products/types'
 import { getWeeklyById, updateWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
+import {
+  createContentCategory,
+  getContentCategories,
+} from '@/lib/firebase/contentCategories'
+import type { ProductCategory } from '@/lib/products/types'
 
 function slugify(value: string) {
   return value
@@ -24,6 +28,7 @@ export default function EditWeeklyPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<ProductCategory[]>([])
 
   const [item, setItem] = useState<WeeklyItem | null>(null)
 
@@ -35,26 +40,44 @@ export default function EditWeeklyPage() {
 
   const [price, setPrice] = useState('')
   const [originalPrice, setOriginalPrice] = useState('')
-  const [category, setCategory] = useState('Finds of the Week')
+  const [category, setCategory] = useState('')
 
   const [productLink, setProductLink] = useState('')
   const [affiliateLink, setAffiliateLink] = useState('')
 
   const [featured, setFeatured] = useState(false)
   const [inStock, setInStock] = useState(true)
+  const [published, setPublished] = useState(true)
 
   const [tagsInput, setTagsInput] = useState('')
   const [sizesInput, setSizesInput] = useState('')
   const [colorsInput, setColorsInput] = useState('')
 
   const [error, setError] = useState('')
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('')
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [categoryError, setCategoryError] = useState('')
+
+  const computedSlug = useMemo(() => slugify(title), [title])
+
+  async function loadWeeklyCategories() {
+    const categoryDocs = await getContentCategories('weekly')
+    setCategories(categoryDocs)
+    return categoryDocs
+  }
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await getWeeklyById(id)
+        const [data, categoryDocs] = await Promise.all([
+          getWeeklyById(id),
+          loadWeeklyCategories(),
+        ])
+
         if (!data) {
-          alert('Item not found')
+          window.alert('Item not found')
           router.push('/admin/weekly')
           return
         }
@@ -67,11 +90,14 @@ export default function EditWeeklyPage() {
         setImage(data.image)
         setPrice(data.price)
         setOriginalPrice(data.originalPrice || '')
-        setCategory(data.category || 'Finds of the Week')
+        setCategory(
+          data.category || (categoryDocs.length > 0 ? categoryDocs[0].name : '')
+        )
         setProductLink(data.productLink)
         setAffiliateLink(data.affiliateLink || '')
         setFeatured(Boolean(data.featured))
         setInStock(data.inStock ?? true)
+        setPublished(data.published !== false)
 
         setTagsInput((data.tags || []).join(', '))
         setSizesInput((data.sizes || []).join(', '))
@@ -80,7 +106,7 @@ export default function EditWeeklyPage() {
         setImagesInput('')
       } catch (err) {
         console.error(err)
-        alert('Failed to load item.')
+        window.alert('Failed to load item.')
         router.push('/admin/weekly')
       } finally {
         setLoading(false)
@@ -88,9 +114,47 @@ export default function EditWeeklyPage() {
     }
 
     if (id) {
-      load()
+      void load()
     }
   }, [id, router])
+
+  async function handleCreateCategory() {
+    if (!newCategoryName.trim()) {
+      setCategoryError('Category name is required.')
+      return
+    }
+
+    setCreatingCategory(true)
+    setCategoryError('')
+
+    try {
+      await createContentCategory({
+        name: newCategoryName.trim(),
+        description: newCategoryDescription.trim(),
+        section: 'weekly',
+      })
+
+      const updatedCategories = await loadWeeklyCategories()
+      const created = updatedCategories.find(
+        (item) => item.name.toLowerCase() === newCategoryName.trim().toLowerCase()
+      )
+
+      if (created) {
+        setCategory(created.name)
+      }
+
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      setShowNewCategoryForm(false)
+    } catch (err) {
+      console.error(err)
+      setCategoryError(
+        err instanceof Error ? err.message : 'Failed to create category.'
+      )
+    } finally {
+      setCreatingCategory(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -121,7 +185,7 @@ export default function EditWeeklyPage() {
 
     try {
       await updateWeekly(id, {
-        slug: slugify(title),
+        slug: computedSlug,
         title,
         brand,
         description,
@@ -133,6 +197,7 @@ export default function EditWeeklyPage() {
         affiliateLink,
         featured,
         inStock,
+        published,
         tags,
         sizes,
         colors,
@@ -148,7 +213,7 @@ export default function EditWeeklyPage() {
 
   if (loading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
             <p>Loading…</p>
@@ -159,48 +224,58 @@ export default function EditWeeklyPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
-        <Container className="py-10 max-w-3xl">
-          <h1 className="text-2xl font-semibold mb-6">Edit Weekly Item</h1>
+        <Container className="max-w-3xl py-10">
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-2xl font-semibold">Edit Weekly Item</h1>
+
+            <button
+              type="button"
+              onClick={() => router.push('/admin/categories?section=weekly')}
+              className="rounded border border-gray-300 px-4 py-2 text-sm"
+            >
+              Manage Categories
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error ? (
-              <p className="text-sm text-red-600 border border-red-200 rounded-md px-3 py-2">
+              <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
                 {error}
               </p>
             ) : null}
 
             <div>
-              <label className="block text-sm mb-1">Title</label>
+              <label className="mb-1 block text-sm">Title</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="border p-2 rounded w-full"
+                className="w-full rounded border p-2"
                 required
               />
               <p className="mt-1 text-xs text-gray-500">
                 URL slug will be:
-                <span className="ml-1 font-mono">/weekly/{slugify(title)}</span>
+                <span className="ml-1 font-mono">/weekly/{computedSlug}</span>
               </p>
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Brand</label>
+              <label className="mb-1 block text-sm">Brand</label>
               <input
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="border p-2 rounded w-full"
+                className="w-full rounded border p-2"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Description</label>
+              <label className="mb-1 block text-sm">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="border p-2 rounded w-full min-h-[120px]"
+                className="min-h-[120px] w-full rounded border p-2"
                 required
               />
             </div>
@@ -217,104 +292,171 @@ export default function EditWeeklyPage() {
             />
 
             <div>
-              <label className="block text-sm mb-1">
+              <label className="mb-1 block text-sm">
                 Additional Image URLs (comma-separated)
               </label>
               <textarea
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
-                className="border p-2 rounded w-full min-h-[80px]"
+                className="min-h-[80px] w-full rounded border p-2"
                 placeholder="Not saved yet — WeeklyItem schema currently supports only a single image URL."
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm mb-1">Price</label>
+                <label className="mb-1 block text-sm">Price</label>
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="border p-2 rounded w-full"
+                  className="w-full rounded border p-2"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm mb-1">Original Price</label>
+                <label className="mb-1 block text-sm">Original Price</label>
                 <input
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
-                  className="border p-2 rounded w-full"
+                  className="w-full rounded border p-2"
                   placeholder="Optional"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Category</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="border p-2 rounded w-full"
-              >
-                {PRODUCT_CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded border p-2"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewCategoryForm((current) => !current)
+                    setCategoryError('')
+                  }}
+                  className="text-sm underline"
+                >
+                  {showNewCategoryForm ? 'Cancel new category' : 'Add new category'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push('/admin/categories?section=weekly')}
+                  className="text-sm text-gray-600 underline"
+                >
+                  Open full category manager
+                </button>
+              </div>
+
+              {showNewCategoryForm ? (
+                <div className="space-y-3 rounded-lg border bg-white p-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      New category name
+                    </label>
+                    <input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      placeholder="e.g. Spring Finds"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      Description (optional)
+                    </label>
+                    <textarea
+                      value={newCategoryDescription}
+                      onChange={(e) => setNewCategoryDescription(e.target.value)}
+                      className="min-h-[80px] w-full rounded-md border px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  {categoryError ? (
+                    <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
+                      {categoryError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateCategory()}
+                    disabled={creatingCategory}
+                    className="rounded-md bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+                  >
+                    {creatingCategory ? 'Creating...' : 'Create Category'}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Product Link</label>
+              <label className="mb-1 block text-sm">Product Link</label>
               <input
                 value={productLink}
                 onChange={(e) => setProductLink(e.target.value)}
-                className="border p-2 rounded w-full"
+                className="w-full rounded border p-2"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Affiliate Link</label>
+              <label className="mb-1 block text-sm">Affiliate Link</label>
               <input
                 value={affiliateLink}
                 onChange={(e) => setAffiliateLink(e.target.value)}
-                className="border p-2 rounded w-full"
+                className="w-full rounded border p-2"
                 placeholder="Optional"
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Tags (comma-separated)</label>
+              <label className="mb-1 block text-sm">Tags (comma-separated)</label>
               <input
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
-                className="border p-2 rounded w-full"
+                className="w-full rounded border p-2"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm mb-1">Sizes (comma-separated)</label>
+                <label className="mb-1 block text-sm">Sizes (comma-separated)</label>
                 <input
                   value={sizesInput}
                   onChange={(e) => setSizesInput(e.target.value)}
-                  className="border p-2 rounded w-full"
+                  className="w-full rounded border p-2"
                 />
               </div>
 
               <div>
-                <label className="block text-sm mb-1">Colors (comma-separated)</label>
+                <label className="mb-1 block text-sm">Colors (comma-separated)</label>
                 <input
                   value={colorsInput}
                   onChange={(e) => setColorsInput(e.target.value)}
-                  className="border p-2 rounded w-full"
+                  className="w-full rounded border p-2"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center gap-6">
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -332,12 +474,21 @@ export default function EditWeeklyPage() {
                 />
                 In Stock
               </label>
+
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                />
+                Published
+              </label>
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 bg-black text-white rounded disabled:opacity-40"
+              className="rounded bg-black px-4 py-2 text-white disabled:opacity-40"
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>

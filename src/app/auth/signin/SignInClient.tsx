@@ -1,93 +1,73 @@
-// src/app/auth/signin/SignInClient.tsx
-"use client";
+'use client'
 
-import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { useAuth } from "@/lib/firebase/auth";
-import { Button } from "@/components/ui";
-import { PagePadding, Container } from "@/components/layout";
+import { useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useAuth } from '@/lib/firebase/auth'
+import { Button } from '@/components/ui'
+import { PagePadding, Container } from '@/components/layout'
+import AuthMediaPanel from '@/components/auth/AuthMediaPanel'
 
 export default function SignInClient() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const { signIn } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { signIn } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   const nextPath = useMemo(() => {
-    const next = searchParams.get("next");
-    if (!next) return "/personal-styling";
-    if (!next.startsWith("/")) return "/personal-styling";
-    return next;
-  }, [searchParams]);
+    const next = searchParams.get('next')
+    if (!next) return '/home'
+    if (!next.startsWith('/')) return '/home'
+    return next
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (loading) return;
+    if (loading) return
 
-    setError("");
+    setError('')
 
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password;
+    const trimmedEmail = email.trim()
+    const trimmedPassword = password
 
     if (!trimmedEmail || !trimmedPassword) {
-      setError("Please enter your email and password.");
-      return;
+      setError('Please enter your email and password.')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
-      const result = await signIn(trimmedEmail, trimmedPassword);
+      const result = await signIn(trimmedEmail, trimmedPassword)
 
       if (!result || result.success !== true) {
-        setError(result?.error || "Incorrect email or password.");
-        return;
+        setError(result?.error || 'Incorrect email or password.')
+        return
       }
 
-      router.push(nextPath);
+      router.push(nextPath)
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError('Something went wrong. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 relative">
-        <Image
-          src="/images/Image-10.jpeg"
-          alt="The Elevated Gentleman Fashion"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute bottom-8 left-8 right-8">
-          <div className="text-white">
-            <h2 className="text-2xl font-semibold font-sans mb-2">
-              ELEVATE YOUR STYLE
-            </h2>
-            <p className="text-white/90 font-serif">
-              Professional styling services for the modern gentleman
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen lg:flex relative overflow-hidden bg-black lg:bg-transparent">
+      <AuthMediaPanel />
 
-      <div className="w-full lg:w-1/2 flex flex-col justify-center">
+      <div className="relative z-10 w-full lg:w-1/2 flex flex-col justify-center">
         <PagePadding>
           <Container size="small">
-            <div className="flex flex-col items-center justify-center min-h-screen py-12">
+            <div className="flex flex-col items-center justify-center min-h-screen py-12 lg:py-12">
               <div className="w-full max-w-md">
-                <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-lg lg:shadow-xl">
+                <div className="bg-white/95 lg:bg-white border border-white/20 lg:border-gray-200 rounded-lg p-6 sm:p-8 shadow-xl backdrop-blur-sm lg:backdrop-blur-0">
                   <h1 className="text-3xl font-semibold font-sans text-center mb-2">
                     Welcome Back
                   </h1>
@@ -120,7 +100,7 @@ export default function SignInClient() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         autoComplete="email"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif bg-white"
                         placeholder="your@email.com"
                       />
                     </div>
@@ -139,13 +119,13 @@ export default function SignInClient() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         autoComplete="current-password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif bg-white"
                         placeholder="Enter your password"
                       />
                     </div>
 
                     <Button type="submit" disabled={loading} className="w-full py-3">
-                      {loading ? "Signing in..." : "Sign In"}
+                      {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
                   </form>
 
@@ -160,7 +140,7 @@ export default function SignInClient() {
 
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <p className="text-center text-sm text-gray-600 font-serif">
-                      Don&apos;t have an account?{" "}
+                      Don&apos;t have an account?{' '}
                       <Link
                         href="/auth/signup"
                         className="text-black hover:underline font-medium"
@@ -171,10 +151,9 @@ export default function SignInClient() {
                   </div>
                 </div>
 
-                <div className="mt-8 text-center">
-                  <p className="text-sm text-gray-500 font-serif">
-                    Access your personalized styling services, appointments, and
-                    order history.
+                <div className="mt-6 lg:mt-8 text-center">
+                  <p className="text-sm text-white/90 lg:text-gray-500 font-serif">
+                    Access your personalized styling services, appointments, and order history.
                   </p>
                 </div>
               </div>
@@ -183,5 +162,5 @@ export default function SignInClient() {
         </PagePadding>
       </div>
     </div>
-  );
+  )
 }

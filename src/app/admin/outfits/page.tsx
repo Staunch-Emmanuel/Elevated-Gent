@@ -1,21 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 
-import {
-  deleteOutfit,
-  getAllOutfits,
-  OUTFIT_CATEGORY_OPTIONS,
-} from '@/lib/firebase/outfits'
+import { deleteOutfit, getAllOutfits } from '@/lib/firebase/outfits'
+import { getContentCategories } from '@/lib/firebase/contentCategories'
 
 import type { OutfitDocument } from '@/lib/firebase/outfits'
+import type { ProductCategory } from '@/lib/products/types'
 
 export default function AdminOutfitsPage() {
   const [outfits, setOutfits] = useState<OutfitDocument[]>([])
+  const [categories, setCategories] = useState<ProductCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -27,8 +26,12 @@ export default function AdminOutfitsPage() {
       setLoading(true)
 
       try {
-        const docs = await getAllOutfits()
+        const [docs, categoryDocs] = await Promise.all([
+          getAllOutfits(),
+          getContentCategories('outfits'),
+        ])
         setOutfits(docs)
+        setCategories(categoryDocs)
       } catch (err) {
         console.error('Error loading outfits:', err)
       } finally {
@@ -54,33 +57,44 @@ export default function AdminOutfitsPage() {
     }
   }
 
-  const filtered = outfits.filter((item) => {
-    const searchValue = search.trim().toLowerCase()
+  const filtered = useMemo(() => {
+    return outfits.filter((item) => {
+      const searchValue = search.trim().toLowerCase()
 
-    const matchSearch =
-      item.title.toLowerCase().includes(searchValue) ||
-      item.description.toLowerCase().includes(searchValue) ||
-      item.category.toLowerCase().includes(searchValue)
+      const matchSearch =
+        item.title.toLowerCase().includes(searchValue) ||
+        item.description.toLowerCase().includes(searchValue) ||
+        item.category.toLowerCase().includes(searchValue)
 
-    const matchCategory =
-      filterCategory === 'all' || item.category === filterCategory
+      const matchCategory =
+        filterCategory === 'all' || item.category === filterCategory
 
-    return matchSearch && matchCategory
-  })
+      return matchSearch && matchCategory
+    })
+  }, [outfits, search, filterCategory])
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="py-12 max-w-5xl">
           <div className="flex items-center justify-between mb-10">
             <h1 className="text-3xl font-bold">Outfits (Admin)</h1>
 
-            <Link
-              href="/admin/outfits/new"
-              className="bg-black text-white px-4 py-2 rounded text-sm"
-            >
-              + New Outfit
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                href="/admin/categories?section=outfits"
+                className="border border-gray-300 px-4 py-2 rounded text-sm"
+              >
+                Manage Categories
+              </Link>
+
+              <Link
+                href="/admin/outfits/new"
+                className="bg-black text-white px-4 py-2 rounded text-sm"
+              >
+                + New Outfit
+              </Link>
+            </div>
           </div>
 
           <div className="space-y-4 mb-10">
@@ -98,9 +112,9 @@ export default function AdminOutfitsPage() {
                 className="border p-2 rounded"
               >
                 <option value="all">All Categories</option>
-                {OUTFIT_CATEGORY_OPTIONS.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
                   </option>
                 ))}
               </select>
@@ -141,9 +155,21 @@ export default function AdminOutfitsPage() {
                       </p>
                     ) : null}
 
-                    <p className="text-xs text-gray-400 mt-1">
-                      {outfit.productLinks.length} links
-                    </p>
+                    <div className="mt-2 flex gap-2 flex-wrap">
+                      <span className="text-xs text-gray-400">
+                        {outfit.productLinks.length} links
+                      </span>
+
+                      {outfit.published === false ? (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                          Draft
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          Published
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex gap-3">
