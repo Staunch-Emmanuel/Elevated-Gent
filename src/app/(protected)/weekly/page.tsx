@@ -8,16 +8,13 @@ import { ProductCard } from '@/components/products/ProductCard'
 import { StructuredData } from '@/components/seo/StructuredData'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
-import {
-  PRODUCT_CATEGORIES,
-  type Product,
-} from '@/lib/products/types'
+import { type Product } from '@/lib/products/types'
 import { getWeeklyProducts } from '@/lib/firebase/weekly'
 
-const categoryOptions = [
-  { id: 'all', label: 'All Categories' },
-  ...PRODUCT_CATEGORIES.map((cat) => ({ id: cat.slug, label: cat.name })),
-]
+type CategoryOption = {
+  id: string
+  label: string
+}
 
 function normalizeProduct(input: Partial<Product> & { id?: string }): Product {
   return {
@@ -67,17 +64,49 @@ export default function WeeklyPage() {
       }
     }
 
-    loadWeekly()
+    void loadWeekly()
   }, [])
+
+  const categoryOptions = useMemo<CategoryOption[]>(() => {
+    const dynamicCategories = Array.from(
+      new Map(
+        cmsProducts
+          .map((product) => {
+            const label = String(product.category || '').trim()
+            const id = categoryToSlug(label)
+
+            if (!label || !id) return null
+
+            return [id, { id, label }] as const
+          })
+          .filter(Boolean) as Array<readonly [string, CategoryOption]>
+      ).values()
+    )
+
+    return [{ id: 'all', label: 'All Categories' }, ...dynamicCategories]
+  }, [cmsProducts])
 
   const filteredProducts = useMemo(() => {
     if (activeCategory === 'all') return cmsProducts
-    return cmsProducts.filter((product) => categoryToSlug(product.category) === activeCategory)
+    return cmsProducts.filter(
+      (product) => categoryToSlug(product.category) === activeCategory
+    )
   }, [activeCategory, cmsProducts])
 
   const featuredProducts = useMemo(() => {
     return cmsProducts.filter((product) => Boolean(product.featured))
   }, [cmsProducts])
+
+  useEffect(() => {
+    if (activeCategory === 'all') return
+
+    const stillExists = categoryOptions.some(
+      (category) => category.id === activeCategory
+    )
+    if (!stillExists) {
+      setActiveCategory('all')
+    }
+  }, [activeCategory, categoryOptions])
 
   return (
     <ProtectedRoute>

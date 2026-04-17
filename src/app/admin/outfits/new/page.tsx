@@ -8,7 +8,10 @@ import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 
 import { createOutfit } from '@/lib/firebase/outfits'
-import { getContentCategories } from '@/lib/firebase/contentCategories'
+import {
+  createContentCategory,
+  getContentCategories,
+} from '@/lib/firebase/contentCategories'
 import type { ShoppableLink, ProductCategory } from '@/lib/products/types'
 
 function slugify(text: string): string {
@@ -45,24 +48,37 @@ export default function AdminNewOutfitPage() {
     { label: '', url: '' },
   ])
 
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('')
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [categoryError, setCategoryError] = useState('')
+
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  async function loadOutfitCategories() {
+    const docs = await getContentCategories('outfits')
+    setCategories(docs)
+
+    if (!category && docs.length > 0) {
+      setCategory(docs[0].name)
+    }
+
+    return docs
+  }
 
   useEffect(() => {
     async function loadCategories() {
       try {
-        const docs = await getContentCategories('outfits')
-        setCategories(docs)
-        if (!category && docs.length > 0) {
-          setCategory(docs[0].name)
-        }
+        await loadOutfitCategories()
       } catch (err) {
         console.error('Failed to load outfit categories:', err)
       }
     }
 
-    loadCategories()
-  }, [category])
+    void loadCategories()
+  }, [])
 
   function updateLink(index: number, field: keyof ShoppableLink, value: string) {
     setProductLinks((current) =>
@@ -81,6 +97,44 @@ export default function AdminNewOutfitPage() {
       const next = current.filter((_, i) => i !== index)
       return next.length > 0 ? next : [{ label: '', url: '' }]
     })
+  }
+
+  async function handleCreateCategory() {
+    if (!newCategoryName.trim()) {
+      setCategoryError('Category name is required.')
+      return
+    }
+
+    setCreatingCategory(true)
+    setCategoryError('')
+
+    try {
+      await createContentCategory({
+        name: newCategoryName.trim(),
+        description: newCategoryDescription.trim(),
+        section: 'outfits',
+      })
+
+      const updatedCategories = await loadOutfitCategories()
+      const created = updatedCategories.find(
+        (item) => item.name.toLowerCase() === newCategoryName.trim().toLowerCase()
+      )
+
+      if (created) {
+        setCategory(created.name)
+      }
+
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      setShowNewCategoryForm(false)
+    } catch (err) {
+      console.error(err)
+      setCategoryError(
+        err instanceof Error ? err.message : 'Failed to create category.'
+      )
+    } finally {
+      setCreatingCategory(false)
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -196,21 +250,86 @@ export default function AdminNewOutfitPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm"
-                required
-              >
-                <option value="">Select category</option>
-                {categories.map((option) => (
-                  <option key={option.id} value={option.name}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map((option) => (
+                    <option key={option.id} value={option.name}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewCategoryForm((current) => !current)
+                    setCategoryError('')
+                  }}
+                  className="text-sm underline"
+                >
+                  {showNewCategoryForm ? 'Cancel new category' : 'Add new category'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push('/admin/categories?section=outfits')}
+                  className="text-sm text-gray-600 underline"
+                >
+                  Open full category manager
+                </button>
+              </div>
+
+              {showNewCategoryForm ? (
+                <div className="space-y-3 rounded-lg border bg-white p-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      New category name
+                    </label>
+                    <input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      placeholder="e.g. Vacation"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      Description (optional)
+                    </label>
+                    <textarea
+                      value={newCategoryDescription}
+                      onChange={(e) => setNewCategoryDescription(e.target.value)}
+                      className="min-h-[80px] w-full rounded-md border px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  {categoryError ? (
+                    <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
+                      {categoryError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateCategory()}
+                    disabled={creatingCategory}
+                    className="rounded-md bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+                  >
+                    {creatingCategory ? 'Creating...' : 'Create Category'}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             <CMSImageUploadField

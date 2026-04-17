@@ -374,7 +374,7 @@ export default function EditWeeklyPage() {
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                       className="w-full rounded-md border px-3 py-2 text-sm"
-                      placeholder="e.g. Spring Finds"
+                      placeholder="e.g. Summer Finds"
                     />
                   </div>
 
@@ -456,39 +456,39 @@ export default function EditWeeklyPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6">
-              <label className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-6 flex-wrap">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
                 />
-                Featured
+                <span>Featured</span>
               </label>
 
-              <label className="flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={inStock}
                   onChange={(e) => setInStock(e.target.checked)}
                 />
-                In Stock
+                <span>In Stock</span>
               </label>
 
-              <label className="flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={published}
                   onChange={(e) => setPublished(e.target.checked)}
                 />
-                Published
+                <span>Published</span>
               </label>
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="rounded bg-black px-4 py-2 text-white disabled:opacity-40"
+              className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>

@@ -12,24 +12,24 @@ import type { ArticleDocument } from '@/lib/types/articles'
 import type { ArticleCardArticle } from '@/components/articles/ArticleCard'
 import { getPublishedArticlesCMS } from '@/lib/firebase/articles'
 
-const categoryOptions = [
-  { id: 'all', label: 'All' },
-  { id: 'general', label: 'General' },
-  { id: 'wellness', label: 'Wellness' },
-  { id: 'grooming', label: 'Grooming' },
-  { id: 'style', label: 'Style' },
-  { id: 'lifestyle', label: 'Lifestyle' },
-] as const
+type CategoryOption = {
+  id: string
+  label: string
+}
 
-function normalizeCategory(value: unknown): string {
-  const normalized = String(value ?? '').trim().toLowerCase()
+function normalizeCategorySlug(value: unknown): string {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/'/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'general'
+}
 
-  if (normalized === 'blueprint') return 'grooming'
-  if (normalized === 'confidence') return 'wellness'
-  if (normalized === 'products' || normalized === 'occasion') return 'style'
-  if (normalized === 'lifetime') return 'lifestyle'
-
-  return normalized || 'general'
+function normalizeCategoryLabel(value: unknown): string {
+  const raw = String(value ?? '').trim()
+  if (!raw) return 'General'
+  return raw
 }
 
 function normalizeDate(value: unknown): number {
@@ -75,7 +75,7 @@ function mapArticleForCard(article: ArticleDocument): ArticleCardArticle {
     title: article.title ?? '',
     excerpt: article.excerpt ?? '',
     heroImage: article.heroImage ?? '',
-    category: normalizeCategory(article.category ?? 'general'),
+    category: normalizeCategorySlug(article.category ?? 'general'),
     publishDate:
       article.publishDate ??
       article.datePublished ??
@@ -86,6 +86,27 @@ function mapArticleForCard(article: ArticleDocument): ArticleCardArticle {
     occasion: article.occasion ?? undefined,
     href: `/articles/${article.slug ?? ''}`,
   }
+}
+
+function buildCategoryOptions(articles: ArticleDocument[]): CategoryOption[] {
+  const categoryMap = new Map<string, CategoryOption>()
+
+  categoryMap.set('all', { id: 'all', label: 'All' })
+
+  articles.forEach((article) => {
+    const id = normalizeCategorySlug(article.category)
+    const label = normalizeCategoryLabel(article.category)
+
+    if (!categoryMap.has(id)) {
+      categoryMap.set(id, { id, label })
+    }
+  })
+
+  if (!categoryMap.has('general')) {
+    categoryMap.set('general', { id: 'general', label: 'General' })
+  }
+
+  return Array.from(categoryMap.values())
 }
 
 export default function ArticlesPage() {
@@ -114,6 +135,10 @@ export default function ArticlesPage() {
     void loadArticles()
   }, [])
 
+  const categoryOptions = useMemo(() => {
+    return buildCategoryOptions(cmsArticles)
+  }, [cmsArticles])
+
   const mappedArticles = useMemo(() => {
     return cmsArticles.map(mapArticleForCard)
   }, [cmsArticles])
@@ -122,9 +147,21 @@ export default function ArticlesPage() {
     if (activeCategory === 'all') return mappedArticles
 
     return mappedArticles.filter(
-      (article) => normalizeCategory(article.category) === activeCategory
+      (article) => normalizeCategorySlug(article.category) === activeCategory
     )
   }, [activeCategory, mappedArticles])
+
+  useEffect(() => {
+    if (activeCategory === 'all') return
+
+    const stillExists = categoryOptions.some(
+      (category) => category.id === activeCategory
+    )
+
+    if (!stillExists) {
+      setActiveCategory('all')
+    }
+  }, [activeCategory, categoryOptions])
 
   return (
     <ProtectedRoute>

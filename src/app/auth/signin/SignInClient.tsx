@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/firebase/auth'
 import { Button } from '@/components/ui'
@@ -16,14 +16,6 @@ export default function SignInClient() {
 
   const { signIn } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const nextPath = useMemo(() => {
-    const next = searchParams.get('next')
-    if (!next) return '/home'
-    if (!next.startsWith('/')) return '/home'
-    return next
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,7 +42,7 @@ export default function SignInClient() {
         return
       }
 
-      router.push(nextPath)
+      router.push('/home')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

@@ -7,7 +7,10 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
 import { createWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
-import { getContentCategories } from '@/lib/firebase/contentCategories'
+import {
+  createContentCategory,
+  getContentCategories,
+} from '@/lib/firebase/contentCategories'
 import type { ProductCategory } from '@/lib/products/types'
 
 function slugify(value: string) {
@@ -45,24 +48,74 @@ export default function NewWeeklyPage() {
   const [colorsInput, setColorsInput] = useState('')
 
   const [error, setError] = useState('')
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('')
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [categoryError, setCategoryError] = useState('')
+
+  async function loadWeeklyCategories() {
+    const docs = await getContentCategories('weekly')
+    setCategories(docs)
+
+    if (!category && docs.length > 0) {
+      setCategory(docs[0].name)
+    }
+
+    return docs
+  }
 
   useEffect(() => {
     async function loadCategories() {
       try {
-        const docs = await getContentCategories('weekly')
-        setCategories(docs)
-        if (!category && docs.length > 0) {
-          setCategory(docs[0].name)
-        }
+        await loadWeeklyCategories()
       } catch (err) {
         console.error('Failed to load weekly categories:', err)
       }
     }
 
-    loadCategories()
-  }, [category])
+    void loadCategories()
+  }, [])
 
   const computedSlug = useMemo(() => slugify(title), [title])
+
+  async function handleCreateCategory() {
+    if (!newCategoryName.trim()) {
+      setCategoryError('Category name is required.')
+      return
+    }
+
+    setCreatingCategory(true)
+    setCategoryError('')
+
+    try {
+      await createContentCategory({
+        name: newCategoryName.trim(),
+        description: newCategoryDescription.trim(),
+        section: 'weekly',
+      })
+
+      const updatedCategories = await loadWeeklyCategories()
+      const created = updatedCategories.find(
+        (item) => item.name.toLowerCase() === newCategoryName.trim().toLowerCase()
+      )
+
+      if (created) {
+        setCategory(created.name)
+      }
+
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      setShowNewCategoryForm(false)
+    } catch (err) {
+      console.error(err)
+      setCategoryError(
+        err instanceof Error ? err.message : 'Failed to create category.'
+      )
+    } finally {
+      setCreatingCategory(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -208,21 +261,86 @@ export default function NewWeeklyPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Category</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="border p-2 rounded w-full"
-                required
-              >
-                <option value="">Select category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm mb-1">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewCategoryForm((current) => !current)
+                    setCategoryError('')
+                  }}
+                  className="text-sm underline"
+                >
+                  {showNewCategoryForm ? 'Cancel new category' : 'Add new category'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push('/admin/categories?section=weekly')}
+                  className="text-sm text-gray-600 underline"
+                >
+                  Open full category manager
+                </button>
+              </div>
+
+              {showNewCategoryForm ? (
+                <div className="space-y-3 rounded-lg border bg-white p-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      New category name
+                    </label>
+                    <input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      placeholder="e.g. Summer Finds"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">
+                      Description (optional)
+                    </label>
+                    <textarea
+                      value={newCategoryDescription}
+                      onChange={(e) => setNewCategoryDescription(e.target.value)}
+                      className="min-h-[80px] w-full rounded-md border px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  {categoryError ? (
+                    <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
+                      {categoryError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateCategory()}
+                    disabled={creatingCategory}
+                    className="rounded-md bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+                  >
+                    {creatingCategory ? 'Creating...' : 'Create Category'}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             <div>
@@ -231,6 +349,7 @@ export default function NewWeeklyPage() {
                 value={productLink}
                 onChange={(e) => setProductLink(e.target.value)}
                 className="border p-2 rounded w-full"
+                type="url"
                 required
               />
             </div>
@@ -241,6 +360,8 @@ export default function NewWeeklyPage() {
                 value={affiliateLink}
                 onChange={(e) => setAffiliateLink(e.target.value)}
                 className="border p-2 rounded w-full"
+                type="url"
+                placeholder="Optional"
               />
             </div>
 
@@ -250,6 +371,7 @@ export default function NewWeeklyPage() {
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 className="border p-2 rounded w-full"
+                placeholder="summer, bag, accessory"
               />
             </div>
 
@@ -274,40 +396,40 @@ export default function NewWeeklyPage() {
             </div>
 
             <div className="flex items-center gap-6 flex-wrap">
-              <label className="flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
                 />
-                Featured
+                <span>Featured</span>
               </label>
 
-              <label className="flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={inStock}
                   onChange={(e) => setInStock(e.target.checked)}
                 />
-                In Stock
+                <span>In Stock</span>
               </label>
 
-              <label className="flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={published}
                   onChange={(e) => setPublished(e.target.checked)}
                 />
-                Published
+                <span>Published</span>
               </label>
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 bg-black text-white rounded disabled:opacity-40"
+              className="px-4 py-2 bg-black text-white rounded text-sm disabled:opacity-60"
             >
-              {saving ? 'Saving…' : 'Create Weekly Item'}
+              {saving ? 'Creating…' : 'Create Weekly Item'}
             </button>
           </form>
         </Container>

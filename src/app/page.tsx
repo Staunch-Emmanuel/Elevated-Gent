@@ -29,7 +29,7 @@ export default async function HomePage() {
       redirect("/subscribe");
     }
 
-    redirect("/personal-styling");
+    redirect("/home");
   } catch (err) {
     console.error("Home routing error:", err);
     redirect("/auth/signin");

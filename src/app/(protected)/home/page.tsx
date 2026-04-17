@@ -22,8 +22,18 @@ function replaceFirstName(template: string, firstName: string) {
 }
 
 function buildLogoTrack(items: string[]) {
-  if (!items.length) return []
-  return [...items, ...items]
+  const valid = items.filter(Boolean)
+
+  if (!valid.length) return []
+
+  const minRepeats = 4
+  const repeated: string[] = []
+
+  for (let i = 0; i < minRepeats; i += 1) {
+    repeated.push(...valid)
+  }
+
+  return repeated
 }
 
 function normalizeHomepageHref(href: string | undefined, fallback: string) {
@@ -217,8 +227,8 @@ export default function HomePage() {
     <ProtectedRoute>
       <StructuredData pageKey="home" />
 
-      <div className="min-h-screen bg-[#f4f1ea] text-black">
-        <section className="relative overflow-hidden bg-[#e9e4db]">
+      <div className="min-h-screen bg-[#FEFFFE] text-black">
+        <section className="relative overflow-hidden bg-[#FEFFFE]">
           <div className="absolute inset-0">
             <div
               className={`flex h-full ease-in-out ${
@@ -247,9 +257,9 @@ export default function HomePage() {
               ))}
             </div>
 
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.25)_40%,rgba(0,0,0,0.55)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.28)_82%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.4)_80%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.58)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.3)_82%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.42)_80%)]" />
           </div>
 
           <PagePadding>
@@ -269,13 +279,17 @@ export default function HomePage() {
                       {content.heroSubtitle}
                     </h2>
 
-                    <p className="mx-auto max-w-2xl font-serif text-lg leading-relaxed text-white/85 md:text-[1.2rem]">
+                    <p className="mx-auto max-w-2xl font-serif text-lg leading-relaxed text-white/88 md:text-[1.2rem]">
                       {content.heroDescription}
                     </p>
                   </div>
 
                   <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                    <Button asChild size="lg">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="border border-white/70 bg-black/78 text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition hover:border-white hover:bg-black"
+                    >
                       <Link href={heroPrimaryHref}>{content.primaryButton.label}</Link>
                     </Button>
 
@@ -349,7 +363,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] bg-[#d9d5cc] shadow-[0_20px_60px_rgba(0,0,0,0.08)] md:min-h-[620px]">
+                <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] bg-[#FEFFFE] shadow-[0_20px_60px_rgba(0,0,0,0.08)] md:min-h-[620px]">
                   {storyImage ? (
                     <Image
                       src={storyImage}
@@ -371,7 +385,7 @@ export default function HomePage() {
         {logoTrack.length > 0 ? (
           <section className="border-y border-black/10 bg-white py-5">
             <div className="overflow-hidden">
-              <div className="homepage-logo-marquee flex min-w-max items-center gap-16 px-8">
+              <div className="homepage-logo-marquee flex w-max items-center gap-16 px-8">
                 {logoTrack.map((logoUrl, index) => (
                   <div
                     key={`${logoUrl}-${index}`}
@@ -418,7 +432,7 @@ export default function HomePage() {
 
         <style jsx global>{`
           .homepage-logo-marquee {
-            animation: homepage-marquee 28s linear infinite;
+            animation: homepage-marquee 32s linear infinite;
           }
 
           @keyframes homepage-marquee {
@@ -426,7 +440,7 @@ export default function HomePage() {
               transform: translateX(0);
             }
             100% {
-              transform: translateX(-50%);
+              transform: translateX(-25%);
             }
           }
         `}</style>

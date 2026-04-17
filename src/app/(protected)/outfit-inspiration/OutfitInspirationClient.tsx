@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Label } from '@/components/ui'
 import { OutfitCard } from '@/components/products/OutfitCard'
@@ -16,16 +16,10 @@ type Props = {
   cmsOutfits: OutfitInspirationDocument[]
 }
 
-const filterOptions = [
-  { id: 'all', label: 'All' },
-  { id: 'casual-style', label: 'Casual Style' },
-  { id: 'formal-wear', label: 'Formal Wear' },
-  { id: 'streetwear', label: 'Streetwear' },
-  { id: 'date-night', label: 'Date Night' },
-  { id: 'weddings-events', label: 'Weddings/Events' },
-  { id: 'weekend', label: 'Weekend' },
-  { id: 'marks-favorites', label: "Mark's Favorites" },
-] as const
+type FilterOption = {
+  id: string
+  label: string
+}
 
 function normalizeFilterValue(value: string): string {
   return value
@@ -66,6 +60,27 @@ function getOutfitsByFilter(
   })
 }
 
+function buildDynamicFilters(outfits: OutfitInspirationLook[]): FilterOption[] {
+  const categoryMap = new Map<string, FilterOption>()
+
+  outfits.forEach((outfit) => {
+    const rawCategory = String(outfit.category || '').trim()
+    if (!rawCategory) return
+
+    const normalizedId = normalizeFilterValue(rawCategory)
+    if (!normalizedId) return
+
+    if (!categoryMap.has(normalizedId)) {
+      categoryMap.set(normalizedId, {
+        id: normalizedId,
+        label: rawCategory,
+      })
+    }
+  })
+
+  return [{ id: 'all', label: 'All' }, ...Array.from(categoryMap.values())]
+}
+
 export default function OutfitInspirationClient({ cmsOutfits }: Props) {
   const [activeFilter, setActiveFilter] = useState('all')
 
@@ -73,9 +88,25 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
     return mapCmsOutfitsToLooks(cmsOutfits || [])
   }, [cmsOutfits])
 
+  const filterOptions = useMemo(() => {
+    return buildDynamicFilters(outfits)
+  }, [outfits])
+
   const filteredOutfits = useMemo(() => {
     return getOutfitsByFilter(outfits, activeFilter)
   }, [outfits, activeFilter])
+
+  useEffect(() => {
+    if (activeFilter === 'all') return
+
+    const filterStillExists = filterOptions.some(
+      (filter) => filter.id === activeFilter
+    )
+
+    if (!filterStillExists) {
+      setActiveFilter('all')
+    }
+  }, [activeFilter, filterOptions])
 
   return (
     <>
