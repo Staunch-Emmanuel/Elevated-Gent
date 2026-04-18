@@ -79,8 +79,36 @@ function getCategoryName(category: string): string {
 function sanitizeArticleHtml(content: string): string {
   return String(content || '')
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-    .replace(/<\/?(html|head|meta|title|link)[^>]*>/gi, '')
+    .replace(/<object[\s\S]*?>[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed[\s\S]*?>[\s\S]*?<\/embed>/gi, '')
+    .replace(/<form[\s\S]*?>[\s\S]*?<\/form>/gi, '')
+    .replace(/<input[^>]*>/gi, '')
     .replace(/\s(on\w+)=(".*?"|'.*?'|[^\s>]+)/gi, '')
+    .replace(/\s(href|src)=("javascript:[^"]*"|'javascript:[^']*')/gi, '')
+}
+
+function isFullHtmlDocument(content: string): boolean {
+  return /<!doctype|<html[\s>]|<head[\s>]|<body[\s>]/i.test(String(content || ''))
+}
+
+function extractStyleTags(content: string): string {
+  const matches = String(content || '').match(/<style[^>]*>[\s\S]*?<\/style>/gi)
+  return matches?.join('\n') ?? ''
+}
+
+function extractBodyContent(content: string): string {
+  const safe = String(content || '')
+  const bodyMatch = safe.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
+
+  if (bodyMatch?.[1]) {
+    return bodyMatch[1].trim()
+  }
+
+  return safe
+    .replace(/<!doctype[^>]*>/gi, '')
+    .replace(/<\/?(html|head|meta|title|link|body)[^>]*>/gi, '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .trim()
 }
 
 function renderRichText(content: string) {
@@ -90,18 +118,21 @@ function renderRichText(content: string) {
   const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(safe)
 
   if (looksLikeHtml) {
-    const cleanedHtml = sanitizeArticleHtml(safe)
-
     return (
-      <div className="article-content max-w-none">
-        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
-      </div>
+      <div
+        className="article-content max-w-none"
+        dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(safe) }}
+      />
     )
   }
 
   return safe.split('\n').map((line, idx) => {
     const text = line.trim()
-    if (!text) return <div key={idx} className="h-4" />
+
+    if (!text) {
+      return <div key={idx} className="h-4" />
+    }
+
     return (
       <p key={idx} className="font-serif text-[17px] leading-relaxed text-inherit">
         {text}
@@ -242,6 +273,21 @@ const articleContentStyles = `
     border-radius: 0.75rem;
     margin: 1.5rem 0;
   }
+
+  .article-html-render {
+    width: 100%;
+  }
+
+  .article-html-render img,
+  .article-html-render video,
+  .article-html-render iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .article-html-render table {
+    max-width: 100%;
+  }
 `
 
 export default async function ArticlePage({ params }: PageProps) {
@@ -250,7 +296,9 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const article: ArticleDocument | null = await getArticleBySlugCMS(normalizedSlug)
 
-  if (!article) notFound()
+  if (!article) {
+    notFound()
+  }
 
   const title = article.title ?? 'Article'
   const heroImage = article.heroImage || '/images/Image-10.jpeg'
@@ -263,17 +311,25 @@ export default async function ArticlePage({ params }: PageProps) {
     formatDate(article.datePublished) ||
     formatDate(article.createdAt)
 
+  const rawContent = String(article.content ?? '').trim()
+  const fullHtmlMode = isFullHtmlDocument(rawContent)
+  const cleanedHtml = sanitizeArticleHtml(rawContent)
+  const customStyles = fullHtmlMode ? extractStyleTags(cleanedHtml) : ''
+  const customBody = fullHtmlMode ? extractBodyContent(cleanedHtml) : ''
+
   return (
     <ProtectedRoute>
       <StructuredData pageKey="article" />
-
       <style dangerouslySetInnerHTML={{ __html: articleContentStyles }} />
+      {fullHtmlMode && customStyles ? (
+        <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+      ) : null}
 
       <div className="min-h-screen">
         <section className="py-16">
           <PagePadding>
             <Container>
-              <div className="mx-auto max-w-3xl">
+              <div className="mx-auto max-w-6xl">
                 <div className="mb-8">
                   <Link
                     href="/articles"
@@ -283,29 +339,31 @@ export default async function ArticlePage({ params }: PageProps) {
                   </Link>
                 </div>
 
-                <div className="space-y-6 text-center">
-                  {categoryLabel ? (
-                    <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
-                      {categoryLabel}
-                    </p>
-                  ) : null}
+                {!fullHtmlMode ? (
+                  <div className="mx-auto max-w-3xl space-y-6 text-center">
+                    {categoryLabel ? (
+                      <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
+                        {categoryLabel}
+                      </p>
+                    ) : null}
 
-                  <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
-                    {title}
-                  </h1>
+                    <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
+                      {title}
+                    </h1>
 
-                  {article.excerpt ? (
-                    <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
-                      {article.excerpt}
-                    </p>
-                  ) : null}
+                    {article.excerpt ? (
+                      <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
+                        {article.excerpt}
+                      </p>
+                    ) : null}
 
-                  {publishedLabel ? (
-                    <div className="font-serif text-sm opacity-70">
-                      Published · {publishedLabel}
-                    </div>
-                  ) : null}
-                </div>
+                    {publishedLabel ? (
+                      <div className="font-serif text-sm opacity-70">
+                        Published · {publishedLabel}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </Container>
           </PagePadding>
@@ -314,7 +372,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <section className="pb-10">
           <PagePadding>
             <Container>
-              <div className="mx-auto max-w-5xl">
+              <div className="mx-auto max-w-6xl">
                 <div className="relative overflow-hidden rounded-lg">
                   <div className="relative aspect-[16/9] w-full">
                     <Image
@@ -335,13 +393,20 @@ export default async function ArticlePage({ params }: PageProps) {
         <section className="py-10">
           <PagePadding>
             <Container>
-              <div className="mx-auto max-w-3xl space-y-5">
-                {article.content ? (
-                  renderRichText(article.content)
-                ) : (
-                  <p className="font-serif opacity-70">No content yet.</p>
-                )}
-              </div>
+              {fullHtmlMode ? (
+                <div
+                  className="article-html-render mx-auto max-w-6xl"
+                  dangerouslySetInnerHTML={{ __html: customBody }}
+                />
+              ) : (
+                <div className="mx-auto max-w-3xl space-y-5">
+                  {article.content ? (
+                    renderRichText(article.content)
+                  ) : (
+                    <p className="font-serif opacity-70">No content yet.</p>
+                  )}
+                </div>
+              )}
             </Container>
           </PagePadding>
         </section>

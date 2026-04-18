@@ -153,7 +153,15 @@ export default function PersonalStylingPage() {
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-                <Button size="lg" onClick={handleBookYourSession}>
+                <Button
+                  size="lg"
+                  onClick={handleBookYourSession}
+                  className={
+                    content.heroBackgroundImage
+                      ? 'border border-white/70 bg-black/78 text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition hover:border-white hover:bg-white'
+                      : 'border border-black/70 bg-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] transition hover:border-black hover:bg-white hover:text-black'
+                  }
+                >
                   Book Your Session
                 </Button>
 
@@ -163,7 +171,7 @@ export default function PersonalStylingPage() {
                   onClick={handleLearnMore}
                   className={
                     content.heroBackgroundImage
-                      ? 'border-white bg-transparent text-white hover:bg-white hover:text-black'
+                      ? 'border-white bg-transparent text-white hover:bg-black hover:text-white'
                       : undefined
                   }
                 >

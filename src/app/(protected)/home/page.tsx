@@ -288,7 +288,7 @@ export default function HomePage() {
                     <Button
                       asChild
                       size="lg"
-                      className="border border-white/70 bg-black/78 text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition hover:border-white hover:bg-black"
+                      className="border border-white/70 bg-black/78 text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition hover:border-white hover:bg-white hover:text-black"
                     >
                       <Link href={heroPrimaryHref}>{content.primaryButton.label}</Link>
                     </Button>
@@ -297,7 +297,7 @@ export default function HomePage() {
                       asChild
                       size="lg"
                       variant="outline"
-                      className="border-white bg-transparent text-white hover:bg-white hover:text-black"
+                      className="border-white bg-transparent text-white hover:bg-black hover:text-white"
                     >
                       <Link href={heroSecondaryHref}>{content.secondaryButton.label}</Link>
                     </Button>
