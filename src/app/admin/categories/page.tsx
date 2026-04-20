@@ -31,6 +31,14 @@ function getInitialSection(value: string | null): ContentCategorySection {
   return isValidSection(value) ? value : 'weekly'
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  return fallback
+}
+
 export default function AdminCategoriesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -62,7 +70,7 @@ export default function AdminCategoriesPage() {
     } catch (err) {
       console.error(`Failed to load ${activeSection} categories:`, err)
       setCategories([])
-      setError('Failed to load categories.')
+      setError(getErrorMessage(err, 'Failed to load categories.'))
     } finally {
       setLoading(false)
     }
@@ -75,6 +83,8 @@ export default function AdminCategoriesPage() {
   function handleSectionChange(value: ContentCategorySection) {
     setSection(value)
     setEditingId(null)
+    setEditingName('')
+    setEditingDescription('')
     setError('')
     router.replace(`/admin/categories?section=${value}`)
   }
@@ -99,7 +109,7 @@ export default function AdminCategoriesPage() {
       await loadCategories(section)
     } catch (err) {
       console.error('Failed to create category:', err)
-      setError('Failed to create category.')
+      setError(getErrorMessage(err, 'Failed to create category.'))
     } finally {
       setSaving(false)
     }
@@ -128,13 +138,14 @@ export default function AdminCategoriesPage() {
       await updateContentCategory(id, {
         name: editingName.trim(),
         description: editingDescription.trim(),
+        section,
       })
 
       cancelEditing()
       await loadCategories(section)
     } catch (err) {
       console.error('Failed to update category:', err)
-      setError('Failed to update category.')
+      setError(getErrorMessage(err, 'Failed to update category.'))
     } finally {
       setSaving(false)
     }
@@ -151,7 +162,7 @@ export default function AdminCategoriesPage() {
       await loadCategories(section)
     } catch (err) {
       console.error('Failed to delete category:', err)
-      setError('Failed to delete category.')
+      setError(getErrorMessage(err, 'Failed to delete category.'))
     } finally {
       setSaving(false)
     }
@@ -278,17 +289,18 @@ export default function AdminCategoriesPage() {
                         <div className="flex gap-3">
                           <button
                             type="button"
-                            onClick={() => saveEditing(category.id)}
+                            onClick={() => void saveEditing(category.id)}
                             disabled={saving}
                             className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
                           >
-                            Save
+                            {saving ? 'Saving...' : 'Save'}
                           </button>
 
                           <button
                             type="button"
                             onClick={cancelEditing}
-                            className="rounded border border-gray-300 px-4 py-2 text-sm"
+                            disabled={saving}
+                            className="rounded border px-4 py-2 text-sm disabled:opacity-50"
                           >
                             Cancel
                           </button>
@@ -297,7 +309,7 @@ export default function AdminCategoriesPage() {
                     ) : (
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="font-semibold">{category.name}</h3>
+                          <h3 className="font-medium">{category.name}</h3>
                           <p className="mt-1 text-xs text-gray-500">
                             Slug: {category.slug}
                           </p>
@@ -308,19 +320,21 @@ export default function AdminCategoriesPage() {
                           ) : null}
                         </div>
 
-                        <div className="flex shrink-0 gap-3">
+                        <div className="flex gap-3">
                           <button
                             type="button"
                             onClick={() => startEditing(category)}
-                            className="text-sm underline"
+                            disabled={saving}
+                            className="text-sm underline disabled:opacity-50"
                           >
                             Edit
                           </button>
 
                           <button
                             type="button"
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="text-sm text-red-600 underline"
+                            onClick={() => void handleDeleteCategory(category.id)}
+                            disabled={saving}
+                            className="text-sm text-red-600 underline disabled:opacity-50"
                           >
                             Delete
                           </button>

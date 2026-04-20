@@ -4,10 +4,12 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
@@ -155,13 +157,13 @@ export function slugifyCategoryName(value: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-function normalizeTimestamp(value: any): string | undefined {
+function normalizeTimestamp(value: unknown): string | undefined {
   if (!value) return undefined
 
   if (typeof value === 'string') return value
 
-  if (typeof value?.toDate === 'function') {
-    return value.toDate().toISOString()
+  if (typeof (value as { toDate?: () => Date })?.toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate().toISOString()
   }
 
   return undefined
@@ -226,6 +228,52 @@ function mergeSectionCategories(
   return Array.from(merged.values()).sort((a, b) => a.name.localeCompare(b.name))
 }
 
+async function findStoredCategoryById(id: string): Promise<ProductCategory | null> {
+  const snap = await getDocs(
+    query(collection(db, COLLECTION), where('__name__', '==', id), limit(1))
+  )
+
+  const first = snap.docs[0]
+  if (!first) return null
+
+  return normalizeCategoryDoc(first.id, first.data())
+}
+
+async function findStoredCategoryBySlug(
+  section: ContentCategorySection,
+  slug: string
+): Promise<ProductCategory | null> {
+  const normalizedSlug = slugifyCategoryName(slug)
+
+  const snap = await getDocs(
+    query(
+      collection(db, COLLECTION),
+      where('section', '==', section),
+      where('slug', '==', normalizedSlug),
+      limit(1)
+    )
+  )
+
+  const first = snap.docs[0]
+  if (!first) return null
+
+  return normalizeCategoryDoc(first.id, first.data(), section)
+}
+
+function getDefaultCategoryByIdOrSlug(
+  section: ContentCategorySection,
+  value: string
+): ProductCategory | null {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  return (
+    DEFAULT_CATEGORIES[section].find(
+      (item) =>
+        item.id.toLowerCase() === normalized || item.slug.toLowerCase() === normalized
+    ) || null
+  )
+}
+
 export async function getContentCategories(
   section: ContentCategorySection
 ): Promise<ProductCategory[]> {
@@ -245,65 +293,133 @@ export async function createContentCategory(input: {
   description?: string
   section: ContentCategorySection
 }): Promise<string> {
-  const name = String(input.name || '').trim()
+  const name = String(input.name ?? '').trim()
+  const description = String(input.description ?? '').trim()
+  const section = input.section
+  const slug = slugifyCategoryName(name)
+
   if (!name) {
     throw new Error('Category name is required.')
   }
 
-  const slug = slugifyCategoryName(name)
   if (!slug) {
-    throw new Error('Invalid category name.')
+    throw new Error('Category slug is invalid.')
   }
 
-  const existing = await getContentCategories(input.section)
-  const duplicate = existing.find((item) => item.slug === slug)
-
-  if (duplicate) {
-    throw new Error('A category with this name already exists.')
+  const existing = await findStoredCategoryBySlug(section, slug)
+  if (existing) {
+    throw new Error('A category with this name already exists in this section.')
   }
 
-  const payload = {
+  const ref = await addDoc(collection(db, COLLECTION), {
     name,
     slug,
-    description: String(input.description || '').trim(),
-    section: input.section,
+    description: description || '',
+    section,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  }
+  })
 
-  const ref = await addDoc(collection(db, COLLECTION), payload)
   return ref.id
 }
 
 export async function updateContentCategory(
   id: string,
   input: {
-    name?: string
+    name: string
     description?: string
+    section: ContentCategorySection
   }
 ): Promise<void> {
-  const payload: Record<string, unknown> = {
-    updatedAt: serverTimestamp(),
+  const section = input.section
+  const name = String(input.name ?? '').trim()
+  const description = String(input.description ?? '').trim()
+  const slug = slugifyCategoryName(name)
+
+  if (!name) {
+    throw new Error('Category name is required.')
   }
 
-  if (input.name !== undefined) {
-    const trimmedName = String(input.name).trim()
+  if (!slug) {
+    throw new Error('Category slug is invalid.')
+  }
 
-    if (!trimmedName) {
-      throw new Error('Category name is required.')
+  let targetDoc = await findStoredCategoryById(id)
+
+  if (!targetDoc) {
+    targetDoc = await findStoredCategoryBySlug(section, id)
+  }
+
+  if (!targetDoc) {
+    const defaultCategory = getDefaultCategoryByIdOrSlug(section, id)
+
+    if (defaultCategory) {
+      targetDoc = await findStoredCategoryBySlug(section, defaultCategory.slug)
+
+      if (!targetDoc) {
+        const createdId = await addDoc(collection(db, COLLECTION), {
+          name: defaultCategory.name,
+          slug: defaultCategory.slug,
+          description: defaultCategory.description || '',
+          section,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }).then((ref) => ref.id)
+
+        targetDoc = {
+          id: createdId,
+          name: defaultCategory.name,
+          slug: defaultCategory.slug,
+          description: defaultCategory.description,
+          section,
+        }
+      }
     }
-
-    payload.name = trimmedName
-    payload.slug = slugifyCategoryName(trimmedName)
   }
 
-  if (input.description !== undefined) {
-    payload.description = String(input.description).trim()
+  const duplicate = await findStoredCategoryBySlug(section, slug)
+  if (duplicate && duplicate.id !== targetDoc?.id) {
+    throw new Error('Another category with this name already exists in this section.')
   }
 
-  await updateDoc(doc(db, COLLECTION, id), payload)
+  if (!targetDoc) {
+    const ref = await addDoc(collection(db, COLLECTION), {
+      name,
+      slug,
+      description: description || '',
+      section,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+
+    await updateDoc(doc(db, COLLECTION, ref.id), {
+      name,
+      slug,
+      description: description || '',
+      section,
+      updatedAt: serverTimestamp(),
+    })
+
+    return
+  }
+
+  await updateDoc(doc(db, COLLECTION, targetDoc.id), {
+    name,
+    slug,
+    description: description || '',
+    section,
+    updatedAt: serverTimestamp(),
+  })
 }
 
 export async function deleteContentCategory(id: string): Promise<void> {
+  const stored = await findStoredCategoryById(id)
+
+  if (!stored) {
+    throw new Error(
+      'This category exists only as a built-in default and cannot be deleted directly.'
+    )
+  }
+
   await deleteDoc(doc(db, COLLECTION, id))
 }

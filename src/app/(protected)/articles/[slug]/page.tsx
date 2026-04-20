@@ -91,9 +91,9 @@ function isFullHtmlDocument(content: string): boolean {
   return /<!doctype|<html[\s>]|<head[\s>]|<body[\s>]/i.test(String(content || ''))
 }
 
-function extractStyleTags(content: string): string {
+function extractStyleTags(content: string): string[] {
   const matches = String(content || '').match(/<style[^>]*>[\s\S]*?<\/style>/gi)
-  return matches?.join('\n') ?? ''
+  return matches ?? []
 }
 
 function extractBodyContent(content: string): string {
@@ -109,6 +109,137 @@ function extractBodyContent(content: string): string {
     .replace(/<\/?(html|head|meta|title|link|body)[^>]*>/gi, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
     .trim()
+}
+
+function scopeSelectorGroup(selectorGroup: string, scopeClass: string): string {
+  return selectorGroup
+    .split(',')
+    .map((rawSelector) => rawSelector.trim())
+    .filter(Boolean)
+    .map((selector) => {
+      if (selector.startsWith('@')) return selector
+      if (selector.includes(scopeClass)) return selector
+
+      if (
+        selector === 'html' ||
+        selector === 'body' ||
+        selector === ':root' ||
+        selector === 'html body'
+      ) {
+        return scopeClass
+      }
+
+      if (selector.startsWith('body ') || selector.startsWith('html ')) {
+        return selector.replace(/^(body|html)\s+/, `${scopeClass} `)
+      }
+
+      return `${scopeClass} ${selector}`
+    })
+    .join(', ')
+}
+
+function scopeCssSelectors(css: string, scopeClass: string): string {
+  const input = String(css || '').trim()
+  if (!input) return ''
+
+  let result = ''
+  let i = 0
+
+  while (i < input.length) {
+    const mediaIndex = input.indexOf('@media', i)
+    const supportsIndex = input.indexOf('@supports', i)
+
+    let nextAtRuleIndex = -1
+    if (mediaIndex !== -1 && supportsIndex !== -1) {
+      nextAtRuleIndex = Math.min(mediaIndex, supportsIndex)
+    } else {
+      nextAtRuleIndex = mediaIndex !== -1 ? mediaIndex : supportsIndex
+    }
+
+    if (nextAtRuleIndex === -1) {
+      result += input
+        .slice(i)
+        .replace(/([^{}]+)\{([^{}]*)\}/g, (_, selectorGroup, declarations) => {
+          const scopedSelectors = scopeSelectorGroup(selectorGroup, scopeClass)
+          return `${scopedSelectors}{${declarations}}`
+        })
+      break
+    }
+
+    const beforeAtRule = input.slice(i, nextAtRuleIndex)
+    result += beforeAtRule.replace(
+      /([^{}]+)\{([^{}]*)\}/g,
+      (_, selectorGroup, declarations) => {
+        const scopedSelectors = scopeSelectorGroup(selectorGroup, scopeClass)
+        return `${scopedSelectors}{${declarations}}`
+      }
+    )
+
+    const blockStart = input.indexOf('{', nextAtRuleIndex)
+    if (blockStart === -1) {
+      result += input.slice(nextAtRuleIndex)
+      break
+    }
+
+    let depth = 1
+    let j = blockStart + 1
+
+    while (j < input.length && depth > 0) {
+      if (input[j] === '{') depth += 1
+      if (input[j] === '}') depth -= 1
+      j += 1
+    }
+
+    const atRuleHeader = input.slice(nextAtRuleIndex, blockStart + 1)
+    const atRuleBody = input.slice(blockStart + 1, j - 1)
+    const scopedAtRuleBody = scopeCssSelectors(atRuleBody, scopeClass)
+
+    result += `${atRuleHeader}${scopedAtRuleBody}}`
+    i = j
+  }
+
+  return result
+}
+
+function extractScopedStyles(content: string, scopeClass: string): string {
+  return extractStyleTags(content)
+    .map((tag) => tag.replace(/<\/?style[^>]*>/gi, '').trim())
+    .map((css) => scopeCssSelectors(css, scopeClass))
+    .filter(Boolean)
+    .join('\n')
+}
+
+function looksLikeDarkArticle(content: string): boolean {
+  const value = String(content || '').toLowerCase()
+
+  const signals = [
+    '#080808',
+    '#0b0b0b',
+    '#111111',
+    '#141414',
+    '#151515',
+    '#1b1b1b',
+    'linear-gradient(180deg, #080808',
+    'linear-gradient(180deg,#080808',
+    'linear-gradient(180deg, #0b0b0b',
+    'linear-gradient(180deg,#0b0b0b',
+    'color:#f5f5f5',
+    'color: #f5f5f5',
+    'color:#fff',
+    'color: #fff',
+    '--bg:#0b0b0b',
+    '--bg: #0b0b0b',
+    '--panel:#141414',
+    '--panel: #141414',
+  ]
+
+  let count = 0
+
+  for (const signal of signals) {
+    if (value.includes(signal)) count += 1
+  }
+
+  return count >= 2
 }
 
 function renderRichText(content: string) {
@@ -274,6 +405,10 @@ const articleContentStyles = `
     margin: 1.5rem 0;
   }
 
+  .article-html-shell {
+    width: 100%;
+  }
+
   .article-html-render {
     width: 100%;
   }
@@ -287,6 +422,50 @@ const articleContentStyles = `
 
   .article-html-render table {
     max-width: 100%;
+  }
+
+  .article-html-render > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  .article-html-render > *:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .article-route-dark {
+    background:
+      radial-gradient(circle at top, rgba(214, 178, 110, 0.08), transparent 24%),
+      linear-gradient(180deg, #080808 0%, #0b0b0b 100%);
+    color: #f5f5f5;
+  }
+
+  .article-route-light {
+    background: #f5f5f5;
+    color: #111111;
+  }
+
+  .article-route-dark .article-route-link {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .article-route-dark .article-route-link:hover {
+    color: rgba(255, 255, 255, 1);
+  }
+
+  .article-route-light .article-route-link {
+    color: rgba(17, 17, 17, 0.72);
+  }
+
+  .article-route-light .article-route-link:hover {
+    color: rgba(17, 17, 17, 1);
+  }
+
+  .article-route-dark .article-route-meta {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .article-route-light .article-route-meta {
+    color: rgba(17, 17, 17, 0.92);
   }
 `
 
@@ -312,58 +491,71 @@ export default async function ArticlePage({ params }: PageProps) {
     formatDate(article.createdAt)
 
   const rawContent = String(article.content ?? '').trim()
-  const fullHtmlMode = isFullHtmlDocument(rawContent)
   const cleanedHtml = sanitizeArticleHtml(rawContent)
-  const customStyles = fullHtmlMode ? extractStyleTags(cleanedHtml) : ''
+  const fullHtmlMode = isFullHtmlDocument(rawContent)
+
   const customBody = fullHtmlMode ? extractBodyContent(cleanedHtml) : ''
+  const scopedCustomStyles = fullHtmlMode
+    ? extractScopedStyles(cleanedHtml, '.article-html-render')
+    : ''
+
+  const darkArticle = fullHtmlMode ? looksLikeDarkArticle(cleanedHtml) : false
+  const routeSurfaceClass = darkArticle ? 'article-route-dark' : 'article-route-light'
 
   return (
     <ProtectedRoute>
       <StructuredData pageKey="article" />
+
       <style dangerouslySetInnerHTML={{ __html: articleContentStyles }} />
-      {fullHtmlMode && customStyles ? (
-        <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+      {fullHtmlMode && scopedCustomStyles ? (
+        <style dangerouslySetInnerHTML={{ __html: scopedCustomStyles }} />
       ) : null}
 
-      <div className="min-h-screen">
+      <div className={`min-h-screen ${fullHtmlMode ? routeSurfaceClass : ''}`}>
         <section className="py-16">
           <PagePadding>
             <Container>
-              <div className="mx-auto max-w-6xl">
+              <div className={fullHtmlMode ? 'mx-auto max-w-7xl' : 'mx-auto max-w-3xl'}>
                 <div className="mb-8">
                   <Link
                     href="/articles"
-                    className="text-sm font-serif opacity-70 transition-opacity hover:opacity-100"
+                    className={`article-route-link text-sm font-serif transition-opacity hover:opacity-100 ${
+                      fullHtmlMode ? '' : 'opacity-70 hover:opacity-100'
+                    }`}
                   >
                     ← Back to Articles
                   </Link>
                 </div>
 
-                {!fullHtmlMode ? (
-                  <div className="mx-auto max-w-3xl space-y-6 text-center">
-                    {categoryLabel ? (
-                      <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
-                        {categoryLabel}
-                      </p>
-                    ) : null}
+                <div
+                  className={`${
+                    fullHtmlMode
+                      ? 'article-route-meta mx-auto max-w-3xl space-y-6 text-center'
+                      : 'space-y-6 text-center'
+                  }`}
+                >
+                  {categoryLabel ? (
+                    <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
+                      {categoryLabel}
+                    </p>
+                  ) : null}
 
-                    <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
-                      {title}
-                    </h1>
+                  <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
+                    {title}
+                  </h1>
 
-                    {article.excerpt ? (
-                      <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
-                        {article.excerpt}
-                      </p>
-                    ) : null}
+                  {article.excerpt ? (
+                    <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
+                      {article.excerpt}
+                    </p>
+                  ) : null}
 
-                    {publishedLabel ? (
-                      <div className="font-serif text-sm opacity-70">
-                        Published · {publishedLabel}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                  {publishedLabel ? (
+                    <div className="font-serif text-sm opacity-70">
+                      Published · {publishedLabel}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </Container>
           </PagePadding>
@@ -372,7 +564,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <section className="pb-10">
           <PagePadding>
             <Container>
-              <div className="mx-auto max-w-6xl">
+              <div className={fullHtmlMode ? 'mx-auto max-w-7xl' : 'mx-auto max-w-6xl'}>
                 <div className="relative overflow-hidden rounded-lg">
                   <div className="relative aspect-[16/9] w-full">
                     <Image
@@ -380,7 +572,7 @@ export default async function ArticlePage({ params }: PageProps) {
                       alt={title}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 1200px"
+                      sizes="(max-width: 768px) 100vw, 1400px"
                       priority
                     />
                   </div>
@@ -391,14 +583,16 @@ export default async function ArticlePage({ params }: PageProps) {
         </section>
 
         <section className="py-10">
-          <PagePadding>
-            <Container>
-              {fullHtmlMode ? (
-                <div
-                  className="article-html-render mx-auto max-w-6xl"
-                  dangerouslySetInnerHTML={{ __html: customBody }}
-                />
-              ) : (
+          {fullHtmlMode ? (
+            <div className="article-html-shell w-full">
+              <div
+                className="article-html-render w-full"
+                dangerouslySetInnerHTML={{ __html: customBody }}
+              />
+            </div>
+          ) : (
+            <PagePadding>
+              <Container>
                 <div className="mx-auto max-w-3xl space-y-5">
                   {article.content ? (
                     renderRichText(article.content)
@@ -406,9 +600,9 @@ export default async function ArticlePage({ params }: PageProps) {
                     <p className="font-serif opacity-70">No content yet.</p>
                   )}
                 </div>
-              )}
-            </Container>
-          </PagePadding>
+              </Container>
+            </PagePadding>
+          )}
         </section>
       </div>
     </ProtectedRoute>
