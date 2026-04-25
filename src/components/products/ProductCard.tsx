@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Button, Label } from '@/components/ui'
 import { Product } from '@/lib/products/types'
 import { getShoppableLink, trackAffiliateClick } from '@/lib/products/utils'
+import { useAuth } from '@/lib/firebase/auth'
+import { toggleFavorite } from '@/lib/firebase/favorites'
 
 interface ProductCardProps {
   product: Product
@@ -17,7 +19,10 @@ export function ProductCard({
   showFullDetails = true,
   className = '',
 }: ProductCardProps) {
+  const { user } = useAuth()
   const [showDetails, setShowDetails] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   const handleToggleDetails = () => {
     if (!showFullDetails) {
@@ -34,6 +39,38 @@ export function ProductCard({
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const handleToggleFavorite = async () => {
+    if (!user?.uid) {
+      alert('Please sign in to save favorites.')
+      return
+    }
+
+    setFavoriteLoading(true)
+
+    try {
+      const nextValue = await toggleFavorite({
+        userId: user.uid,
+        contentId: product.id,
+        type: 'weekly',
+        title: product.title,
+        imageUrl: product.image,
+        category: product.category,
+        brand: product.brand,
+        price: product.price,
+        description: product.description,
+        externalUrl: getShoppableLink(product),
+        isFavorited,
+      })
+
+      setIsFavorited(nextValue)
+    } catch (error) {
+      console.error('Favorite product error:', error)
+      alert('Unable to update saved item. Please try again.')
+    } finally {
+      setFavoriteLoading(false)
+    }
+  }
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="aspect-square bg-background-muted border border-black overflow-hidden relative">
@@ -48,6 +85,15 @@ export function ProductCard({
         <div className="absolute top-4 left-4">
           <Label>{product.category}</Label>
         </div>
+
+        <button
+          type="button"
+          onClick={handleToggleFavorite}
+          disabled={favoriteLoading}
+          className="absolute bottom-4 right-4 z-10 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-sm hover:bg-black hover:text-white transition-colors disabled:opacity-60"
+        >
+          {isFavorited ? 'Saved' : 'Save'}
+        </button>
 
         {product.originalPrice ? (
           <div className="absolute top-4 right-4">

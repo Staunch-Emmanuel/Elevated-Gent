@@ -19,6 +19,10 @@ const COLLECTION = 'contentCategories'
 
 export type ContentCategorySection = 'weekly' | 'outfits' | 'articles'
 
+type StoredContentCategory = ProductCategory & {
+  replacesDefaultSlug?: string
+}
+
 const DEFAULT_CATEGORIES: Record<ContentCategorySection, ProductCategory[]> = {
   weekly: [
     {
@@ -173,12 +177,16 @@ function normalizeCategoryDoc(
   id: string,
   data: any,
   fallbackSection?: ContentCategorySection
-): ProductCategory | null {
+): StoredContentCategory | null {
   const name = String(data?.name ?? '').trim()
   const section = String(
     data?.section ?? fallbackSection ?? ''
   ).trim() as ContentCategorySection
   const slug = slugifyCategoryName(String(data?.slug ?? name))
+  const replacesDefaultSlug =
+    typeof data?.replacesDefaultSlug === 'string'
+      ? slugifyCategoryName(data.replacesDefaultSlug)
+      : undefined
 
   if (!name || !slug || !section) return null
 
@@ -189,24 +197,25 @@ function normalizeCategoryDoc(
     description:
       typeof data?.description === 'string' ? data.description.trim() : undefined,
     section,
+    replacesDefaultSlug: replacesDefaultSlug || undefined,
     createdAt: normalizeTimestamp(data?.createdAt),
     updatedAt: normalizeTimestamp(data?.updatedAt),
   }
 }
 
-async function getAllStoredCategories(): Promise<ProductCategory[]> {
+async function getAllStoredCategories(): Promise<StoredContentCategory[]> {
   const snap = await getDocs(
     query(collection(db, COLLECTION), orderBy('name', 'asc'))
   )
 
   return snap.docs
     .map((item) => normalizeCategoryDoc(item.id, item.data()))
-    .filter((item): item is ProductCategory => Boolean(item))
+    .filter((item): item is StoredContentCategory => Boolean(item))
 }
 
 function mergeSectionCategories(
   section: ContentCategorySection,
-  stored: ProductCategory[]
+  stored: StoredContentCategory[]
 ): ProductCategory[] {
   const merged = new Map<string, ProductCategory>()
 
@@ -217,7 +226,12 @@ function mergeSectionCategories(
   for (const item of stored) {
     if (item.section !== section) continue
 
+    if (item.replacesDefaultSlug) {
+      merged.delete(item.replacesDefaultSlug)
+    }
+
     const existing = merged.get(item.slug)
+
     merged.set(item.slug, {
       ...(existing || {}),
       ...item,
@@ -228,7 +242,9 @@ function mergeSectionCategories(
   return Array.from(merged.values()).sort((a, b) => a.name.localeCompare(b.name))
 }
 
-async function findStoredCategoryById(id: string): Promise<ProductCategory | null> {
+async function findStoredCategoryById(
+  id: string
+): Promise<StoredContentCategory | null> {
   const snap = await getDocs(
     query(collection(db, COLLECTION), where('__name__', '==', id), limit(1))
   )
@@ -242,7 +258,7 @@ async function findStoredCategoryById(id: string): Promise<ProductCategory | nul
 async function findStoredCategoryBySlug(
   section: ContentCategorySection,
   slug: string
-): Promise<ProductCategory | null> {
+): Promise<StoredContentCategory | null> {
   const normalizedSlug = slugifyCategoryName(slug)
 
   const snap = await getDocs(
@@ -307,7 +323,14 @@ export async function createContentCategory(input: {
   }
 
   const existing = await findStoredCategoryBySlug(section, slug)
+
   if (existing) {
+    throw new Error('A category with this name already exists in this section.')
+  }
+
+  const defaultCategory = getDefaultCategoryByIdOrSlug(section, slug)
+
+  if (defaultCategory) {
     throw new Error('A category with this name already exists in this section.')
   }
 
@@ -345,6 +368,7 @@ export async function updateContentCategory(
   }
 
   let targetDoc = await findStoredCategoryById(id)
+  let replacesDefaultSlug = targetDoc?.replacesDefaultSlug
 
   if (!targetDoc) {
     targetDoc = await findStoredCategoryBySlug(section, id)
@@ -354,31 +378,45 @@ export async function updateContentCategory(
     const defaultCategory = getDefaultCategoryByIdOrSlug(section, id)
 
     if (defaultCategory) {
+      replacesDefaultSlug = defaultCategory.slug
       targetDoc = await findStoredCategoryBySlug(section, defaultCategory.slug)
 
       if (!targetDoc) {
-        const createdId = await addDoc(collection(db, COLLECTION), {
+        const ref = await addDoc(collection(db, COLLECTION), {
           name: defaultCategory.name,
           slug: defaultCategory.slug,
           description: defaultCategory.description || '',
           section,
+          replacesDefaultSlug: defaultCategory.slug,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-        }).then((ref) => ref.id)
+        })
 
         targetDoc = {
-          id: createdId,
+          id: ref.id,
           name: defaultCategory.name,
           slug: defaultCategory.slug,
           description: defaultCategory.description,
           section,
+          replacesDefaultSlug: defaultCategory.slug,
         }
       }
     }
   }
 
   const duplicate = await findStoredCategoryBySlug(section, slug)
+
   if (duplicate && duplicate.id !== targetDoc?.id) {
+    throw new Error('Another category with this name already exists in this section.')
+  }
+
+  const defaultDuplicate = getDefaultCategoryByIdOrSlug(section, slug)
+
+  if (
+    defaultDuplicate &&
+    defaultDuplicate.slug !== replacesDefaultSlug &&
+    defaultDuplicate.id !== id
+  ) {
     throw new Error('Another category with this name already exists in this section.')
   }
 
@@ -408,6 +446,7 @@ export async function updateContentCategory(
     slug,
     description: description || '',
     section,
+    replacesDefaultSlug: replacesDefaultSlug || targetDoc.replacesDefaultSlug || '',
     updatedAt: serverTimestamp(),
   })
 }

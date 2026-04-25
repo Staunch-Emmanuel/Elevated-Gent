@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button, Label } from '@/components/ui'
 import type { OutfitLook, ShoppableLink } from '@/lib/products/types'
+import { useAuth } from '@/lib/firebase/auth'
+import { toggleFavorite } from '@/lib/firebase/favorites'
 
 type OutfitCardLook = OutfitLook & {
   category?: string
@@ -68,7 +70,10 @@ function getFallbackLabel(url: string, index: number): string {
 }
 
 export function OutfitCard({ outfit }: OutfitCardProps) {
+  const { user } = useAuth()
   const [showLinks, setShowLinks] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   const href = `/outfit-inspiration/${outfit.slug || outfit.id}`
 
@@ -120,6 +125,41 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const handleToggleFavorite = async (
+    event: MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (!user?.uid) {
+      alert('Please sign in to save favorites.')
+      return
+    }
+
+    setFavoriteLoading(true)
+
+    try {
+      const nextValue = await toggleFavorite({
+        userId: user.uid,
+        contentId: outfit.id,
+        type: 'outfit',
+        title: outfit.title,
+        imageUrl: outfit.heroImage || '',
+        category: outfit.category,
+        description: outfit.description,
+        href,
+        isFavorited,
+      })
+
+      setIsFavorited(nextValue)
+    } catch (error) {
+      console.error('Favorite outfit error:', error)
+      alert('Unable to update saved outfit. Please try again.')
+    } finally {
+      setFavoriteLoading(false)
+    }
+  }
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full">
       <Link href={href} className="block">
@@ -142,6 +182,15 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
               Inspiration
             </Label>
           </div>
+
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={favoriteLoading}
+            className="absolute bottom-4 right-4 z-10 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-sm hover:bg-black hover:text-white transition-colors disabled:opacity-60"
+          >
+            {isFavorited ? 'Saved' : 'Save'}
+          </button>
         </div>
       </Link>
 

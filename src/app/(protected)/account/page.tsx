@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PagePadding, Container } from '@/components/layout'
 import { Button } from '@/components/ui'
@@ -8,6 +10,11 @@ import { useAuth } from '@/lib/firebase/auth'
 import { ProfileEditModal } from '@/components/account/ProfileEditModal'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { getUserData } from '@/lib/firebase/getUserData'
+import {
+  getUserFavorites,
+  removeFavorite,
+  type FavoriteItem,
+} from '@/lib/firebase/favorites'
 
 type AccountUserData = {
   role?: string | null
@@ -22,8 +29,11 @@ export default function AccountPage() {
   const searchParams = useSearchParams()
   const [showEditProfile, setShowEditProfile] = useState(false)
   const [accountData, setAccountData] = useState<AccountUserData | null>(null)
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([])
   const [loadingSubscription, setLoadingSubscription] = useState(true)
+  const [loadingFavorites, setLoadingFavorites] = useState(true)
   const [portalLoading, setPortalLoading] = useState(false)
+  const [removingFavoriteId, setRemovingFavoriteId] = useState<string | null>(null)
 
   const signupSuccess = useMemo(() => {
     return searchParams.get('signup') === 'success'
@@ -47,6 +57,28 @@ export default function AccountPage() {
     }
 
     loadAccountData()
+  }, [user?.uid])
+
+  useEffect(() => {
+    async function loadFavorites() {
+      if (!user?.uid) {
+        setFavorites([])
+        setLoadingFavorites(false)
+        return
+      }
+
+      try {
+        const items = await getUserFavorites(user.uid)
+        setFavorites(items)
+      } catch (error) {
+        console.error('Failed to load favorites:', error)
+        setFavorites([])
+      } finally {
+        setLoadingFavorites(false)
+      }
+    }
+
+    loadFavorites()
   }, [user?.uid])
 
   const handleBookSession = () => {
@@ -79,6 +111,22 @@ export default function AccountPage() {
       router.push('/')
     } catch (error) {
       console.error('Error signing out:', error)
+    }
+  }
+
+  const handleRemoveFavorite = async (favorite: FavoriteItem) => {
+    if (!user?.uid) return
+
+    setRemovingFavoriteId(favorite.id)
+
+    try {
+      await removeFavorite(user.uid, favorite.type, favorite.contentId)
+      setFavorites((items) => items.filter((item) => item.id !== favorite.id))
+    } catch (error) {
+      console.error('Remove favorite error:', error)
+      alert('Unable to remove saved item. Please try again.')
+    } finally {
+      setRemovingFavoriteId(null)
     }
   }
 
@@ -305,6 +353,140 @@ export default function AccountPage() {
                     )}
                   </div>
                 </div>
+              </div>
+
+              <div className="mt-12 border border-black p-8 space-y-6">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                  <div>
+                    <h3 className="text-2xl font-semibold font-sans">
+                      Saved Favorites
+                    </h3>
+                    <p className="font-serif text-sm text-muted mt-2">
+                      Outfits and items you save will appear here for quick access.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={handleWeeklyFinds}>
+                      Browse Weekly Finds
+                    </Button>
+                    <Button size="sm" onClick={handleViewCollections}>
+                      Browse Outfits
+                    </Button>
+                  </div>
+                </div>
+
+                {loadingFavorites ? (
+                  <p className="font-serif text-sm text-muted">
+                    Loading saved favorites...
+                  </p>
+                ) : favorites.length === 0 ? (
+                  <div className="border border-gray-200 bg-gray-50 p-6 text-center">
+                    <h4 className="text-lg font-semibold font-sans mb-2">
+                      No saved favorites yet
+                    </h4>
+                    <p className="font-serif text-sm text-muted">
+                      Save outfits or weekly items as you browse, then return here anytime.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {favorites.map((favorite) => {
+                      const targetHref =
+                        favorite.href ||
+                        (favorite.type === 'outfit'
+                          ? `/outfit-inspiration/${favorite.contentId}`
+                          : favorite.externalUrl || '/weekly')
+
+                      return (
+                        <div
+                          key={favorite.id}
+                          className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+                        >
+                          <div className="aspect-[4/3] bg-gray-100 relative">
+                            {favorite.imageUrl ? (
+                              <Image
+                                src={favorite.imageUrl}
+                                alt={favorite.title}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : null}
+                          </div>
+
+                          <div className="p-5 space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                {favorite.type === 'outfit' ? 'Outfit' : 'Item'}
+                              </span>
+
+                              {favorite.category ? (
+                                <span className="text-xs font-serif text-gray-500">
+                                  {favorite.category}
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <div>
+                              {favorite.brand ? (
+                                <p className="text-xs font-serif uppercase tracking-wide text-gray-500 mb-1">
+                                  {favorite.brand}
+                                </p>
+                              ) : null}
+
+                              <h4 className="font-semibold font-sans text-lg">
+                                {favorite.title}
+                              </h4>
+
+                              {favorite.price ? (
+                                <p className="text-sm font-semibold mt-1">
+                                  {favorite.price}
+                                </p>
+                              ) : null}
+                            </div>
+
+                            {favorite.description ? (
+                              <p className="font-serif text-sm text-muted line-clamp-2">
+                                {favorite.description}
+                              </p>
+                            ) : null}
+
+                            <div className="flex gap-3 pt-2">
+                              {targetHref.startsWith('http') ? (
+                                <a
+                                  href={targetHref}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 border border-black px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+                                >
+                                  Open
+                                </a>
+                              ) : (
+                                <Link
+                                  href={targetHref}
+                                  className="flex-1 border border-black px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+                                >
+                                  Open
+                                </Link>
+                              )}
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRemoveFavorite(favorite)}
+                                disabled={removingFavoriteId === favorite.id}
+                              >
+                                {removingFavoriteId === favorite.id
+                                  ? 'Removing...'
+                                  : 'Remove'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
