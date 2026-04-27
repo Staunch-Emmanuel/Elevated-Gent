@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
@@ -290,6 +291,86 @@ function getDefaultCategoryByIdOrSlug(
   )
 }
 
+function getContentCollectionsForSection(section: ContentCategorySection): string[] {
+  if (section === 'weekly') return ['weekly']
+  if (section === 'outfits') return ['outfits', 'outfitInspiration']
+  return ['articles']
+}
+
+async function updateCategoryReferences(input: {
+  section: ContentCategorySection
+  previousName: string
+  previousSlug: string
+  nextName: string
+  nextSlug: string
+}): Promise<void> {
+  const previousName = input.previousName.trim()
+  const previousSlug = slugifyCategoryName(input.previousSlug)
+  const nextName = input.nextName.trim()
+  const nextSlug = slugifyCategoryName(input.nextSlug)
+
+  if (!previousName || !previousSlug || !nextName || !nextSlug) return
+
+  if (previousName === nextName && previousSlug === nextSlug) return
+
+  const collections = getContentCollectionsForSection(input.section)
+  const updates: Array<{
+    ref: ReturnType<typeof doc>
+    category: string
+  }> = []
+
+  for (const collectionName of collections) {
+    const byNameSnap = await getDocs(
+      query(collection(db, collectionName), where('category', '==', previousName))
+    )
+
+    byNameSnap.docs.forEach((item) => {
+      updates.push({
+        ref: item.ref,
+        category: nextName,
+      })
+    })
+
+    if (previousSlug !== previousName) {
+      const bySlugSnap = await getDocs(
+        query(collection(db, collectionName), where('category', '==', previousSlug))
+      )
+
+      bySlugSnap.docs.forEach((item) => {
+        updates.push({
+          ref: item.ref,
+          category: nextSlug,
+        })
+      })
+    }
+  }
+
+  const uniqueUpdates = new Map<string, {
+    ref: ReturnType<typeof doc>
+    category: string
+  }>()
+
+  updates.forEach((item) => {
+    uniqueUpdates.set(item.ref.path, item)
+  })
+
+  const items = Array.from(uniqueUpdates.values())
+
+  for (let index = 0; index < items.length; index += 450) {
+    const batch = writeBatch(db)
+    const chunk = items.slice(index, index + 450)
+
+    chunk.forEach((item) => {
+      batch.update(item.ref, {
+        category: item.category,
+        updatedAt: serverTimestamp(),
+      })
+    })
+
+    await batch.commit()
+  }
+}
+
 export async function getContentCategories(
   section: ContentCategorySection
 ): Promise<ProductCategory[]> {
@@ -369,15 +450,25 @@ export async function updateContentCategory(
 
   let targetDoc = await findStoredCategoryById(id)
   let replacesDefaultSlug = targetDoc?.replacesDefaultSlug
+  let previousName = targetDoc?.name || ''
+  let previousSlug = targetDoc?.slug || ''
 
   if (!targetDoc) {
     targetDoc = await findStoredCategoryBySlug(section, id)
+
+    if (targetDoc) {
+      previousName = targetDoc.name
+      previousSlug = targetDoc.slug
+      replacesDefaultSlug = targetDoc.replacesDefaultSlug
+    }
   }
 
   if (!targetDoc) {
     const defaultCategory = getDefaultCategoryByIdOrSlug(section, id)
 
     if (defaultCategory) {
+      previousName = defaultCategory.name
+      previousSlug = defaultCategory.slug
       replacesDefaultSlug = defaultCategory.slug
       targetDoc = await findStoredCategoryBySlug(section, defaultCategory.slug)
 
@@ -441,6 +532,9 @@ export async function updateContentCategory(
     return
   }
 
+  previousName = previousName || targetDoc.name
+  previousSlug = previousSlug || targetDoc.slug
+
   await updateDoc(doc(db, COLLECTION, targetDoc.id), {
     name,
     slug,
@@ -448,6 +542,14 @@ export async function updateContentCategory(
     section,
     replacesDefaultSlug: replacesDefaultSlug || targetDoc.replacesDefaultSlug || '',
     updatedAt: serverTimestamp(),
+  })
+
+  await updateCategoryReferences({
+    section,
+    previousName,
+    previousSlug,
+    nextName: name,
+    nextSlug: slug,
   })
 }
 

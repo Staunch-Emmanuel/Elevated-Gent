@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bitter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import "@/components/editor/editor.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
             <AppShell>{children}</AppShell>
           </CartProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

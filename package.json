@@ -24,6 +24,7 @@
     "@tiptap/pm": "^3.12.1",
     "@tiptap/react": "^3.12.1",
     "@tiptap/starter-kit": "^2.27.1",
+    "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.27",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
