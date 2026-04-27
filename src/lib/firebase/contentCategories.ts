@@ -11,6 +11,7 @@ import {
   updateDoc,
   where,
   writeBatch,
+  type DocumentReference,
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase/config'
@@ -315,7 +316,7 @@ async function updateCategoryReferences(input: {
 
   const collections = getContentCollectionsForSection(input.section)
   const updates: Array<{
-    ref: ReturnType<typeof doc>
+    ref: DocumentReference
     category: string
   }> = []
 
@@ -339,16 +340,19 @@ async function updateCategoryReferences(input: {
       bySlugSnap.docs.forEach((item) => {
         updates.push({
           ref: item.ref,
-          category: nextSlug,
+          category: nextName,
         })
       })
     }
   }
 
-  const uniqueUpdates = new Map<string, {
-    ref: ReturnType<typeof doc>
-    category: string
-  }>()
+  const uniqueUpdates = new Map<
+    string,
+    {
+      ref: DocumentReference
+      category: string
+    }
+  >()
 
   updates.forEach((item) => {
     uniqueUpdates.set(item.ref.path, item)
