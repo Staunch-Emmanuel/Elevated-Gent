@@ -83,6 +83,14 @@ export default function SignUpPage() {
                   <p className="text-gray-600 font-serif text-center mb-8">
                     Join us for personalized styling services
                   </p>
+                  <div className="mb-8 rounded-lg border border-stone-200 bg-stone-50 p-4 text-center">
+                    <p className="text-lg font-semibold text-black">
+                      Membership — $10/month
+                    </p>
+                    <p className="mt-1 text-sm text-gray-600 font-serif">
+                      Access exclusive articles, outfit inspiration, weekly finds, and premium member content.
+                    </p>
+                  </div>
 
                   {error ? (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
