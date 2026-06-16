@@ -22,6 +22,7 @@ export default function AuthMediaPanel() {
   const [settings, setSettings] = useState<AuthMediaSettings>(fallbackSettings)
   const [loading, setLoading] = useState(true)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
+  const [hasAutoOpened, setHasAutoOpened] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -80,7 +81,8 @@ export default function AuthMediaPanel() {
     [settings.posterImageUrl]
   )
 
-  const hasDesktopVideo = settings.enabled && Boolean(desktopVideo)
+  const hasDesktopVideo =
+    settings.enabled && Boolean(desktopVideo)
 
   const mobileMediaSrc = mobileVideo || desktopVideo
 
@@ -88,6 +90,28 @@ export default function AuthMediaPanel() {
     settings.enabled && Boolean(mobileMediaSrc)
 
   const fallbackPoster = poster || '/images/Image-10.jpeg'
+
+  useEffect(() => {
+    if (
+      loading ||
+      hasAutoOpened ||
+      !hasMobileVideo ||
+      typeof window === 'undefined'
+    ) {
+      return
+    }
+
+    if (window.innerWidth >= 1024) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setIsVideoOpen(true)
+      setHasAutoOpened(true)
+    }, 3000)
+
+    return () => window.clearTimeout(timer)
+  }, [loading, hasMobileVideo, hasAutoOpened])
 
   if (loading) {
     return (
@@ -152,11 +176,14 @@ export default function AuthMediaPanel() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/70 to-transparent" />
 
-        {hasMobileVideo && (
+        {hasMobileVideo && !isVideoOpen && (
           <button
             type="button"
-            onClick={() => setIsVideoOpen(true)}
-            className="absolute left-1/2 top-1/2 z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition hover:bg-white/30"
+            onClick={() => {
+              setIsVideoOpen(true)
+              setHasAutoOpened(true)
+            }}
+            className="absolute left-1/2 top-1/2 z-50 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition hover:bg-white/30"
             aria-label="Play preview video"
           >
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-black shadow-lg">
@@ -185,11 +212,11 @@ export default function AuthMediaPanel() {
 
       {/* Mobile Video Modal */}
       {isVideoOpen && hasMobileVideo && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 lg:hidden">
+        <div className="fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/90 p-4 lg:hidden">
           <button
             type="button"
             onClick={() => setIsVideoOpen(false)}
-            className="absolute right-4 top-4 z-[10000] rounded-full bg-white/10 p-3 text-white backdrop-blur-sm"
+            className="absolute right-4 top-4 z-[2147483647] rounded-full bg-white/10 p-3 text-white backdrop-blur-sm transition hover:bg-white/20"
             aria-label="Close video"
           >
             <svg
@@ -212,6 +239,8 @@ export default function AuthMediaPanel() {
             poster={poster || undefined}
             controls
             autoPlay
+            muted
+            loop={settings.loop}
             playsInline
             className="max-h-[80vh] w-full rounded-2xl bg-black"
           />
