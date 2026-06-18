@@ -21,7 +21,8 @@ const fallbackSettings: AuthMediaSettings = {
 export default function AuthMediaPanel() {
   const [settings, setSettings] = useState<AuthMediaSettings>(fallbackSettings)
   const [loading, setLoading] = useState(true)
-  const [isVideoOpen, setIsVideoOpen] = useState(false)
+
+  const [showMobilePopup, setShowMobilePopup] = useState(false)
   const [hasAutoOpened, setHasAutoOpened] = useState(false)
 
   useEffect(() => {
@@ -81,8 +82,7 @@ export default function AuthMediaPanel() {
     [settings.posterImageUrl]
   )
 
-  const hasDesktopVideo =
-    settings.enabled && Boolean(desktopVideo)
+  const hasDesktopVideo = settings.enabled && Boolean(desktopVideo)
 
   const mobileMediaSrc = mobileVideo || desktopVideo
 
@@ -92,26 +92,15 @@ export default function AuthMediaPanel() {
   const fallbackPoster = poster || '/images/Image-10.jpeg'
 
   useEffect(() => {
-    if (
-      loading ||
-      hasAutoOpened ||
-      !hasMobileVideo ||
-      typeof window === 'undefined'
-    ) {
-      return
-    }
+    if (!hasMobileVideo || hasAutoOpened) return
 
-    if (window.innerWidth >= 1024) {
-      return
-    }
-
-    const timer = window.setTimeout(() => {
-      setIsVideoOpen(true)
+    const timer = setTimeout(() => {
+      setShowMobilePopup(true)
       setHasAutoOpened(true)
     }, 3000)
 
-    return () => window.clearTimeout(timer)
-  }, [loading, hasMobileVideo, hasAutoOpened])
+    return () => clearTimeout(timer)
+  }, [hasMobileVideo, hasAutoOpened])
 
   if (loading) {
     return (
@@ -128,122 +117,98 @@ export default function AuthMediaPanel() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         {hasDesktopVideo ? (
           <video
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             src={desktopVideo}
             poster={poster || undefined}
             autoPlay={settings.autoplay}
             muted={settings.muted}
             loop={settings.loop}
             playsInline
+            controls
           />
         ) : (
           <Image
             src={fallbackPoster}
             alt="The Elevated Gentleman Fashion"
             fill
+            className="object-cover"
             priority
             sizes="50vw"
-            className="object-cover"
           />
         )}
 
-        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-black/25 pointer-events-none" />
 
-        <div className="absolute bottom-8 left-8 right-8 text-white">
-          <h2 className="mb-2 text-2xl font-semibold font-sans">
+        <div className="absolute bottom-8 left-8 right-8 text-white pointer-events-none">
+          <h2 className="text-2xl font-semibold font-sans mb-2">
             {settings.headline || 'ELEVATE YOUR STYLE'}
           </h2>
 
-          <p className="font-serif text-white/90">
+          <p className="text-white/90 font-serif">
             {settings.subheadline ||
               'Professional styling services for the modern gentleman'}
           </p>
         </div>
       </div>
 
-      {/* Mobile */}
+      {/* Mobile Background */}
       <div className="lg:hidden absolute inset-0 overflow-hidden bg-black">
         <Image
           src={fallbackPoster}
           alt="The Elevated Gentleman Fashion"
           fill
+          className="object-cover"
           priority
           sizes="100vw"
-          className="object-cover"
         />
 
         <div className="absolute inset-0 bg-black/55" />
+
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
+
         <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/70 to-transparent" />
 
-        {hasMobileVideo && !isVideoOpen && (
-          <button
-            type="button"
-            onClick={() => {
-              setIsVideoOpen(true)
-              setHasAutoOpened(true)
-            }}
-            className="absolute left-1/2 top-1/2 z-50 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition hover:bg-white/30"
-            aria-label="Play preview video"
-          >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-black shadow-lg">
-              <svg
-                className="ml-1 h-7 w-7"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </button>
-        )}
-
         <div className="absolute bottom-6 left-5 right-5 text-white pointer-events-none">
-          <h2 className="mb-2 text-2xl font-semibold font-sans">
+          <h2 className="text-2xl font-semibold font-sans mb-2">
             {settings.headline || 'ELEVATE YOUR STYLE'}
           </h2>
 
-          <p className="max-w-sm text-sm font-serif leading-relaxed text-white/90">
+          <p className="text-white/90 text-sm font-serif leading-relaxed max-w-sm">
             {settings.subheadline ||
               'Professional styling services for the modern gentleman'}
           </p>
         </div>
       </div>
 
-      {/* Mobile Video Modal */}
-      {isVideoOpen && hasMobileVideo && (
-        <div className="fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/90 p-4 lg:hidden">
-          <button
-            type="button"
-            onClick={() => setIsVideoOpen(false)}
-            className="absolute right-4 top-4 z-[2147483647] rounded-full bg-white/10 p-3 text-white backdrop-blur-sm transition hover:bg-white/20"
-            aria-label="Close video"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          <video
-            src={mobileMediaSrc}
-            poster={poster || undefined}
-            controls
-            autoPlay
-            muted
-            loop={settings.loop}
-            playsInline
-            className="max-h-[80vh] w-full rounded-2xl bg-black"
+      {/* Mobile Popup */}
+      {hasMobileVideo && showMobilePopup && (
+        <div className="lg:hidden fixed inset-0 z-[9999]">
+          <div
+            className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+            onClick={() => setShowMobilePopup(false)}
           />
+
+          <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 overflow-hidden rounded-3xl bg-black shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setShowMobilePopup(false)}
+              className="absolute right-3 top-3 z-[10000] flex h-10 w-10 items-center justify-center rounded-full bg-black/80 text-xl text-white shadow-lg"
+            >
+              ×
+            </button>
+
+            <video
+              key={mobileMediaSrc}
+              className="aspect-video w-full"
+              src={mobileMediaSrc}
+              poster={poster || undefined}
+              autoPlay
+              controls
+              playsInline
+              muted={settings.muted}
+              loop={settings.loop}
+            />
+          </div>
         </div>
       )}
     </>
