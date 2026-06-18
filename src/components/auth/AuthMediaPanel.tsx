@@ -120,9 +120,9 @@ export default function AuthMediaPanel() {
             className="absolute inset-0 w-full h-full object-cover"
             src={desktopVideo}
             poster={poster || undefined}
-            autoPlay={settings.autoplay}
-            muted={settings.muted}
-            loop={settings.loop}
+            autoPlay
+            muted
+            loop
             playsInline
             preload="auto"
                       
