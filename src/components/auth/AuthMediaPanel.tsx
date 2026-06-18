@@ -124,7 +124,7 @@ export default function AuthMediaPanel() {
             muted={settings.muted}
             loop={settings.loop}
             playsInline
-            controls
+            
           />
         ) : (
           <Image
