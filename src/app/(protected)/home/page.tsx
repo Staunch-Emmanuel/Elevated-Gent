@@ -62,9 +62,9 @@ function FeatureCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-transform duration-300 hover:-translate-y-1"
+      className="group block h-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] transition-transform duration-300 hover:-translate-y-1"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#d9d5cc]">
+      <div className="relative aspect-[4/3] overflow-hidden border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper)]">
         {section.imageUrl ? (
           <Image
             src={section.imageUrl}
@@ -74,33 +74,34 @@ function FeatureCard({
             sizes="(max-width: 1024px) 100vw, 33vw"
           />
         ) : (
-          <div className="h-full w-full bg-[linear-gradient(135deg,_#d6d0c5_0%,_#b7afa2_100%)]" />
+          <div className="h-full w-full bg-[linear-gradient(135deg,_#efe6d8_0%,_#d8cbbb_100%)]" />
         )}
 
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.45)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(43,22,4,0.48)_100%)]" />
 
         <div
-          className={`absolute inset-x-0 bottom-0 p-6 text-white md:p-8 ${
+          className={`absolute inset-x-0 bottom-0 p-6 text-[var(--color-eg-cream)] md:p-8 ${
             align === 'right' ? 'text-right' : 'text-left'
           }`}
         >
           {section.eyebrow ? (
-            <p className="mb-2 font-sans text-[11px] uppercase tracking-[0.28em] text-white/75">
+            <p className="mb-2 font-sans text-[11px] uppercase tracking-[0.28em] text-[rgba(239,230,216,0.78)]">
               {section.eyebrow}
             </p>
           ) : null}
-          <h3 className="font-sans text-3xl font-semibold leading-tight md:text-4xl">
+
+          <h3 className="eg-editorial-heading text-4xl text-[var(--color-eg-cream)] md:text-5xl">
             {section.title}
           </h3>
         </div>
       </div>
 
-      <div className="space-y-4 p-6 md:p-8">
-        <p className="font-serif text-base leading-relaxed text-black/70 md:text-lg">
+      <div className="space-y-4 px-2 py-6 md:px-3 md:py-7">
+        <p className="font-serif text-base leading-relaxed text-[var(--color-eg-muted)] md:text-lg">
           {section.description}
         </p>
 
-        <span className="inline-flex items-center font-sans text-xs uppercase tracking-[0.24em] text-black">
+        <span className="inline-flex items-center font-sans text-xs font-medium uppercase tracking-[0.24em] text-[var(--color-eg-espresso)]">
           {section.ctaLabel || 'Explore'}
         </span>
       </div>
@@ -227,8 +228,8 @@ export default function HomePage() {
     <ProtectedRoute>
       <StructuredData pageKey="home" />
 
-      <div className="min-h-screen bg-[#FEFFFE] text-black">
-        <section className="relative overflow-hidden bg-[#FEFFFE]">
+      <div className="min-h-screen bg-[var(--color-eg-paper)] text-[var(--color-eg-espresso)]">
+        <section className="relative overflow-hidden bg-[var(--color-eg-espresso)]">
           <div className="absolute inset-0">
             <div
               className={`flex h-full ease-in-out ${
@@ -239,7 +240,7 @@ export default function HomePage() {
               {heroImages.map((imageUrl, index) => (
                 <div
                   key={`${imageUrl || 'fallback'}-${index}`}
-                  className="relative h-full w-1/3 shrink-0 overflow-hidden bg-[#d9d5cc]"
+                  className="relative h-full w-1/3 shrink-0 overflow-hidden bg-[var(--color-eg-paper)]"
                 >
                   {imageUrl ? (
                     <Image
@@ -251,35 +252,35 @@ export default function HomePage() {
                       sizes="33vw"
                     />
                   ) : (
-                    <div className="h-full w-full bg-[linear-gradient(135deg,_#d8d1c4_0%,_#bdb3a4_100%)]" />
+                    <div className="h-full w-full bg-[linear-gradient(135deg,_#efe6d8_0%,_#d8cbbb_100%)]" />
                   )}
                 </div>
               ))}
             </div>
 
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.58)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.3)_82%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.42)_80%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(43,22,4,0.34)_0%,rgba(43,22,4,0.24)_38%,rgba(43,22,4,0.66)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(43,22,4,0.08)_0%,rgba(43,22,4,0.34)_82%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.10)_0%,rgba(0,0,0,0.34)_80%)]" />
           </div>
 
           <PagePadding>
             <Container className="relative z-10">
               <div className="flex min-h-[84vh] items-center justify-center py-16 md:min-h-[92vh] md:py-20">
-                <div className="max-w-4xl text-center text-white">
+                <div className="max-w-4xl text-center text-[var(--color-eg-cream)]">
                   <div className="space-y-4 md:space-y-6">
-                    <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-white/80">
+                    <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-[rgba(239,230,216,0.78)]">
                       {loading ? 'Loading homepage...' : 'The Elevated Gentleman'}
                     </p>
 
-                    <h1 className="font-sans text-5xl font-semibold leading-[0.92] md:text-7xl lg:text-[5.8rem]">
+                    <h1 className="eg-editorial-heading text-6xl text-[var(--color-eg-cream)] md:text-8xl lg:text-[7rem]">
                       {welcomeTitle}
                     </h1>
 
-                    <h2 className="mx-auto max-w-3xl font-sans text-2xl font-medium leading-tight text-white/95 md:text-3xl lg:text-[2.2rem]">
+                    <h2 className="mx-auto max-w-3xl font-sans text-2xl font-medium leading-tight text-[rgba(239,230,216,0.94)] md:text-3xl lg:text-[2.2rem]">
                       {content.heroSubtitle}
                     </h2>
 
-                    <p className="mx-auto max-w-2xl font-serif text-lg leading-relaxed text-white/88 md:text-[1.2rem]">
+                    <p className="mx-auto max-w-2xl font-serif text-lg leading-relaxed text-[rgba(239,230,216,0.84)] md:text-[1.2rem]">
                       {content.heroDescription}
                     </p>
                   </div>
@@ -288,7 +289,8 @@ export default function HomePage() {
                     <Button
                       asChild
                       size="lg"
-                      className="border border-white/70 bg-black/78 text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition hover:border-white hover:bg-white hover:text-black"
+                      variant="inverse"
+                      className="border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso)] shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)]"
                     >
                       <Link href={heroPrimaryHref}>{content.primaryButton.label}</Link>
                     </Button>
@@ -297,7 +299,7 @@ export default function HomePage() {
                       asChild
                       size="lg"
                       variant="outline"
-                      className="border-white bg-transparent text-white hover:bg-black hover:text-white"
+                      className="border-[var(--color-eg-cream)] bg-transparent text-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso)]"
                     >
                       <Link href={heroSecondaryHref}>{content.secondaryButton.label}</Link>
                     </Button>
@@ -315,8 +317,8 @@ export default function HomePage() {
                           }}
                           className={`h-2.5 rounded-full transition-all ${
                             index === (activeHeroIndex % totalHeroSteps)
-                              ? 'w-9 bg-white'
-                              : 'w-2.5 bg-white/45 hover:bg-white/75'
+                              ? 'w-9 bg-[var(--color-eg-cream)]'
+                              : 'w-2.5 bg-[rgba(239,230,216,0.45)] hover:bg-[rgba(239,230,216,0.75)]'
                           }`}
                           aria-label={`Show hero position ${index + 1}`}
                         />
@@ -329,21 +331,21 @@ export default function HomePage() {
           </PagePadding>
         </section>
 
-        <section className="flex min-h-screen items-center justify-center py-20 md:py-24">
+        <section className="flex min-h-screen items-center justify-center bg-[var(--color-eg-paper)] py-20 md:py-24">
           <PagePadding>
             <Container>
               <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
                 <div className="mx-auto max-w-xl space-y-8 lg:mx-0">
                   <div className="space-y-6">
-                    <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-black/45">
+                    <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-[var(--color-eg-muted)]">
                       {content.storySection.eyebrow}
                     </p>
 
-                    <h2 className="max-w-3xl font-sans text-4xl font-semibold leading-[1] md:text-6xl">
+                    <h2 className="eg-editorial-heading max-w-3xl text-5xl text-[var(--color-eg-espresso)] md:text-7xl">
                       {content.storySection.title}
                     </h2>
 
-                    <p className="max-w-2xl font-serif text-lg leading-relaxed text-black/72 md:text-[1.18rem]">
+                    <p className="max-w-2xl font-serif text-lg leading-relaxed text-[var(--color-eg-muted)] md:text-[1.18rem]">
                       {content.storySection.description}
                     </p>
                   </div>
@@ -363,19 +365,22 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] bg-[#FEFFFE] shadow-[0_20px_60px_rgba(0,0,0,0.08)] md:min-h-[620px]">
-                  {storyImage ? (
-                    <Image
-                      src={storyImage}
-                      alt={content.storySection.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 45vw"
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-[linear-gradient(135deg,_#d4cec1_0%,_#b6ad9d_100%)]" />
-                  )}
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.18)_100%)]" />
+                <div className="relative min-h-[420px] overflow-hidden border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] md:min-h-[620px]">
+                  <div className="relative h-full min-h-[388px] overflow-hidden border border-[var(--color-eg-espresso)] md:min-h-[588px]">
+                    {storyImage ? (
+                      <Image
+                        src={storyImage}
+                        alt={content.storySection.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 45vw"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-[linear-gradient(135deg,_#efe6d8_0%,_#d8cbbb_100%)]" />
+                    )}
+
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(43,22,4,0.03)_0%,rgba(43,22,4,0.18)_100%)]" />
+                  </div>
                 </div>
               </div>
             </Container>
@@ -383,7 +388,7 @@ export default function HomePage() {
         </section>
 
         {logoTrack.length > 0 ? (
-          <section className="border-y border-black/10 bg-white py-5">
+          <section className="border-y border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] py-5">
             <div className="overflow-hidden">
               <div className="homepage-logo-marquee flex w-max items-center gap-16 px-8">
                 {logoTrack.map((logoUrl, index) => (
@@ -405,14 +410,15 @@ export default function HomePage() {
           </section>
         ) : null}
 
-        <section className="py-18 md:py-24">
+        <section className="bg-[var(--color-eg-paper)] py-18 md:py-24">
           <PagePadding>
             <Container>
               <div className="mb-10 max-w-2xl space-y-4">
-                <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-black/45">
+                <p className="font-sans text-[11px] uppercase tracking-[0.34em] text-[var(--color-eg-muted)]">
                   {content.exploreEyebrow}
                 </p>
-                <h2 className="font-sans text-4xl font-semibold leading-tight md:text-5xl">
+
+                <h2 className="eg-editorial-heading text-5xl text-[var(--color-eg-espresso)] md:text-6xl">
                   {content.exploreTitle}
                 </h2>
               </div>
