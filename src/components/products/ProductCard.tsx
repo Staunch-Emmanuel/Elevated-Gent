@@ -72,160 +72,173 @@ export function ProductCard({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="aspect-square bg-background-muted border border-black overflow-hidden relative">
-        <Image
-          src={product.image}
-          alt={product.title}
-          fill
-          className="object-cover hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute inset-0 bg-black/10" />
+    <div
+      className={`h-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] transition-transform duration-300 hover:-translate-y-1 ${className}`}
+    >
+      <div className="space-y-4">
+        <div className="aspect-square bg-[var(--color-eg-paper)] border border-[var(--color-eg-espresso)] overflow-hidden relative">
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            className="object-cover hover:scale-105 transition-transform duration-300"
+          />
 
-        <div className="absolute top-4 left-4">
-          <Label>{product.category}</Label>
-        </div>
+          <div className="absolute inset-0 bg-black/5" />
 
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          disabled={favoriteLoading}
-          className="absolute bottom-4 right-4 z-10 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-sm hover:bg-black hover:text-white transition-colors disabled:opacity-60"
-        >
-          {isFavorited ? 'Saved' : 'Save'}
-        </button>
-
-        {product.originalPrice ? (
-          <div className="absolute top-4 right-4">
-            <Label variant="inverse" className="text-xs">
-              SALE
-            </Label>
+          <div className="absolute top-4 left-4">
+            <Label>{product.category}</Label>
           </div>
-        ) : null}
 
-        {!product.inStock ? (
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-red-600 text-white text-xs px-2 py-1 rounded text-center font-semibold">
-              OUT OF STOCK
-            </div>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-serif text-gray-500 uppercase tracking-wide">
-            {product.brand}
-          </span>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-lg font-semibold">{product.price}</span>
-            {product.originalPrice ? (
-              <span className="text-sm text-gray-500 line-through">
-                {product.originalPrice}
-              </span>
-            ) : null}
-          </div>
-        </div>
-
-        <h3 className="text-lg font-semibold font-sans">{product.title}</h3>
-
-        {showFullDetails && product.description ? (
-          <p
-            className={`font-serif text-muted text-sm whitespace-pre-line ${
-              showDetails ? '' : 'line-clamp-2'
-            }`}
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={favoriteLoading}
+            className="absolute bottom-4 right-4 z-10 rounded-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] shadow-sm transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] disabled:opacity-60"
           >
-            {product.description}
-          </p>
-        ) : null}
+            {isFavorited ? 'Saved' : 'Save'}
+          </button>
 
-        <Button
-          size="sm"
-          onClick={handleToggleDetails}
-          disabled={!product.inStock}
-          className="w-full"
-        >
-          {showDetails ? 'Hide Details' : 'View Product'}
-        </Button>
+          {product.originalPrice ? (
+            <div className="absolute top-4 right-4">
+              <Label variant="inverse" className="text-xs">
+                SALE
+              </Label>
+            </div>
+          ) : null}
 
-        {showFullDetails && showDetails ? (
-          <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
-            <h4 className="font-semibold font-sans text-sm uppercase tracking-wide">
-              Product Details
-            </h4>
-
-            {Array.isArray(product.tags) && product.tags.length > 0 ? (
-              <div>
-                <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
-                  Features
-                </span>
-                <div className="flex gap-1 flex-wrap">
-                  {product.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-serif uppercase tracking-wide"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
-              <div>
-                <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
-                  Available Sizes
-                </span>
-                <div className="flex gap-1 flex-wrap">
-                  {product.sizes.map((size) => (
-                    <span
-                      key={size}
-                      className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600"
-                    >
-                      {size}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {Array.isArray(product.colors) && product.colors.length > 0 ? (
-              <div>
-                <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide block mb-2">
-                  Available Colors
-                </span>
-                <div className="flex gap-1 flex-wrap">
-                  {product.colors.map((color) => (
-                    <span
-                      key={color}
-                      className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600"
-                    >
-                      {color}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            <div className="pt-3 border-t border-gray-200">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-serif text-gray-500">
-                  Category: {product.category}
-                </span>
-
-                <Button
-                  size="sm"
-                  onClick={handleBuyProduct}
-                  disabled={!product.inStock}
-                >
-                  Buy Now
-                </Button>
+          {!product.inStock ? (
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="bg-red-600 text-white text-xs px-2 py-1 text-center font-semibold uppercase tracking-wide">
+                OUT OF STOCK
               </div>
             </div>
+          ) : null}
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-[var(--color-eg-muted)] uppercase tracking-[0.12em]">
+              {product.brand}
+            </span>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-lg font-semibold text-[var(--color-eg-espresso)]">
+                {product.price}
+              </span>
+
+              {product.originalPrice ? (
+                <span className="text-sm text-[var(--color-eg-muted)] line-through">
+                  {product.originalPrice}
+                </span>
+              ) : null}
+            </div>
           </div>
-        ) : null}
+
+          <h3 className="text-xl font-normal font-editorial leading-tight tracking-[-0.03em] text-[var(--color-eg-espresso)]">
+            {product.title}
+          </h3>
+
+          {showFullDetails && product.description ? (
+            <p
+              className={`font-serif text-[var(--color-eg-muted)] text-sm whitespace-pre-line ${
+                showDetails ? '' : 'line-clamp-2'
+              }`}
+            >
+              {product.description}
+            </p>
+          ) : null}
+
+          <Button
+            size="sm"
+            onClick={handleToggleDetails}
+            disabled={!product.inStock}
+            className="w-full"
+          >
+            {showDetails ? 'Hide Details' : 'View Product'}
+          </Button>
+
+          {showFullDetails && showDetails ? (
+            <div className="mt-4 space-y-4 border-t border-[var(--color-eg-line)] pt-4">
+              <h4 className="font-semibold font-sans text-sm uppercase tracking-[0.08em] text-[var(--color-eg-espresso)]">
+                Product Details
+              </h4>
+
+              {Array.isArray(product.tags) && product.tags.length > 0 ? (
+                <div>
+                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                    Features
+                  </span>
+
+                  <div className="flex gap-1 flex-wrap">
+                    {product.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2 py-1 bg-[var(--color-eg-paper)] text-[var(--color-eg-muted)] rounded-full font-serif uppercase tracking-wide"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
+                <div>
+                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                    Available Sizes
+                  </span>
+
+                  <div className="flex gap-1 flex-wrap">
+                    {product.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="text-xs px-2 py-1 border border-[var(--color-eg-line)] text-[var(--color-eg-muted)]"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {Array.isArray(product.colors) && product.colors.length > 0 ? (
+                <div>
+                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                    Available Colors
+                  </span>
+
+                  <div className="flex gap-1 flex-wrap">
+                    {product.colors.map((color) => (
+                      <span
+                        key={color}
+                        className="text-xs px-2 py-1 border border-[var(--color-eg-line)] text-[var(--color-eg-muted)]"
+                      >
+                        {color}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="pt-3 border-t border-[var(--color-eg-line)]">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-serif text-[var(--color-eg-muted)]">
+                    Category: {product.category}
+                  </span>
+
+                  <Button
+                    size="sm"
+                    onClick={handleBuyProduct}
+                    disabled={!product.inStock}
+                  >
+                    Buy Now
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   )

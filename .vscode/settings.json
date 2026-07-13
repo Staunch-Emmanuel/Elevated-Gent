@@ -1,3 +1,6 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "js/ts.tsdks.path": "node_modules\\typescript\\lib",
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
+    "less.lint.unknownAtRules": "ignore"
 }

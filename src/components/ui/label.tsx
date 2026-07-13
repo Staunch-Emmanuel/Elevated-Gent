@@ -11,11 +11,12 @@ const Label = React.forwardRef<HTMLSpanElement, LabelProps>(
       <span
         ref={ref}
         className={cn(
-          // Base label styles matching Webflow design
-          'inline-block px-3 py-2 text-xs font-serif uppercase tracking-wider leading-tight border border-black rounded-full whitespace-nowrap relative overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 active:scale-95',
+          'inline-block px-3 py-2 text-xs font-medium uppercase tracking-[0.08em] leading-tight border rounded-full whitespace-nowrap relative overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 active:scale-95',
           {
-            'text-black bg-white border-black hover:bg-black hover:text-white': variant === 'default',
-            'text-white bg-black border-white hover:bg-white hover:text-black': variant === 'inverse',
+            'text-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] border-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)]':
+              variant === 'default',
+            'text-[var(--color-eg-cream)] bg-[var(--color-eg-espresso)] border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso)]':
+              variant === 'inverse',
           },
           className
         )}
@@ -24,6 +25,7 @@ const Label = React.forwardRef<HTMLSpanElement, LabelProps>(
     )
   }
 )
+
 Label.displayName = 'Label'
 
 export { Label }

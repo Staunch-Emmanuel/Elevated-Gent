@@ -161,9 +161,9 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full">
+    <div className="h-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] transition-transform duration-300 hover:-translate-y-1">
       <Link href={href} className="block">
-        <div className="aspect-[4/5] bg-background-muted relative overflow-hidden">
+        <div className="aspect-[4/5] bg-[var(--color-eg-paper)] relative overflow-hidden border border-[var(--color-eg-espresso)]">
           <Image
             src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
             alt={outfit.title || 'Outfit'}
@@ -187,24 +187,24 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
             type="button"
             onClick={handleToggleFavorite}
             disabled={favoriteLoading}
-            className="absolute bottom-4 right-4 z-10 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-sm hover:bg-black hover:text-white transition-colors disabled:opacity-60"
+            className="absolute bottom-4 right-4 z-10 rounded-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] shadow-sm transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] disabled:opacity-60"
           >
             {isFavorited ? 'Saved' : 'Save'}
           </button>
         </div>
       </Link>
 
-      <div className="p-6 space-y-4">
+      <div className="p-2 pt-6 space-y-4">
         <div className="space-y-2">
           <Link href={href} className="block">
-            <h3 className="text-xl font-semibold font-sans hover:underline">
+            <h3 className="text-2xl font-normal font-editorial leading-tight tracking-[-0.03em] text-[var(--color-eg-espresso)] hover:underline">
               {outfit.title}
             </h3>
           </Link>
 
           {outfit.description ? (
             <p
-              className={`font-serif text-gray-600 text-sm whitespace-pre-line ${
+              className={`font-serif text-[var(--color-eg-muted)] text-sm whitespace-pre-line ${
                 showLinks ? '' : 'line-clamp-2'
               }`}
             >
@@ -220,32 +220,35 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
 
           <Link
             href={href}
-            className="block w-full border border-black px-4 py-3 text-center text-sm font-medium uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+            className="block w-full border border-[var(--color-eg-espresso)] px-4 py-3 text-center text-sm font-medium uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)]"
           >
             View Details
           </Link>
         </div>
 
         {showLinks ? (
-          <div className="mt-6 space-y-4 border-t border-gray-200 pt-4">
-            <h4 className="font-semibold font-sans text-sm uppercase tracking-wide">
+          <div className="mt-6 space-y-4 border-t border-[var(--color-eg-line)] pt-4">
+            <h4 className="font-semibold font-sans text-sm uppercase tracking-[0.08em] text-[var(--color-eg-espresso)]">
               Product Links ({links.length})
             </h4>
 
             {links.length === 0 ? (
-              <p className="text-sm text-gray-500">No links added yet.</p>
+              <p className="text-sm text-[var(--color-eg-muted)]">
+                No links added yet.
+              </p>
             ) : (
               <div className="space-y-3">
                 {links.map((link, index) => (
                   <div
                     key={`${outfit.id}-link-${index}`}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3"
                   >
                     <div className="flex-grow min-w-0">
-                      <div className="text-sm font-semibold text-gray-900 break-words">
+                      <div className="text-sm font-semibold text-[var(--color-eg-espresso)] break-words">
                         {link.label}
                       </div>
-                      <div className="text-xs text-gray-500 break-all mt-1">
+
+                      <div className="text-xs text-[var(--color-eg-muted)] break-all mt-1">
                         {link.readableUrl}
                       </div>
                     </div>

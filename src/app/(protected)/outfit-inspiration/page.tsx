@@ -17,7 +17,7 @@ export default async function OutfitInspirationPage() {
 
   return (
     <>
-      <section className="py-16">
+      <section className="py-16 bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)]">
         <PagePadding>
           <Container>
             <div className="text-center space-y-8">
@@ -32,7 +32,7 @@ export default async function OutfitInspirationPage() {
                 />
               </div>
 
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
+              <p className="text-lg md:text-xl font-serif text-[rgba(239,230,216,0.76)] max-w-3xl mx-auto leading-relaxed px-4">
                 Shop our curated selection of the most stylish outfits. Each piece is carefully selected for quality, style, and versatility to help you elevate your wardrobe.
               </p>
             </div>
@@ -40,7 +40,7 @@ export default async function OutfitInspirationPage() {
         </PagePadding>
       </section>
 
-      <section className="py-16">
+      <section className="py-16 bg-[var(--color-eg-paper-soft)]">
         <PagePadding>
           <Container>
             <OutfitInspirationClient cmsOutfits={cmsOutfits} />
