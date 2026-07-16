@@ -37,7 +37,8 @@ export type SubscriptionStatus =
   | "none";
 
 export type UserRecord = {
-  id: string; // usually Firebase Auth uid or Firestore doc id (test users)
+  id: string;
+  uid: string;
 
   email?: string;
   name?: string;
@@ -62,7 +63,9 @@ const COLLECTION = "users";
 
 function mapDocToUser(id: string, data: any): UserRecord {
   return {
+    ...data,
     id,
+    uid: id,
     email: data?.email,
     name: data?.name,
     role: data?.role,
@@ -74,7 +77,6 @@ function mapDocToUser(id: string, data: any): UserRecord {
     currentPeriodEnd: data?.currentPeriodEnd,
     createdAt: data?.createdAt,
     updatedAt: data?.updatedAt,
-    ...data,
   };
 }
 
@@ -93,15 +95,26 @@ export async function getUserById(id: string): Promise<UserRecord | null> {
 
 // GET BY EMAIL
 export async function getUserByEmail(email: string): Promise<UserRecord | null> {
-  const q = query(collection(db, COLLECTION), where("email", "==", email), limit(1));
+  const q = query(
+    collection(db, COLLECTION),
+    where("email", "==", email),
+    limit(1)
+  );
+
   const snap = await getDocs(q);
+
   if (snap.empty) return null;
+
   const d = snap.docs[0];
+
   return mapDocToUser(d.id, d.data());
 }
 
 // CREATE / UPSERT (usually for real users where doc id = auth uid)
-export async function createUser(id: string, data: Partial<UserRecord>): Promise<void> {
+export async function createUser(
+  id: string,
+  data: Partial<UserRecord>
+): Promise<void> {
   const now = new Date().toISOString();
 
   // Put data first, then set timestamps so they don't get overwritten.
@@ -128,7 +141,8 @@ export async function createTestUser(
   const payload: Partial<UserRecord> = {
     ...data,
     role: (data.role ?? "subscriber") as UserRole,
-    subscriptionStatus: (data.subscriptionStatus ?? "trialing") as SubscriptionStatus,
+    subscriptionStatus: (data.subscriptionStatus ??
+      "trialing") as SubscriptionStatus,
     isSubscribed: data.isSubscribed ?? false,
     createdAt: data.createdAt ?? now,
     updatedAt: now,
@@ -136,12 +150,17 @@ export async function createTestUser(
   };
 
   const ref = await addDoc(collection(db, COLLECTION), payload);
+
   return ref.id;
 }
 
 // UPDATE BY ID
-export async function updateUserById(id: string, data: Partial<UserRecord>): Promise<void> {
+export async function updateUserById(
+  id: string,
+  data: Partial<UserRecord>
+): Promise<void> {
   const now = new Date().toISOString();
+
   await updateDoc(doc(db, COLLECTION, id), {
     ...data,
     updatedAt: now,

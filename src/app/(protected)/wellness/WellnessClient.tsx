@@ -30,15 +30,35 @@ export default function WellnessClient() {
     };
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-eg-espresso)] px-6 py-20 text-center font-serif text-[var(--color-text-muted)]">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <section>
-      <h1 className="text-3xl font-semibold mb-6">Wellness</h1>
+    <section className="min-h-screen bg-[var(--color-eg-espresso)] px-6 py-20 text-[var(--color-eg-cream)] md:py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-10 space-y-4 text-center">
+          <p className="font-sans text-[11px] font-medium uppercase tracking-[0.34em] text-[var(--color-text-secondary)]">
+            Health and Wellbeing
+          </p>
 
-      {items.length === 0 && (
-        <p className="text-gray-600">No wellness items yet.</p>
-      )}
+          <h1 className="eg-editorial-heading text-5xl text-[var(--color-eg-cream)] md:text-7xl">
+            Wellness
+          </h1>
+        </div>
+
+        {items.length === 0 && (
+          <div className="border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-8 text-center">
+            <p className="font-serif text-[var(--color-text-muted)]">
+              No wellness items yet.
+            </p>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

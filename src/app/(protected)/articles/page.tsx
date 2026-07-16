@@ -18,12 +18,14 @@ type CategoryOption = {
 }
 
 function normalizeCategorySlug(value: unknown): string {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/'/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'general'
+  return (
+    String(value ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/'/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'general'
+  )
 }
 
 function normalizeCategoryLabel(value: unknown): string {
@@ -119,8 +121,12 @@ export default function ArticlesPage() {
       try {
         const items = await getPublishedArticlesCMS()
         const sorted = [...items].sort((a, b) => {
-          const aDate = normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt)
-          const bDate = normalizeDate(b.publishDate ?? b.datePublished ?? b.createdAt)
+          const aDate = normalizeDate(
+            a.publishDate ?? a.datePublished ?? a.createdAt
+          )
+          const bDate = normalizeDate(
+            b.publishDate ?? b.datePublished ?? b.createdAt
+          )
           return bDate - aDate
         })
         setCmsArticles(sorted)
@@ -147,7 +153,8 @@ export default function ArticlesPage() {
     if (activeCategory === 'all') return mappedArticles
 
     return mappedArticles.filter(
-      (article) => normalizeCategorySlug(article.category) === activeCategory
+      (article) =>
+        normalizeCategorySlug(article.category) === activeCategory
     )
   }, [activeCategory, mappedArticles])
 
@@ -167,53 +174,66 @@ export default function ArticlesPage() {
     <ProtectedRoute>
       <StructuredData pageKey="articles" />
 
-      <section className="py-16">
+      <section className="border-b border-[rgba(243,237,226,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
         <PagePadding>
           <Container>
-            <div className="text-center space-y-8">
+            <div className="space-y-8 text-center">
               <div className="overflow-hidden px-4">
-                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
+                <h1 className="eg-editorial-heading text-5xl text-[var(--color-eg-cream)] md:text-7xl lg:text-8xl">
                   ARTICLES
                 </h1>
               </div>
 
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                Explore editorial content across wellness, grooming, lifestyle, and modern style.
-                Curated insights designed to help you look sharp and live well.
+              <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(243,237,226,0.92)] md:text-xl">
+                Explore editorial content across wellness, grooming, lifestyle,
+                and modern style. Curated insights designed to help you look
+                sharp and live well.
               </p>
             </div>
           </Container>
         </PagePadding>
       </section>
 
-      <section className="py-16">
+      <section className="bg-[var(--color-eg-paper)] py-16 md:py-20">
         <PagePadding>
           <Container>
-            <div className="flex justify-center mb-12">
-              <div className="flex gap-2 flex-wrap justify-center">
-                {categoryOptions.map((category) => (
-                  <Label
-                    key={category.id}
-                    variant={activeCategory === category.id ? 'inverse' : 'default'}
-                    onClick={() => setActiveCategory(category.id)}
-                    className="cursor-pointer"
-                  >
-                    {category.label}
-                  </Label>
-                ))}
+            <div className="mb-12 flex justify-center">
+              <div className="flex flex-wrap justify-center gap-2">
+                {categoryOptions.map((category) => {
+                  const active = activeCategory === category.id
+
+                  return (
+                    <Label
+                      key={category.id}
+                      variant={active ? 'inverse' : 'default'}
+                      onClick={() => setActiveCategory(category.id)}
+                      className={
+                        active
+                          ? 'cursor-pointer border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)]'
+                          : 'cursor-pointer border-[rgba(41,40,32,0.34)] bg-transparent text-[var(--color-eg-ink)] transition hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]'
+                      }
+                    >
+                      {category.label}
+                    </Label>
+                  )
+                })}
               </div>
             </div>
 
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 font-serif">Loading articles…</p>
+              <div className="py-12 text-center">
+                <p className="font-serif text-[rgba(41,40,32,0.68)]">
+                  Loading articles…
+                </p>
               </div>
             ) : filteredArticles.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-600 font-serif">No articles in this category yet.</p>
+              <div className="py-12 text-center">
+                <p className="font-serif text-[rgba(41,40,32,0.72)]">
+                  No articles in this category yet.
+                </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {filteredArticles.map((article) => (
                   <ArticleCard key={article.slug} article={article} />
                 ))}

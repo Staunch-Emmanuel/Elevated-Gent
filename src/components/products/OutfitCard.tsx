@@ -5,11 +5,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button, Label } from '@/components/ui'
 import type { OutfitLook, ShoppableLink } from '@/lib/products/types'
+import type { OutfitShopItem } from '@/lib/firebase/outfits'
 import { useAuth } from '@/lib/firebase/auth'
 import { toggleFavorite } from '@/lib/firebase/favorites'
 
 type OutfitCardLook = OutfitLook & {
   category?: string
+  shopItems?: OutfitShopItem[]
 }
 
 interface OutfitCardProps {
@@ -76,6 +78,10 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
   const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   const href = `/outfit-inspiration/${outfit.slug || outfit.id}`
+
+  const shopItems = useMemo(() => {
+    return Array.isArray(outfit.shopItems) ? outfit.shopItems : []
+  }, [outfit.shopItems])
 
   const links = useMemo(() => {
     const source = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
@@ -161,24 +167,31 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
   }
 
   return (
-    <div className="h-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] transition-transform duration-300 hover:-translate-y-1">
+    <div className="group flex h-full flex-col overflow-hidden border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] text-[var(--color-eg-ink)] shadow-[0_18px_46px_rgba(24,23,17,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(24,23,17,0.14)]">
       <Link href={href} className="block">
-        <div className="aspect-[4/5] bg-[var(--color-eg-paper)] relative overflow-hidden border border-[var(--color-eg-espresso)]">
+        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-eg-paper-soft)]">
           <Image
             src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
             alt={outfit.title || 'Outfit'}
             fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.035]"
           />
 
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,23,17,0.03)_0%,rgba(24,23,17,0.05)_58%,rgba(24,23,17,0.28)_100%)]" />
+
           {outfit.category ? (
-            <div className="absolute top-4 left-4">
-              <Label className="text-xs">{outfit.category}</Label>
+            <div className="absolute left-4 top-4 sm:left-5 sm:top-5">
+              <Label className="border-[rgba(248,241,229,0.9)] bg-[rgba(248,241,229,0.94)] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_20px_rgba(24,23,17,0.10)] backdrop-blur-sm">
+                {outfit.category}
+              </Label>
             </div>
           ) : null}
 
-          <div className="absolute top-4 right-4">
-            <Label variant="inverse" className="text-xs">
+          <div className="absolute right-4 top-4 sm:right-5 sm:top-5">
+            <Label
+              variant="inverse"
+              className="border-[rgba(248,241,229,0.65)] bg-[rgba(24,23,17,0.78)] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] shadow-[0_8px_20px_rgba(24,23,17,0.14)] backdrop-blur-sm"
+            >
               Inspiration
             </Label>
           </div>
@@ -187,25 +200,25 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
             type="button"
             onClick={handleToggleFavorite}
             disabled={favoriteLoading}
-            className="absolute bottom-4 right-4 z-10 rounded-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] shadow-sm transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] disabled:opacity-60"
+            className="absolute bottom-4 right-4 z-10 inline-flex min-h-10 items-center justify-center border border-[rgba(248,241,229,0.78)] bg-[rgba(248,241,229,0.95)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_22px_rgba(24,23,17,0.18)] backdrop-blur-sm transition-colors duration-200 hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:cursor-not-allowed disabled:opacity-60 sm:bottom-5 sm:right-5"
           >
             {isFavorited ? 'Saved' : 'Save'}
           </button>
         </div>
       </Link>
 
-      <div className="p-2 pt-6 space-y-4">
-        <div className="space-y-2">
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-6 sm:px-6 sm:pb-6 sm:pt-7">
+        <div className="flex-1 space-y-3">
           <Link href={href} className="block">
-            <h3 className="text-2xl font-normal font-editorial leading-tight tracking-[-0.03em] text-[var(--color-eg-espresso)] hover:underline">
+            <h3 className="font-editorial text-[2rem] font-normal leading-[1.02] tracking-[-0.035em] text-[var(--color-eg-ink)] transition-colors duration-200 hover:text-[var(--color-eg-espresso-deep)] sm:text-[2.2rem]">
               {outfit.title}
             </h3>
           </Link>
 
           {outfit.description ? (
             <p
-              className={`font-serif text-[var(--color-eg-muted)] text-sm whitespace-pre-line ${
-                showLinks ? '' : 'line-clamp-2'
+              className={`whitespace-pre-line font-serif text-[15px] leading-7 text-[var(--color-eg-muted)] ${
+                showLinks ? '' : 'line-clamp-3'
               }`}
             >
               {outfit.description}
@@ -213,42 +226,110 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
           ) : null}
         </div>
 
-        <div className="space-y-3">
-          <Button onClick={handleToggleLinks} className="w-full">
+        <div className="mt-6 space-y-3 border-t border-[var(--color-eg-line)] pt-5">
+          <Button
+            onClick={handleToggleLinks}
+            className="min-h-12 w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] px-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors duration-200 hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
+          >
             {showLinks ? 'Hide Details' : 'Shop the Look'}
           </Button>
 
           <Link
             href={href}
-            className="block w-full border border-[var(--color-eg-espresso)] px-4 py-3 text-center text-sm font-medium uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)]"
+            className="flex min-h-12 w-full items-center justify-center border border-[var(--color-eg-espresso-deep)] px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors duration-200 hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
           >
             View Details
           </Link>
         </div>
 
         {showLinks ? (
-          <div className="mt-6 space-y-4 border-t border-[var(--color-eg-line)] pt-4">
-            <h4 className="font-semibold font-sans text-sm uppercase tracking-[0.08em] text-[var(--color-eg-espresso)]">
-              Product Links ({links.length})
-            </h4>
+          <div className="mt-5 space-y-5 border-t border-[var(--color-eg-line)] pt-5">
+            <div className="flex items-center justify-between gap-4">
+              <h4 className="font-sans text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-eg-espresso-deep)]">
+                Shop the Look ({shopItems.length || links.length})
+              </h4>
+            </div>
 
-            {links.length === 0 ? (
-              <p className="text-sm text-[var(--color-eg-muted)]">
+            {shopItems.length > 0 ? (
+              <div className="space-y-2.5">
+                {shopItems.slice(0, 4).map((shopItem, index) => (
+                  <div
+                    key={shopItem.id || `${outfit.id}-shop-${index}`}
+                    className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3 transition-colors duration-200 hover:bg-[var(--color-eg-paper-soft)]"
+                  >
+                    <div className="relative h-[72px] w-[72px] flex-shrink-0 overflow-hidden bg-[var(--color-eg-paper-soft)]">
+                      {shopItem.imageUrl ? (
+                        <Image
+                          src={shopItem.imageUrl}
+                          alt={shopItem.name || 'Shop item'}
+                          fill
+                          className="object-cover"
+                          sizes="72px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center px-2 text-center text-[9px] uppercase tracking-[0.1em] text-[var(--color-eg-muted)]">
+                          Item
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-grow">
+                      {shopItem.category ? (
+                        <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-muted)]">
+                          {shopItem.category}
+                        </p>
+                      ) : null}
+
+                      <div className="break-words text-sm font-semibold leading-snug text-[var(--color-eg-ink)]">
+                        {shopItem.name || 'Shop Item'}
+                      </div>
+
+                      {shopItem.brand ? (
+                        <div className="mt-1 break-words font-serif text-xs leading-5 text-[var(--color-eg-muted)]">
+                          {shopItem.brand}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {shopItem.url ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(event) => handleOpenLink(event, shopItem.url)}
+                        className="min-h-9 flex-shrink-0 border-[var(--color-eg-espresso-deep)] px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
+                      >
+                        Open
+                      </Button>
+                    ) : null}
+                  </div>
+                ))}
+
+                {shopItems.length > 4 ? (
+                  <Link
+                    href={href}
+                    className="block border border-[var(--color-eg-espresso-deep)] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors duration-200 hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
+                  >
+                    View all items
+                  </Link>
+                ) : null}
+              </div>
+            ) : links.length === 0 ? (
+              <p className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-4 py-5 text-center font-serif text-sm text-[var(--color-eg-muted)]">
                 No links added yet.
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {links.map((link, index) => (
                   <div
                     key={`${outfit.id}-link-${index}`}
-                    className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3"
+                    className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3 transition-colors duration-200 hover:bg-[var(--color-eg-paper-soft)]"
                   >
-                    <div className="flex-grow min-w-0">
-                      <div className="text-sm font-semibold text-[var(--color-eg-espresso)] break-words">
+                    <div className="min-w-0 flex-grow">
+                      <div className="break-words text-sm font-semibold leading-snug text-[var(--color-eg-ink)]">
                         {link.label}
                       </div>
 
-                      <div className="text-xs text-[var(--color-eg-muted)] break-all mt-1">
+                      <div className="mt-1 break-all font-serif text-xs leading-5 text-[var(--color-eg-muted)]">
                         {link.readableUrl}
                       </div>
                     </div>
@@ -257,7 +338,7 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
                       size="sm"
                       variant="outline"
                       onClick={(event) => handleOpenLink(event, link.url)}
-                      className="flex-shrink-0 text-xs"
+                      className="min-h-9 flex-shrink-0 border-[var(--color-eg-espresso-deep)] px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
                     >
                       Open
                     </Button>

@@ -16,6 +16,17 @@ import type { ShoppableLink } from '@/lib/products/types'
 
 const COLLECTION = 'outfits'
 
+export interface OutfitShopItem {
+  id: string
+  name: string
+  brand: string
+  url: string
+  imageUrl: string
+  category: string
+  price?: string
+  sortOrder?: number
+}
+
 export interface OutfitInput {
   title: string
   description: string
@@ -23,6 +34,7 @@ export interface OutfitInput {
   galleryImages?: string[]
   category: string
   productLinks: Array<string | ShoppableLink>
+  shopItems?: OutfitShopItem[]
   featured?: boolean
   slug?: string
   sortWeight?: number
@@ -85,6 +97,101 @@ function sanitizeLinks(value: unknown): Array<string | ShoppableLink> {
     .filter((item): item is string | ShoppableLink => Boolean(item))
 }
 
+function sanitizeShopItems(value: unknown): OutfitShopItem[] {
+  if (!Array.isArray(value)) return []
+
+  const items: OutfitShopItem[] = []
+
+  value.forEach((item, index) => {
+    if (!item || typeof item !== 'object') return
+
+    const raw = item as Record<string, unknown>
+
+    const id =
+      typeof raw.id === 'string' && raw.id.trim()
+        ? raw.id.trim()
+        : `shop-item-${index + 1}`
+
+    const name =
+      typeof raw.name === 'string'
+        ? raw.name.trim()
+        : typeof raw.title === 'string'
+          ? raw.title.trim()
+          : ''
+
+    const brand =
+      typeof raw.brand === 'string'
+        ? raw.brand.trim()
+        : typeof raw.store === 'string'
+          ? raw.store.trim()
+          : ''
+
+    const url =
+      typeof raw.url === 'string'
+        ? raw.url.trim()
+        : typeof raw.link === 'string'
+          ? raw.link.trim()
+          : ''
+
+    const imageUrl =
+      typeof raw.imageUrl === 'string'
+        ? raw.imageUrl.trim()
+        : typeof raw.image === 'string'
+          ? raw.image.trim()
+          : ''
+
+    const category =
+      typeof raw.category === 'string'
+        ? raw.category.trim()
+        : typeof raw.type === 'string'
+          ? raw.type.trim()
+          : ''
+
+    const price =
+      typeof raw.price === 'string'
+        ? raw.price.trim()
+        : typeof raw.price === 'number'
+          ? String(raw.price)
+          : ''
+
+    const sortOrder =
+      typeof raw.sortOrder === 'number'
+        ? raw.sortOrder
+        : typeof raw.sortOrder === 'string'
+          ? Number(raw.sortOrder) || index
+          : index
+
+    if (!name && !url && !imageUrl) return
+
+    const nextItem: OutfitShopItem = {
+      id,
+      name,
+      brand,
+      url,
+      imageUrl,
+      category,
+      sortOrder,
+    }
+
+    if (price) {
+      nextItem.price = price
+    }
+
+    items.push(nextItem)
+  })
+
+  return items.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+}
+
+function shopItemsToLegacyLinks(shopItems: OutfitShopItem[]): ShoppableLink[] {
+  return shopItems
+    .filter((item) => item.url.trim())
+    .map((item) => ({
+      label: item.name || item.brand || item.url,
+      url: item.url,
+    }))
+}
+
 function sanitizeCategory(value: unknown): string {
   if (typeof value !== 'string') return ''
   return value.trim()
@@ -106,6 +213,8 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
   const createdAt = data.createdAt || nowIso()
   const updatedAt = data.updatedAt || createdAt
 
+  const shopItems = sanitizeShopItems(data.shopItems)
+
   return {
     id,
     title: data.title || '',
@@ -116,6 +225,7 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
     productLinks: sanitizeLinks(
       Array.isArray(data.productLinks) ? data.productLinks : data.links
     ),
+    shopItems,
     featured: !!data.featured,
     slug: data.slug || slugify(data.title || id),
     sortWeight: typeof data.sortWeight === 'number' ? data.sortWeight : 0,
@@ -131,6 +241,11 @@ function mapDocToOutfit(id: string, data: any): OutfitDocument {
 
 export async function createOutfit(input: OutfitInput): Promise<string> {
   const now = nowIso()
+  const shopItems = sanitizeShopItems(input.shopItems || [])
+  const productLinks =
+    input.productLinks.length > 0
+      ? sanitizeLinks(input.productLinks)
+      : shopItemsToLegacyLinks(shopItems)
 
   const payload = {
     title: input.title,
@@ -138,7 +253,8 @@ export async function createOutfit(input: OutfitInput): Promise<string> {
     heroImage: input.heroImage,
     gallery: input.galleryImages ?? [],
     category: sanitizeCategory(input.category),
-    productLinks: sanitizeLinks(input.productLinks),
+    productLinks,
+    shopItems,
     featured: input.featured ?? false,
     slug: input.slug || slugify(input.title),
     sortWeight: input.sortWeight ?? 0,
@@ -209,9 +325,20 @@ export async function updateOutfit(
   if (input.heroImage !== undefined) payload.heroImage = input.heroImage
   if (input.galleryImages !== undefined) payload.gallery = input.galleryImages
   if (input.category !== undefined) payload.category = sanitizeCategory(input.category)
+
+  if (input.shopItems !== undefined) {
+    const shopItems = sanitizeShopItems(input.shopItems)
+    payload.shopItems = shopItems
+
+    if (input.productLinks === undefined) {
+      payload.productLinks = shopItemsToLegacyLinks(shopItems)
+    }
+  }
+
   if (input.productLinks !== undefined) {
     payload.productLinks = sanitizeLinks(input.productLinks)
   }
+
   if (input.featured !== undefined) payload.featured = input.featured
   if (input.sortWeight !== undefined) payload.sortWeight = input.sortWeight
   if (input.published !== undefined) payload.published = input.published

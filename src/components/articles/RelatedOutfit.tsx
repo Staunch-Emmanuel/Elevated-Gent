@@ -80,8 +80,8 @@ export function RelatedOutfit({
     )
 
   return (
-    <section className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <div className="aspect-[4/5] bg-background-muted relative overflow-hidden">
+    <section className="overflow-hidden border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] text-[var(--color-eg-ink)] shadow-[0_16px_40px_rgba(24,23,17,0.09)]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-eg-paper-soft)]">
         <Image
           src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
           alt={outfit.title || 'Outfit'}
@@ -89,31 +89,45 @@ export function RelatedOutfit({
           className="object-cover"
         />
 
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-          {outfit.occasion ? <Label>{outfit.occasion}</Label> : null}
-          {outfit.styleType ? <Label variant="inverse">{outfit.styleType}</Label> : null}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,23,17,0.01)_0%,rgba(24,23,17,0.14)_100%)]" />
+
+        <div className="absolute left-3 top-3 flex flex-wrap gap-2 sm:left-4 sm:top-4">
+          {outfit.occasion ? (
+            <Label className="border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)]">
+              {outfit.occasion}
+            </Label>
+          ) : null}
+
+          {outfit.styleType ? (
+            <Label
+              variant="inverse"
+              className="border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)]"
+            >
+              {outfit.styleType}
+            </Label>
+          ) : null}
         </div>
       </div>
 
-      <div className="p-6 space-y-4">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-sans">
+      <div className="space-y-5 p-6 md:p-7">
+        <div className="space-y-3">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--color-eg-muted)]">
             {title}
           </p>
 
-          <h3 className="text-2xl font-semibold font-sans">
+          <h3 className="font-editorial text-3xl font-normal leading-tight tracking-[-0.03em] text-[var(--color-eg-ink)]">
             {outfit.title}
           </h3>
 
           {outfit.description ? (
-            <p className="font-serif text-muted">
+            <p className="font-serif leading-7 text-[var(--color-eg-muted)]">
               {outfit.description}
             </p>
           ) : null}
         </div>
 
-        <div className="space-y-2">
-          <p className="text-sm font-sans font-semibold">
+        <div className="space-y-3 border-t border-[var(--color-eg-line)] pt-5">
+          <p className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-eg-espresso-deep)]">
             {normalizedLinks.length} {normalizedLinks.length === 1 ? 'Link' : 'Links'}
           </p>
 
@@ -125,22 +139,24 @@ export function RelatedOutfit({
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs underline break-all"
+                  className="break-all border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-3 py-2 font-serif text-xs text-[var(--color-eg-muted)] underline underline-offset-2 transition-colors hover:border-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-espresso-deep)]"
                 >
                   {link.label}
                 </a>
               ))}
             </div>
           ) : (
-            <p className="text-sm font-serif text-gray-500">
+            <p className="font-serif text-sm text-[var(--color-eg-muted)]">
               No links added yet.
             </p>
           )}
         </div>
 
-        <div className="pt-2">
+        <div className="border-t border-[var(--color-eg-line)] pt-5">
           <Link href={`/outfit-inspiration/${outfit.slug}`}>
-            <Button className="w-full">View Outfit</Button>
+            <Button className="w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]">
+              View Outfit
+            </Button>
           </Link>
         </div>
       </div>

@@ -59,7 +59,9 @@ function getCategoryLabel(
   return normalized
 }
 
-function ensureGeneralCategory(categories: ProductCategory[]): ProductCategory[] {
+function ensureGeneralCategory(
+  categories: ProductCategory[]
+): ProductCategory[] {
   const hasGeneral = categories.some(
     (item) =>
       item.slug?.toLowerCase() === 'general' ||
@@ -115,9 +117,7 @@ export default function AdminArticlesPage() {
     } catch (err) {
       console.error('Failed to load CMS articles:', err)
       setArticles([])
-      setCategories(
-        ensureGeneralCategory([])
-      )
+      setCategories(ensureGeneralCategory([]))
     } finally {
       setLoading(false)
     }
@@ -131,11 +131,14 @@ export default function AdminArticlesPage() {
     if (!window.confirm('Reslug ALL CMS articles from their titles?')) return
 
     setBusy(true)
+
     try {
       const result = await reslugAllArticles()
+
       window.alert(
         `Reslug complete.\nUpdated ${result.updated} of ${result.total} articles.`
       )
+
       await loadArticles()
     } catch (err) {
       console.error(err)
@@ -149,6 +152,7 @@ export default function AdminArticlesPage() {
     if (!window.confirm('Delete this article?')) return
 
     setDeletingId(id)
+
     try {
       await deleteArticle(id)
       await loadArticles()
@@ -183,49 +187,54 @@ export default function AdminArticlesPage() {
   return (
     <ProtectedRoute requireAdmin>
       <PagePadding>
-        <Container>
-          <div className="mb-6 flex flex-wrap justify-between gap-4">
-            <h1 className="text-3xl font-bold">Articles (Admin)</h1>
+        <Container className="max-w-6xl py-10 md:py-12">
+          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+            <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
+              Articles (Admin)
+            </h1>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={handleReslugAll}
                 disabled={busy}
-                className="rounded-md border px-4 py-2 text-sm disabled:opacity-50"
+                className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? 'Reslugging...' : 'Reslug All Articles'}
               </button>
 
               <button
-                onClick={() => router.push('/admin/categories?section=articles')}
-                className="rounded-md border px-4 py-2 text-sm"
+                onClick={() =>
+                  router.push('/admin/categories?section=articles')
+                }
+                className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
               >
                 Manage Categories
               </button>
 
               <button
                 onClick={() => router.push('/admin/articles/new')}
-                className="rounded-md bg-black px-4 py-2 text-sm text-white"
+                className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
               >
                 New Article
               </button>
             </div>
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-4">
+          <div className="mb-8 grid gap-4 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_12px_32px_rgba(36,35,29,0.05)] md:grid-cols-[minmax(0,1fr)_220px_180px]">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="w-full max-w-xs rounded-md border px-3 py-2 text-sm"
+              className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
             />
 
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="rounded-md border px-3 py-2 text-sm"
+              className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
             >
               <option value="all">All categories</option>
+
               {categories.map((category) => (
                 <option key={category.id} value={category.slug}>
                   {category.name}
@@ -236,7 +245,7 @@ export default function AdminArticlesPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-md border px-3 py-2 text-sm"
+              className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
             >
               <option value="all">All statuses</option>
               <option value="published">Published</option>
@@ -244,36 +253,52 @@ export default function AdminArticlesPage() {
             </select>
           </div>
 
-          {loading ? <p>Loading...</p> : null}
+          {loading ? (
+            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+              <p className="font-serif text-[#575348]">Loading...</p>
+            </div>
+          ) : null}
 
           {!loading ? (
             <div className="space-y-4">
               {filtered.map((article) => (
                 <div
                   key={article.id}
-                  className="flex items-center justify-between rounded-lg border px-4 py-3"
+                  className="flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] px-5 py-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div>
-                    <p className="font-medium">{article.title}</p>
-                    <p className="text-xs text-gray-500">/articles/{article.slug}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                      <span>{getCategoryLabel(article.category, categories)}</span>
+                  <div className="min-w-0">
+                    <p className="font-editorial text-xl font-normal leading-tight text-[#24231d]">
+                      {article.title}
+                    </p>
+
+                    <p className="mt-2 break-all font-mono text-xs text-[#625e53]">
+                      /articles/{article.slug}
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2 font-serif text-xs text-[#575348]">
+                      <span>
+                        {getCategoryLabel(article.category, categories)}
+                      </span>
+
                       <span>•</span>
-                      <span className="capitalize">{article.status || 'published'}</span>
+
+                      <span className="capitalize">
+                        {article.status || 'published'}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3 sm:justify-end">
                     <Link
                       href={`/articles/${article.slug}`}
-                      className="text-sm text-blue-600 underline"
+                      className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
                     >
                       View
                     </Link>
 
                     <Link
                       href={`/admin/articles/${article.id}`}
-                      className="text-sm underline"
+                      className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
                     >
                       Edit
                     </Link>
@@ -281,9 +306,11 @@ export default function AdminArticlesPage() {
                     <button
                       onClick={() => handleDelete(article.id)}
                       disabled={deletingId === article.id}
-                      className="text-sm text-red-600 underline disabled:opacity-50"
+                      className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {deletingId === article.id ? 'Deleting...' : 'Delete'}
+                      {deletingId === article.id
+                        ? 'Deleting...'
+                        : 'Delete'}
                     </button>
                   </div>
                 </div>

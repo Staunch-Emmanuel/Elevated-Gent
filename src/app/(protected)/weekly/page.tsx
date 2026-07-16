@@ -143,33 +143,34 @@ export default function WeeklyPage() {
     <ProtectedRoute>
       <StructuredData pageKey="weekly" />
 
-      <section className="py-16">
+      <section className="border-b border-[rgba(243,237,226,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
         <PagePadding>
           <Container>
-            <div className="text-center space-y-8">
+            <div className="space-y-8 text-center">
               <div className="overflow-hidden px-4">
-                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
+                <h1 className="eg-editorial-heading text-5xl text-[var(--color-eg-cream)] md:text-7xl lg:text-8xl">
                   WEEKLY FINDS
                 </h1>
               </div>
 
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                Curated weekly selections featuring the best finds, deals, budget-friendly options,
-                luxury pieces, accessories, and emerging brands in men&apos;s fashion.
+              <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(243,237,226,0.92)] md:text-xl">
+                Curated weekly selections featuring the best finds, deals,
+                budget-friendly options, luxury pieces, accessories, and
+                emerging brands in men&apos;s fashion.
               </p>
 
-              <div className="max-w-2xl mx-auto px-4">
+              <div className="mx-auto max-w-3xl px-4">
                 <div className="relative">
                   <input
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products, brands or keywords..."
-                    className="w-full rounded-full border border-gray-300 bg-white py-4 pl-12 pr-12 text-sm outline-none transition focus:border-black"
+                    className="w-full rounded-full border border-[rgba(41,40,32,0.18)] bg-[var(--color-eg-cream)] py-4 pl-12 pr-12 text-sm text-[var(--color-eg-ink)] shadow-[0_8px_24px_rgba(41,40,32,0.12)] outline-none transition placeholder:text-[rgba(41,40,32,0.48)] focus:border-[var(--color-eg-espresso-deep)]"
                   />
 
                   <svg
-                    className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+                    className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[rgba(41,40,32,0.56)]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -186,7 +187,7 @@ export default function WeeklyPage() {
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-black"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgba(41,40,32,0.56)] transition hover:text-[var(--color-eg-ink)]"
                       aria-label="Clear search"
                     >
                       ✕
@@ -194,7 +195,7 @@ export default function WeeklyPage() {
                   ) : null}
                 </div>
 
-                <p className="mt-3 text-center text-sm text-gray-500">
+                <p className="mt-4 text-center text-sm font-medium text-[rgba(243,237,226,0.86)]">
                   {loadingCmsProducts
                     ? 'Loading products...'
                     : `${filteredProducts.length} ${
@@ -208,32 +209,31 @@ export default function WeeklyPage() {
       </section>
 
       {!hasSearchQuery ? (
-        <section className="py-16 bg-gray-50">
+        <section className="border-b border-[rgba(41,40,32,0.12)] bg-[var(--color-eg-paper)] py-16 md:py-20">
           <PagePadding>
             <Container>
-              <div className="text-center mb-12">
-                <h2 className="text-2xl md:text-3xl font-semibold font-sans mb-4">
+              <div className="mb-12 text-center">
+                <h2 className="eg-editorial-heading mb-4 text-4xl text-[var(--color-eg-ink)] md:text-5xl">
                   Featured This Week
                 </h2>
 
-                <p className="text-gray-600 font-serif">
+                <p className="font-serif text-[rgba(41,40,32,0.74)]">
                   Our top picks from across all categories
                 </p>
               </div>
 
               {loadingCmsProducts ? (
-                <p className="text-center">Loading products...</p>
+                <p className="text-center font-serif text-[rgba(41,40,32,0.72)]">
+                  Loading products...
+                </p>
               ) : featuredProducts.length === 0 ? (
-                <p className="text-center text-gray-600">
+                <p className="text-center font-serif text-[rgba(41,40,32,0.72)]">
                   No featured weekly products yet.
                 </p>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-3">
                   {featuredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 p-6 self-start"
-                    >
+                    <div key={product.id} className="self-start">
                       <ProductCard product={product} />
                     </div>
                   ))}
@@ -244,45 +244,58 @@ export default function WeeklyPage() {
         </section>
       ) : null}
 
-      <section className="py-16">
+      <section className="bg-[var(--color-eg-espresso-soft)] py-16 md:py-20">
         <PagePadding>
           <Container>
-            <div className="flex justify-center mb-12">
-              <div className="flex gap-2 flex-wrap justify-center">
-                {categoryOptions.map((category) => (
-                  <Label
-                    key={category.id}
-                    variant={activeCategory === category.id ? 'inverse' : 'default'}
-                    onClick={() => setActiveCategory(category.id)}
-                    className="cursor-pointer"
-                  >
-                    {category.label}
-                  </Label>
-                ))}
+            <div className="mb-12 flex justify-center">
+              <div className="flex flex-wrap justify-center gap-2">
+                {categoryOptions.map((category) => {
+                  const active = activeCategory === category.id
+
+                  return (
+                    <Label
+                      key={category.id}
+                      variant={active ? 'inverse' : 'default'}
+                      onClick={() => setActiveCategory(category.id)}
+                      className={
+                        active
+                          ? 'cursor-pointer border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)]'
+                          : 'cursor-pointer border-[rgba(243,237,226,0.56)] bg-transparent text-[var(--color-eg-cream)] transition hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
+                      }
+                    >
+                      {category.label}
+                    </Label>
+                  )
+                })}
               </div>
             </div>
 
             {loadingCmsProducts ? (
-              <p className="text-center">Loading products...</p>
+              <p className="text-center font-serif text-[rgba(243,237,226,0.86)]">
+                Loading products...
+              </p>
             ) : filteredProducts.length === 0 ? (
               <div className="py-16 text-center">
-                <p className="text-xl font-semibold text-gray-800">
+                <p className="text-xl font-semibold text-[var(--color-eg-cream)]">
                   No products found
                 </p>
 
                 {hasSearchQuery ? (
-                  <p className="mt-2 text-gray-500">
+                  <p className="mt-2 text-[rgba(243,237,226,0.84)]">
                     No results found for{' '}
-                    <span className="font-medium">"{searchQuery}"</span>.
+                    <span className="font-medium text-[var(--color-eg-cream)]">
+                      &quot;{searchQuery}&quot;
+                    </span>
+                    .
                   </p>
                 ) : (
-                  <p className="mt-2 text-gray-500">
+                  <p className="mt-2 text-[rgba(243,237,226,0.84)]">
                     No weekly products found.
                   </p>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+              <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {filteredProducts.map((product) => (
                   <div key={product.id} className="self-start">
                     <ProductCard product={product} />

@@ -26,54 +26,70 @@
 }
 
 :root {
-  /* Colors */
-  --color-black: #000000;
+  /* Base Colors */
+  --color-black: #181711;
   --color-white: #ffffff;
-  --color-primary-red: #db574d;
+  --color-primary-red: #77725d;
 
-  /* Rebrand Colors */
-  --color-eg-espresso: #2b1604;
-  --color-eg-espresso-soft: #3a210b;
-  --color-eg-cream: #efe6d8;
-  --color-eg-paper: #f6eee4;
-  --color-eg-paper-soft: #fbf7f0;
-  --color-eg-ink: #11100e;
-  --color-eg-muted: #756b61;
-  --color-eg-line: rgba(43, 22, 4, 0.16);
-  --color-eg-blue: #d9e6ea;
+  /*
+   * Elevated Gentleman Rebrand Palette
+   *
+   * Primary: warm taupe / khaki with an olive undertone
+   * Text on primary: warm cream
+   * Cards and contrast surfaces: warm cream / stone
+   */
+  --color-eg-espresso: #77725d;
+  --color-eg-espresso-soft: #68634f;
+  --color-eg-espresso-deep: #4f4b3b;
+
+  --color-eg-cream: #f8f1e5;
+  --color-eg-paper: #f2eadf;
+  --color-eg-paper-soft: #e9dfd1;
+
+  --color-eg-ink: #24231d;
+  --color-eg-muted: #625e53;
+
+  --color-eg-line: rgba(36, 35, 29, 0.2);
+  --color-eg-line-light: rgba(248, 241, 229, 0.34);
+
+  /*
+   * Preserved for compatibility.
+   * This is now a warm stone tone, not blue.
+   */
+  --color-eg-blue: #e9dfd1;
 
   /* Text Colors */
-  --color-text-primary: #11100e;
-  --color-text-muted: rgba(17, 16, 14, 0.62);
-  --color-text-secondary: #756b61;
-  --color-text-inverse: #efe6d8;
+  --color-text-primary: #f8f1e5;
+  --color-text-muted: rgba(248, 241, 229, 0.88);
+  --color-text-secondary: rgba(248, 241, 229, 0.76);
+  --color-text-inverse: #24231d;
 
   /* Background Colors */
-  --color-background: #f6eee4;
-  --color-background-muted: #efe6d8;
-  --color-background-light: #fbf7f0;
+  --color-background: #77725d;
+  --color-background-muted: #68634f;
+  --color-background-light: #f2eadf;
 
   /* Border Colors */
-  --color-border-light: rgba(43, 22, 4, 0.12);
-  --color-border-default: rgba(43, 22, 4, 0.28);
-  --color-line: rgba(43, 22, 4, 0.12);
+  --color-border-light: rgba(248, 241, 229, 0.28);
+  --color-border-default: rgba(248, 241, 229, 0.5);
+  --color-line: rgba(248, 241, 229, 0.28);
 
   /* Semantic Colors */
   --color-success-bg: #e4fada;
   --color-focus: #3898ec;
 
   /* Spacing Scale */
-  --spacing-tiny: 0.125rem;    /* 2px */
-  --spacing-xxsmall: 0.25rem;  /* 4px */
-  --spacing-xsmall: 0.5rem;    /* 8px */
-  --spacing-small: 1rem;       /* 16px */
-  --spacing-medium: 2rem;      /* 32px */
-  --spacing-large: 3rem;       /* 48px */
-  --spacing-xlarge: 4rem;      /* 64px */
-  --spacing-xxlarge: 5rem;     /* 80px */
-  --spacing-huge: 6rem;        /* 96px */
-  --spacing-xhuge: 8rem;       /* 128px */
-  --spacing-xxhuge: 14rem;     /* 224px */
+  --spacing-tiny: 0.125rem;
+  --spacing-xxsmall: 0.25rem;
+  --spacing-xsmall: 0.5rem;
+  --spacing-small: 1rem;
+  --spacing-medium: 2rem;
+  --spacing-large: 3rem;
+  --spacing-xlarge: 4rem;
+  --spacing-xxlarge: 5rem;
+  --spacing-huge: 6rem;
+  --spacing-xhuge: 8rem;
+  --spacing-xxhuge: 14rem;
 
   /* Typography */
   --font-sans: 'Generalsans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -114,29 +130,29 @@
   --font-family-sans: var(--font-sans);
   --font-family-serif: var(--font-serif);
 
-  /* Font Sizes - matching Webflow scale */
-  --font-size-tiny: 0.75rem;      /* 12px */
-  --font-size-small: 0.875rem;    /* 14px */
-  --font-size-base: 1rem;         /* 16px */
-  --font-size-medium: 1.125rem;   /* 18px */
-  --font-size-large: 1.25rem;     /* 20px */
-  --font-size-xl: 1.5rem;         /* 24px - h4 */
-  --font-size-2xl: 2rem;          /* 32px - h3 */
-  --font-size-3xl: 3rem;          /* 48px - h2 */
-  --font-size-4xl: 4rem;          /* 64px - h1 */
-  --font-size-5xl: 5rem;          /* 80px - heading-small */
-  --font-size-6xl: 6rem;          /* 96px - heading-medium */
-  --font-size-7xl: 8rem;          /* 128px - heading-large */
-  --font-size-8xl: 12rem;         /* 192px - heading-xlarge */
+  /* Font Sizes */
+  --font-size-tiny: 0.75rem;
+  --font-size-small: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-medium: 1.125rem;
+  --font-size-large: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 3rem;
+  --font-size-4xl: 4rem;
+  --font-size-5xl: 5rem;
+  --font-size-6xl: 6rem;
+  --font-size-7xl: 8rem;
+  --font-size-8xl: 12rem;
 
   /* Line Heights */
-  --line-height-tight: 1.1;       /* 110% */
-  --line-height-snug: 1.2;        /* 120% */
-  --line-height-normal: 1.3;      /* 130% */
-  --line-height-relaxed: 1.4;     /* 140% */
-  --line-height-loose: 1.5;       /* 150% */
-  --line-height-extra-loose: 1.7; /* 170% */
-  --line-height-super-loose: 1.8; /* 180% */
+  --line-height-tight: 1.1;
+  --line-height-snug: 1.2;
+  --line-height-normal: 1.3;
+  --line-height-relaxed: 1.4;
+  --line-height-loose: 1.5;
+  --line-height-extra-loose: 1.7;
+  --line-height-super-loose: 1.8;
 
   /* Font Weights */
   --font-weight-normal: var(--font-weight-normal);
@@ -144,7 +160,7 @@
   --font-weight-semibold: var(--font-weight-semibold);
   --font-weight-bold: var(--font-weight-bold);
 
-  /* Spacing - using CSS variables */
+  /* Spacing */
   --spacing-tiny: var(--spacing-tiny);
   --spacing-xxs: var(--spacing-xxsmall);
   --spacing-xs: var(--spacing-xsmall);
@@ -158,21 +174,21 @@
   --spacing-xxhuge: var(--spacing-xxhuge);
 
   /* Container Sizes */
-  --max-width-xs: 20rem;      /* 320px - max-width-small */
-  --max-width-sm: 30rem;      /* 480px - max-width-medium */
-  --max-width-md: 40rem;      /* 640px - container-xsmall */
-  --max-width-lg: 48rem;      /* 768px - container-small */
-  --max-width-xl: 64rem;      /* 1024px - container-medium */
-  --max-width-2xl: 80rem;     /* 1280px - max-width-xxlarge */
-  --max-width-full: 95rem;    /* 1520px - container-large */
+  --max-width-xs: 20rem;
+  --max-width-sm: 30rem;
+  --max-width-md: 40rem;
+  --max-width-lg: 48rem;
+  --max-width-xl: 64rem;
+  --max-width-2xl: 80rem;
+  --max-width-full: 95rem;
 
   /* Border Radius */
   --radius-none: 0;
-  --radius-sm: 0.125rem;       /* 2px */
-  --radius-md: 0.25rem;        /* 4px */
-  --radius-lg: 0.5rem;         /* 8px */
-  --radius-xl: 1rem;           /* 16px */
-  --radius-full: 500px;        /* pill shape like labels */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 1rem;
+  --radius-full: 500px;
 }
 
 /* Global Styles */
@@ -181,9 +197,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  min-height: 100%;
+  background: var(--color-eg-espresso);
+}
+
 body {
-  background: var(--color-background);
-  color: var(--color-text-primary);
+  min-height: 100%;
+  margin: 0;
+  background: var(--color-eg-espresso);
+  color: var(--color-eg-cream);
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: var(--font-weight-normal);
@@ -220,27 +243,43 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* Custom Button Styles to match Webflow */
+/* Custom Button Styles */
 .btn-primary {
-  background-color: var(--color-eg-espresso);
-  color: var(--color-eg-cream);
-  border: 1px solid var(--color-eg-espresso);
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border: 1px solid var(--color-eg-cream);
+  background-color: var(--color-eg-cream);
+  color: var(--color-eg-espresso-deep);
   padding: 1rem 2rem;
   font-family: var(--font-condensed);
   font-size: 0.875rem;
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   letter-spacing: 0.08em;
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
   text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-primary:hover {
+  border-color: var(--color-eg-cream);
+  background-color: transparent;
+  color: var(--color-eg-cream);
 }
 
 .btn-inverse {
+  border-color: var(--color-eg-cream);
+  background-color: transparent;
+  color: var(--color-eg-cream);
+}
+
+.btn-inverse:hover {
   background-color: var(--color-eg-cream);
-  color: var(--color-eg-espresso);
+  color: var(--color-eg-espresso-deep);
 }
 
 .btn-small {
@@ -249,80 +288,86 @@ body {
 
 /* Label/Tag Style */
 .label {
-  color: var(--color-eg-espresso);
-  border: 1px solid var(--color-eg-espresso);
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border: 1px solid currentColor;
   border-radius: var(--radius-full);
   padding: 0.5rem 0.75rem;
   font-family: var(--font-condensed);
   font-size: 0.75rem;
-  line-height: 1.2;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
-  white-space: nowrap;
+  line-height: 1.2;
   text-decoration: none;
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* Line/Divider */
 .divider {
-  background-color: var(--color-line);
   width: 100%;
   height: 1px;
+  background-color: var(--color-eg-line-light);
 }
 
 /* Navbar specific styling */
 .navbar-border {
-  background-color: var(--color-black);
   width: 15px;
   height: 1px;
+  background-color: var(--color-eg-cream);
 }
 
 /* News ticker */
 .newsticker {
-  background-color: var(--color-eg-espresso);
+  background-color: var(--color-eg-espresso-soft);
   color: var(--color-eg-cream);
 }
 
-/* Article Content Styling */
+/*
+ * Article Content Styling
+ * Kept scoped for article light surfaces.
+ */
 .prose {
-  color: var(--color-text-primary);
+  color: var(--color-eg-ink);
 }
 
 .prose h2 {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 1.75rem;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
+  color: var(--color-eg-ink);
+  font-family: var(--font-sans);
+  font-size: 1.75rem;
+  font-weight: 600;
   line-height: 1.3;
 }
 
 .prose h3 {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 1.35rem;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
+  color: var(--color-eg-ink);
+  font-family: var(--font-sans);
+  font-size: 1.35rem;
+  font-weight: 600;
   line-height: 1.4;
 }
 
 .prose p {
+  margin-bottom: 1.25rem;
+  color: var(--color-eg-ink);
   font-family: var(--font-serif);
   font-size: 1.125rem;
   line-height: 1.75;
-  margin-bottom: 1.25rem;
-  color: var(--color-text-primary);
 }
 
-.prose ul, .prose ol {
-  font-family: var(--font-serif);
-  font-size: 1.125rem;
-  line-height: 1.75;
+.prose ul,
+.prose ol {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
   padding-left: 1.5rem;
+  color: var(--color-eg-ink);
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.75;
 }
 
 .prose li {
@@ -330,31 +375,33 @@ body {
 }
 
 .prose strong {
+  color: var(--color-eg-ink);
   font-weight: 600;
-  color: var(--color-text-primary);
 }
 
 .prose a {
-  color: var(--color-primary);
+  color: var(--color-eg-espresso-deep);
   text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
   transition: opacity 0.2s;
 }
 
 .prose a:hover {
-  opacity: 0.8;
+  opacity: 0.72;
 }
 
 .prose img {
-  border-radius: 0.5rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
+  border-radius: 0.5rem;
 }
 
 .prose blockquote {
-  border-left: 4px solid var(--color-primary);
-  padding-left: 1.5rem;
   margin-left: 0;
   margin-right: 0;
+  border-left: 4px solid var(--color-eg-espresso-deep);
+  color: rgba(36, 35, 29, 0.76);
+  padding-left: 1.5rem;
   font-style: italic;
-  color: var(--color-text-muted);
 }

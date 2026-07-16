@@ -47,35 +47,43 @@ export default async function OutfitInspirationPage() {
   const cmsOutfits: OutfitInspirationDocument[] =
     await getAllOutfitInspiration()
 
-  const serializedOutfits = cmsOutfits.map((outfit) => serializeOutfit(outfit))
+  const serializedOutfits = cmsOutfits.map((outfit) =>
+    serializeOutfit(outfit)
+  )
 
   return (
-    <>
-      <section className="py-16 bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)]">
+    <div className="min-h-screen bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)]">
+      <section className="border-b border-[var(--color-eg-line-light)] bg-[var(--color-eg-espresso-deep)] py-20 md:py-24 lg:py-28">
         <PagePadding>
           <Container>
-            <div className="text-center space-y-8">
-              <div className="overflow-hidden px-4">
-                <h1 className="eg-editorial-heading text-5xl md:text-7xl lg:text-8xl text-[var(--color-eg-cream)]">
+            <div className="mx-auto max-w-5xl space-y-7 text-center md:space-y-8">
+              <p className="font-sans text-[11px] font-medium uppercase tracking-[0.34em] text-[var(--color-text-secondary)]">
+                Curated Style
+              </p>
+
+              <div className="overflow-hidden px-2 sm:px-4">
+                <h1 className="eg-editorial-heading text-[3.4rem] text-[var(--color-eg-cream)] sm:text-6xl md:text-7xl lg:text-[6.5rem]">
                   OUTFIT INSPIRATION
                 </h1>
               </div>
 
-              <p className="text-lg md:text-xl font-serif text-[rgba(239,230,216,0.78)] max-w-3xl mx-auto leading-relaxed px-4">
-                Shop our curated selection of the most stylish outfits. Each piece is carefully selected for quality, style, and versatility to help you elevate your wardrobe.
+              <p className="mx-auto max-w-3xl px-2 font-serif text-base leading-8 text-[var(--color-text-muted)] sm:px-4 sm:text-lg md:text-xl md:leading-9">
+                Shop our curated selection of the most stylish outfits. Each
+                piece is carefully selected for quality, style, and versatility
+                to help you elevate your wardrobe.
               </p>
             </div>
           </Container>
         </PagePadding>
       </section>
 
-      <section className="py-16 bg-[var(--color-eg-paper)]">
+      <section className="bg-[var(--color-eg-espresso)] py-16 md:py-20 lg:py-24">
         <PagePadding>
           <Container>
             <OutfitInspirationClient cmsOutfits={serializedOutfits} />
           </Container>
         </PagePadding>
       </section>
-    </>
+    </div>
   )
 }

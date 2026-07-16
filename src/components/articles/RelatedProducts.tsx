@@ -32,33 +32,39 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
   if (productArray.length === 0) return null
 
   return (
-    <section className="py-12 bg-gray-50 -mx-6 px-6 md:-mx-12 md:px-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold font-sans mb-2">
+    <section className="-mx-6 bg-[var(--color-eg-paper)] px-6 py-12 text-[var(--color-eg-ink)] md:-mx-12 md:px-12 md:py-16">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-10 text-center">
+          <p className="mb-3 font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-eg-muted)]">
+            Curated Selection
+          </p>
+
+          <h2 className="mb-3 font-editorial text-4xl font-normal text-[var(--color-eg-ink)] md:text-5xl">
             Recommended Products
           </h2>
-          <p className="text-gray-600 font-serif">
+
+          <p className="font-serif text-[var(--color-eg-muted)]">
             Shop our curated picks at three price points
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {productArray.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-lg border border-gray-200 p-4 space-y-4"
+              className="flex h-full flex-col space-y-4 border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] p-4 shadow-[0_12px_32px_rgba(24,23,17,0.07)]"
             >
-              {/* Tier Badge */}
-              <div className="flex justify-between items-start">
-                <span className="text-xs px-2 py-1 bg-black text-white rounded-full font-sans uppercase tracking-wide">
+              <div className="flex items-start justify-between gap-3">
+                <span className="rounded-full bg-[var(--color-eg-espresso-deep)] px-3 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)]">
                   {product.tier}
                 </span>
-                <span className="font-sans font-semibold">{product.price}</span>
+
+                <span className="font-sans font-semibold text-[var(--color-eg-espresso-deep)]">
+                  {product.price}
+                </span>
               </div>
 
-              {/* Product Image */}
-              <div className="aspect-square relative bg-gray-50 rounded overflow-hidden">
+              <div className="relative aspect-square overflow-hidden bg-[var(--color-eg-paper-soft)]">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -67,25 +73,25 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
                 />
               </div>
 
-              {/* Product Info */}
-              <div className="space-y-2">
+              <div className="flex flex-1 flex-col space-y-3">
                 <div>
-                  <p className="text-xs font-serif text-gray-500 uppercase tracking-wide">
+                  <p className="mb-1 font-serif text-[11px] uppercase tracking-[0.14em] text-[var(--color-eg-muted)]">
                     {product.brand}
                   </p>
-                  <h3 className="font-sans font-semibold text-sm">
+
+                  <h3 className="font-sans text-sm font-semibold leading-snug text-[var(--color-eg-ink)]">
                     {product.name}
                   </h3>
                 </div>
-                <p className="text-xs font-serif text-gray-600 line-clamp-2">
+
+                <p className="line-clamp-2 flex-1 font-serif text-xs leading-6 text-[var(--color-eg-muted)]">
                   {product.description}
                 </p>
               </div>
 
-              {/* CTA */}
               <Button
                 size="sm"
-                className="w-full"
+                className="w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
                 onClick={() => {
                   // Track affiliate click (analytics)
                   if (typeof window !== 'undefined' && (window as any).gtag) {

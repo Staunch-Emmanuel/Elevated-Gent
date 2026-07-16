@@ -30,6 +30,7 @@ export default function AdminOutfitsPage() {
           getAllOutfits(),
           getContentCategories('outfits'),
         ])
+
         setOutfits(docs)
         setCategories(categoryDocs)
       } catch (err) {
@@ -76,106 +77,138 @@ export default function AdminOutfitsPage() {
   return (
     <ProtectedRoute requireAdmin>
       <PagePadding>
-        <Container className="py-12 max-w-5xl">
-          <div className="flex items-center justify-between mb-10">
-            <h1 className="text-3xl font-bold">Outfits (Admin)</h1>
+        <Container className="max-w-5xl py-10 md:py-12">
+          <div className="mb-8 flex flex-col gap-6 border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
+                Content Management
+              </p>
 
-            <div className="flex gap-3">
+              <h1 className="font-editorial text-4xl font-normal tracking-[-0.03em] text-[#24231d]">
+                Outfits
+              </h1>
+
+              <p className="mt-2 font-serif text-sm text-[#575348]">
+                Manage outfit inspiration and shoppable looks.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
               <Link
                 href="/admin/categories?section=outfits"
-                className="border border-gray-300 px-4 py-2 rounded text-sm"
+                className="border border-[#77725d] bg-[#f2eadf] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
               >
                 Manage Categories
               </Link>
 
               <Link
                 href="/admin/outfits/new"
-                className="bg-black text-white px-4 py-2 rounded text-sm"
+                className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
               >
                 + New Outfit
               </Link>
             </div>
           </div>
 
-          <div className="space-y-4 mb-10">
-            <input
-              placeholder="Search outfits..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border p-2 rounded w-full"
-            />
+          <div className="mb-8 border border-[#c8bcaa] bg-[#f8f1e5] p-5 shadow-[0_12px_30px_rgba(36,35,29,0.05)]">
+            <div className="space-y-4">
+              <input
+                placeholder="Search outfits..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+              />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="border p-2 rounded"
-              >
-                <option value="all">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="min-h-12 border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                >
+                  <option value="all">All Categories</option>
 
-              <div className="border rounded px-3 py-2 text-sm text-gray-500 flex items-center">
-                {filtered.length} {filtered.length === 1 ? 'outfit' : 'outfits'}
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex min-h-12 items-center border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#575348]">
+                  {filtered.length}{' '}
+                  {filtered.length === 1 ? 'outfit' : 'outfits'}
+                </div>
               </div>
             </div>
           </div>
 
           {loading ? (
-            <p>Loading outfits...</p>
+            <div className="border border-[#c8bcaa] bg-[#f8f1e5] px-6 py-12 text-center">
+              <p className="font-serif text-[#575348]">
+                Loading outfits...
+              </p>
+            </div>
           ) : filtered.length === 0 ? (
-            <p>No outfits found.</p>
+            <div className="border border-[#c8bcaa] bg-[#f8f1e5] px-6 py-12 text-center">
+              <p className="font-serif text-[#575348]">
+                No outfits found.
+              </p>
+            </div>
           ) : (
             <div className="space-y-5">
               {filtered.map((outfit) => (
                 <div
                   key={outfit.id}
-                  className="border p-4 rounded flex items-center gap-4"
+                  className="flex flex-col gap-5 border border-[#c8bcaa] bg-[#f8f1e5] p-4 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center"
                 >
                   <img
-                    src={outfit.heroImage || '/images/placeholder-outfit.jpg'}
+                    src={
+                      outfit.heroImage ||
+                      '/images/placeholder-outfit.jpg'
+                    }
                     alt={outfit.title}
-                    className="w-24 h-24 object-cover rounded border"
+                    className="h-48 w-full border border-[#b9ae9d] object-cover sm:h-28 sm:w-28"
                   />
 
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{outfit.title}</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-editorial text-2xl font-normal leading-tight text-[#24231d]">
+                      {outfit.title}
+                    </h3>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="mt-2 font-serif text-sm text-[#575348]">
                       {outfit.category || 'Uncategorized'}
                     </p>
 
                     {outfit.description ? (
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                      <p className="mt-2 line-clamp-2 font-serif text-sm leading-6 text-[#625e53]">
                         {outfit.description}
                       </p>
                     ) : null}
 
-                    <div className="mt-2 flex gap-2 flex-wrap">
-                      <span className="text-xs text-gray-400">
-                        {outfit.productLinks.length} links
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-[#b9ae9d] bg-[#f2eadf] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                        {outfit.productLinks.length}{' '}
+                        {outfit.productLinks.length === 1
+                          ? 'link'
+                          : 'links'}
                       </span>
 
                       {outfit.published === false ? (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <span className="rounded-full border border-[#b89b63] bg-[#f4ead2] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6c5428]">
                           Draft
                         </span>
                       ) : (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        <span className="rounded-full border border-[#9aaa83] bg-[#edf3e4] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#40512f]">
                           Published
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3 sm:justify-end">
                     <Link
                       href={`/admin/outfits/${outfit.id}`}
-                      className="text-blue-600 text-sm underline"
+                      className="border border-[#4f4b3b] bg-[#4f4b3b] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
                     >
                       Edit
                     </Link>
@@ -183,9 +216,11 @@ export default function AdminOutfitsPage() {
                     <button
                       onClick={() => handleDelete(outfit.id)}
                       disabled={deletingId === outfit.id}
-                      className="text-red-600 text-sm underline disabled:opacity-40"
+                      className="border border-[#a65a50] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {deletingId === outfit.id ? 'Deleting…' : 'Delete'}
+                      {deletingId === outfit.id
+                        ? 'Deleting…'
+                        : 'Delete'}
                     </button>
                   </div>
                 </div>

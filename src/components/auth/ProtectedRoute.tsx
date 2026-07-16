@@ -68,8 +68,10 @@ export default function ProtectedRoute({
 
   if (!allowed) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <p className="text-sm text-gray-500">Checking access…</p>
+      <div className="flex min-h-[60vh] items-center justify-center bg-[var(--color-eg-espresso)] px-6">
+        <p className="border border-[var(--color-eg-line-light)] bg-[var(--color-eg-espresso-deep)] px-7 py-5 font-serif text-sm text-[var(--color-eg-cream)] shadow-[0_14px_36px_rgba(24,23,17,0.16)]">
+          Checking access…
+        </p>
       </div>
     );
   }

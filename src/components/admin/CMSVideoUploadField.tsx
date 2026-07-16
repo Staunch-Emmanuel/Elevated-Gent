@@ -50,7 +50,9 @@ function getPreviewName(value: string): string {
       return decodeURIComponent(match[1]).split('/').pop() || value
     }
 
-    return decodeURIComponent(url.pathname.split('/').pop() || value)
+    return decodeURIComponent(
+      url.pathname.split('/').pop() || value
+    )
   } catch {
     return value
   }
@@ -73,7 +75,9 @@ export default function CMSVideoUploadField({
   const isBusy = disabled || uploading
   const previewName = useMemo(() => getPreviewName(value), [value])
 
-  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
     const file = event.target.files?.[0]
 
     if (!file) return
@@ -91,7 +95,9 @@ export default function CMSVideoUploadField({
       setProgress(0)
 
       const safeFolder = sanitizePathSegment(folder || 'auth')
-      const safeSlug = sanitizeFileName(documentSlug || 'auth-video')
+      const safeSlug = sanitizeFileName(
+        documentSlug || 'auth-video'
+      )
       const extension = file.name.includes('.')
         ? file.name.substring(file.name.lastIndexOf('.'))
         : '.mp4'
@@ -107,6 +113,7 @@ export default function CMSVideoUploadField({
             const pct = Math.round(
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100
             )
+
             setProgress(pct)
           },
           (uploadError) => reject(uploadError),
@@ -115,6 +122,7 @@ export default function CMSVideoUploadField({
       })
 
       const downloadUrl = await getDownloadURL(task.snapshot.ref)
+
       onChange(downloadUrl)
       setProgress(100)
     } catch (uploadError) {
@@ -157,10 +165,17 @@ export default function CMSVideoUploadField({
   }
 
   return (
-    <div className="space-y-4 rounded-3xl border border-gray-200 bg-gray-50/70 p-5">
+    <div className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
       <div>
-        <label className="block text-sm font-medium text-gray-900">{label}</label>
-        {helpText ? <p className="mt-1 text-xs text-gray-500">{helpText}</p> : null}
+        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          {label}
+        </label>
+
+        {helpText ? (
+          <p className="mt-2 font-serif text-xs leading-5 text-[#625e53]">
+            {helpText}
+          </p>
+        ) : null}
       </div>
 
       <input
@@ -176,37 +191,50 @@ export default function CMSVideoUploadField({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={isBusy}
-        className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-8 text-center transition hover:border-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center border border-dashed border-[#9d927f] bg-[#f8f1e5] px-5 py-9 text-center transition-colors hover:border-[#4f4b3b] hover:bg-[#e9dfd1] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <div>
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-black text-white">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#4f4b3b] bg-[#4f4b3b] text-[#f8f1e5]">
             <svg
               className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.8}
+                d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1"
+              />
             </svg>
           </div>
-          <p className="text-sm font-medium text-gray-900">
-            {value ? 'Choose a replacement video' : 'Choose a video'}
+
+          <p className="font-serif text-sm font-semibold text-[#24231d]">
+            {value
+              ? 'Choose a replacement video'
+              : 'Choose a video'}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+
+          <p className="mt-2 font-serif text-xs text-[#625e53]">
             MP4, MOV and other standard video formats
           </p>
         </div>
       </button>
 
       {uploading ? (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4">
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-900">Uploading video</span>
-            <span className="text-gray-500">{progress}%</span>
+        <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-4">
+          <div className="mb-3 flex items-center justify-between font-serif text-sm">
+            <span className="font-semibold text-[#24231d]">
+              Uploading video
+            </span>
+
+            <span className="text-[#625e53]">{progress}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+
+          <div className="h-2 w-full overflow-hidden bg-[#d8cdbd]">
             <div
-              className="h-full rounded-full bg-black transition-all"
+              className="h-full bg-[#4f4b3b] transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -214,20 +242,25 @@ export default function CMSVideoUploadField({
       ) : null}
 
       {value ? (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="aspect-video bg-black">
+        <div className="overflow-hidden border border-[#c8bcaa] bg-[#f8f1e5] shadow-[0_8px_22px_rgba(36,35,29,0.06)]">
+          <div className="aspect-video bg-[#24231d]">
             <video
               src={value}
               controls
               playsInline
-              className="h-full w-full bg-black object-contain"
+              className="h-full w-full bg-[#24231d] object-contain"
             />
           </div>
 
-          <div className="space-y-3 p-4">
+          <div className="space-y-3 border-t border-[#c8bcaa] p-4">
             <div>
-              <p className="truncate text-sm font-medium text-gray-900">{previewName}</p>
-              <p className="mt-1 text-xs text-gray-500">Saved video</p>
+              <p className="truncate font-serif text-sm font-semibold text-[#24231d]">
+                {previewName}
+              </p>
+
+              <p className="mt-1 font-serif text-xs text-[#625e53]">
+                Saved video
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -235,7 +268,7 @@ export default function CMSVideoUploadField({
                 type="button"
                 onClick={handleRemove}
                 disabled={isBusy}
-                className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+                className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Remove Video
               </button>
@@ -243,13 +276,13 @@ export default function CMSVideoUploadField({
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm text-gray-500">
+        <div className="border border-dashed border-[#b9ae9d] bg-[#f8f1e5] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
           No video selected yet
         </div>
       )}
 
       {error ? (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
           {error}
         </p>
       ) : null}

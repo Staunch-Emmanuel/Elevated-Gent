@@ -51,40 +51,50 @@ export default function SignInClient() {
   }
 
   return (
-    <div className="min-h-screen lg:flex relative overflow-hidden bg-black lg:bg-transparent">
+    <div className="relative min-h-screen overflow-hidden bg-[#1d1c16] lg:flex lg:bg-[#8b8773]">
       <AuthMediaPanel />
 
-      <div className="relative z-10 w-full lg:w-1/2 flex flex-col justify-center">
+      <div className="relative z-10 flex w-full flex-col justify-center lg:w-1/2">
         <PagePadding>
           <Container size="small">
-            <div className="flex flex-col items-center justify-center min-h-screen py-12 lg:py-12">
+            <div className="flex min-h-screen flex-col items-center justify-center py-12">
               <div className="w-full max-w-md">
-                <div className="bg-white/95 lg:bg-white border border-white/20 lg:border-gray-200 rounded-lg p-6 sm:p-8 shadow-xl backdrop-blur-sm lg:backdrop-blur-0">
-                  <h1 className="text-3xl font-semibold font-sans text-center mb-2">
-                    Welcome Back
-                  </h1>
-                  <p className="text-gray-600 font-serif text-center mb-8">
-                    Sign in to access your styling services
-                  </p>
+                <div className="border border-[#d8cdbd] bg-[#f8f1e5] p-6 text-[#24231d] shadow-[0_24px_70px_rgba(24,23,17,0.24)] sm:p-8">
+                  <div className="mb-8 text-center">
+                    <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
+                      Welcome Back
+                    </h1>
+
+                    <p className="mt-3 font-serif text-base leading-7 text-[#575348]">
+                      Sign in to access your styling services
+                    </p>
+                  </div>
 
                   {error ? (
                     <div
-                      className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+                      className="mb-6 border border-[#d9aaa4] bg-[#fbefed] p-4"
                       role="alert"
                       aria-live="polite"
                     >
-                      <p className="text-red-600 text-sm font-serif">{error}</p>
+                      <p className="font-serif text-sm text-[#913a32]">
+                        {error}
+                      </p>
                     </div>
                   ) : null}
 
-                  <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-6"
+                    noValidate
+                  >
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 font-serif mb-2"
+                        className="mb-2 block font-serif text-sm font-medium text-[#4f4b3b]"
                       >
                         Email Address
                       </label>
+
                       <input
                         id="email"
                         type="email"
@@ -92,7 +102,7 @@ export default function SignInClient() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         autoComplete="email"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif bg-white"
+                        className="w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                         placeholder="your@email.com"
                       />
                     </div>
@@ -100,10 +110,11 @@ export default function SignInClient() {
                     <div>
                       <label
                         htmlFor="password"
-                        className="block text-sm font-medium text-gray-700 font-serif mb-2"
+                        className="mb-2 block font-serif text-sm font-medium text-[#4f4b3b]"
                       >
                         Password
                       </label>
+
                       <input
                         id="password"
                         type="password"
@@ -111,12 +122,16 @@ export default function SignInClient() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         autoComplete="current-password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent hover:border-gray-400 transition-all duration-200 ease-in-out font-serif bg-white"
+                        className="w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                         placeholder="Enter your password"
                       />
                     </div>
 
-                    <Button type="submit" disabled={loading} className="w-full py-3">
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3"
+                    >
                       {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
                   </form>
@@ -124,18 +139,18 @@ export default function SignInClient() {
                   <div className="mt-6 text-center">
                     <Link
                       href="/auth/forgot-password"
-                      className="text-sm text-gray-600 hover:text-black font-serif"
+                      className="font-serif text-sm font-medium text-[#575348] transition-colors hover:text-[#24231d]"
                     >
                       Forgot your password?
                     </Link>
                   </div>
 
-                  <div className="mt-8 pt-6 border-t border-gray-200">
-                    <p className="text-center text-sm text-gray-600 font-serif">
+                  <div className="mt-8 border-t border-[#d8cdbd] pt-6">
+                    <p className="text-center font-serif text-sm text-[#575348]">
                       Don&apos;t have an account?{' '}
                       <Link
                         href="/auth/signup"
-                        className="text-black hover:underline font-medium"
+                        className="font-semibold text-[#24231d] hover:underline"
                       >
                         Create Account
                       </Link>
@@ -143,9 +158,10 @@ export default function SignInClient() {
                   </div>
                 </div>
 
-                <div className="mt-6 lg:mt-8 text-center">
-                  <p className="text-sm text-white/90 lg:text-gray-500 font-serif">
-                    Access your personalized styling services, appointments, and order history.
+                <div className="mt-6 text-center lg:mt-8">
+                  <p className="font-serif text-sm leading-6 text-[#3f3c33]">
+                    Access your personalized styling services, appointments,
+                    and order history.
                   </p>
                 </div>
               </div>

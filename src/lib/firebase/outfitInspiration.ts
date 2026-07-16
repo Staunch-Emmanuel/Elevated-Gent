@@ -7,6 +7,7 @@ import {
 
 import { db } from '@/lib/firebase/config'
 import type { ShoppableLink } from '@/lib/products/types'
+import type { OutfitShopItem } from '@/lib/firebase/outfits'
 
 export interface OutfitInspirationDocument {
   id: string
@@ -14,6 +15,7 @@ export interface OutfitInspirationDocument {
   description: string
   imageUrl: string
   links: Array<string | ShoppableLink>
+  shopItems: OutfitShopItem[]
   category?: string
   featured?: boolean
   slug?: string
@@ -71,6 +73,86 @@ function sanitizeLinks(value: unknown): Array<string | ShoppableLink> {
       return null
     })
     .filter((item): item is string | ShoppableLink => Boolean(item))
+}
+
+function sanitizeShopItems(value: unknown): OutfitShopItem[] {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map((item, index) => {
+      if (!item || typeof item !== 'object') return null
+
+      const raw = item as Record<string, unknown>
+
+      const id =
+        typeof raw.id === 'string' && raw.id.trim()
+          ? raw.id.trim()
+          : `shop-item-${index + 1}`
+
+      const name =
+        typeof raw.name === 'string'
+          ? raw.name.trim()
+          : typeof raw.title === 'string'
+            ? raw.title.trim()
+            : ''
+
+      const brand =
+        typeof raw.brand === 'string'
+          ? raw.brand.trim()
+          : typeof raw.store === 'string'
+            ? raw.store.trim()
+            : ''
+
+      const url =
+        typeof raw.url === 'string'
+          ? raw.url.trim()
+          : typeof raw.link === 'string'
+            ? raw.link.trim()
+            : ''
+
+      const imageUrl =
+        typeof raw.imageUrl === 'string'
+          ? raw.imageUrl.trim()
+          : typeof raw.image === 'string'
+            ? raw.image.trim()
+            : ''
+
+      const category =
+        typeof raw.category === 'string'
+          ? raw.category.trim()
+          : typeof raw.type === 'string'
+            ? raw.type.trim()
+            : ''
+
+      const price =
+        typeof raw.price === 'string'
+          ? raw.price.trim()
+          : typeof raw.price === 'number'
+            ? String(raw.price)
+            : ''
+
+      const sortOrder =
+        typeof raw.sortOrder === 'number'
+          ? raw.sortOrder
+          : typeof raw.sortOrder === 'string'
+            ? Number(raw.sortOrder) || index
+            : index
+
+      if (!name && !url && !imageUrl) return null
+
+      return {
+        id,
+        name,
+        brand,
+        url,
+        imageUrl,
+        category,
+        price,
+        sortOrder,
+      }
+    })
+    .filter((item): item is OutfitShopItem => Boolean(item))
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 }
 
 function normalizeCategory(data: any): string {
@@ -159,6 +241,7 @@ export async function getAllOutfitInspiration(): Promise<OutfitInspirationDocume
               ? data.links
               : []
         ),
+        shopItems: sanitizeShopItems(data.shopItems),
         category: normalizeCategory(data),
         featured: Boolean(data.featured),
         slug: data.slug ?? doc.id,

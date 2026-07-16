@@ -57,7 +57,8 @@ export default function AdminAuthMediaPage() {
           muted: settings.muted !== false,
           loop: settings.loop !== false,
           headline: settings.headline || defaultForm.headline,
-          subheadline: settings.subheadline || defaultForm.subheadline,
+          subheadline:
+            settings.subheadline || defaultForm.subheadline,
         })
       } catch (err) {
         console.error(err)
@@ -80,7 +81,9 @@ export default function AdminAuthMediaPage() {
       const currentUser = auth.currentUser
 
       if (!currentUser) {
-        throw new Error('You must be signed in as an admin to save auth media.')
+        throw new Error(
+          'You must be signed in as an admin to save auth media.'
+        )
       }
 
       const token = await currentUser.getIdToken()
@@ -107,7 +110,9 @@ export default function AdminAuthMediaPage() {
       const payload = await response.json()
 
       if (!response.ok) {
-        throw new Error(payload?.error || 'Failed to save auth media settings.')
+        throw new Error(
+          payload?.error || 'Failed to save auth media settings.'
+        )
       }
 
       const saved = payload?.data as AuthMediaSettings | undefined
@@ -123,7 +128,9 @@ export default function AdminAuthMediaPage() {
     } catch (err) {
       console.error(err)
       setError(
-        err instanceof Error ? err.message : 'Failed to save auth media settings.'
+        err instanceof Error
+          ? err.message
+          : 'Failed to save auth media settings.'
       )
     } finally {
       setSaving(false)
@@ -135,7 +142,13 @@ export default function AdminAuthMediaPage() {
       <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
-            <p>Loading...</p>
+            <div className="py-12">
+              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+                <p className="font-serif text-[#575348]">
+                  Loading...
+                </p>
+              </div>
+            </div>
           </Container>
         </PagePadding>
       </ProtectedRoute>
@@ -145,42 +158,52 @@ export default function AdminAuthMediaPage() {
   return (
     <ProtectedRoute requireAdmin>
       <PagePadding>
-        <Container className="max-w-4xl py-10">
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">
+        <Container className="max-w-5xl py-10 md:py-12">
+          <div className="mb-8 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[#625e53]">
               Auth Experience
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-black">
+
+            <h1 className="mt-2 font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               Auth Page Media
             </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Edit the image, desktop video, mobile video, and overlay copy used on
-              the sign-in and sign-up pages.
+
+            <p className="mt-3 max-w-3xl font-serif text-sm leading-6 text-[#575348]">
+              Edit the image, desktop video, mobile video, and overlay
+              copy used on the sign-in and sign-up pages.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {error ? (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3">
+                <p className="font-serif text-sm text-[#913a32]">
+                  {error}
+                </p>
               </div>
             ) : null}
 
             {success ? (
-              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3">
-                <p className="text-sm text-green-700">{success}</p>
+              <div className="border border-[#9aaa83] bg-[#edf3e4] px-4 py-3">
+                <p className="font-serif text-sm text-[#40512f]">
+                  {success}
+                </p>
               </div>
             ) : null}
 
-            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-semibold text-black">Playback Settings</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Control whether video plays and how it behaves on the auth pages.
+            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+              <div className="mb-6">
+                <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
+                  Playback Settings
+                </h2>
+
+                <p className="mt-2 font-serif text-sm leading-6 text-[#575348]">
+                  Control whether video plays and how it behaves on the
+                  auth pages.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {[
                   {
                     key: 'enabled',
@@ -205,7 +228,7 @@ export default function AdminAuthMediaPage() {
                 ].map((item) => (
                   <label
                     key={item.key}
-                    className="inline-flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-800"
+                    className="flex min-h-14 cursor-pointer items-center gap-3 border border-[#c8bcaa] bg-[#e9dfd1] px-4 py-3 font-serif text-sm text-[#24231d] transition-colors hover:border-[#77725d] hover:bg-[#f8f1e5]"
                   >
                     <input
                       type="checkbox"
@@ -216,27 +239,32 @@ export default function AdminAuthMediaPage() {
                           [item.key]: e.target.checked,
                         }))
                       }
-                      className="h-4 w-4 accent-black"
+                      className="h-4 w-4 shrink-0 accent-[#4f4b3b]"
                     />
+
                     <span>{item.label}</span>
                   </label>
                 ))}
               </div>
             </section>
 
-            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-semibold text-black">Overlay Copy</h2>
-                <p className="mt-1 text-sm text-gray-500">
+            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+              <div className="mb-6">
+                <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
+                  Overlay Copy
+                </h2>
+
+                <p className="mt-2 font-serif text-sm leading-6 text-[#575348]">
                   This text appears over the auth background media.
                 </p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-800">
+                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
                     Headline
                   </label>
+
                   <input
                     value={form.headline || ''}
                     onChange={(e) =>
@@ -245,14 +273,15 @@ export default function AdminAuthMediaPage() {
                         headline: e.target.value,
                       }))
                     }
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-black"
+                    className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-800">
+                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
                     Subheadline
                   </label>
+
                   <textarea
                     value={form.subheadline || ''}
                     onChange={(e) =>
@@ -261,22 +290,26 @@ export default function AdminAuthMediaPage() {
                         subheadline: e.target.value,
                       }))
                     }
-                    className="min-h-[110px] w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-black"
+                    className="min-h-[130px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-semibold text-black">Media Assets</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Poster Image = auth background / fallback image. Desktop and mobile
-                  videos are used on the auth pages when video is enabled.
+            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+              <div className="mb-6">
+                <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
+                  Media Assets
+                </h2>
+
+                <p className="mt-2 max-w-3xl font-serif text-sm leading-6 text-[#575348]">
+                  Poster Image = auth background / fallback image.
+                  Desktop and mobile videos are used on the auth pages
+                  when video is enabled.
                 </p>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <CMSVideoUploadField
                   label="Desktop / Primary Video"
                   folder="auth"
@@ -316,7 +349,8 @@ export default function AdminAuthMediaPage() {
                   onChange={(value) =>
                     setForm((current) => ({
                       ...current,
-                      posterImageUrl: typeof value === 'string' ? value : '',
+                      posterImageUrl:
+                        typeof value === 'string' ? value : '',
                     }))
                   }
                   helpText="Shown before the video loads or as the image fallback."
@@ -325,11 +359,11 @@ export default function AdminAuthMediaPage() {
               </div>
             </section>
 
-            <div className="flex justify-end">
+            <div className="sticky bottom-4 z-20 flex justify-end border border-[#c8bcaa] bg-[rgba(242,234,223,0.96)] p-4 shadow-[0_16px_42px_rgba(36,35,29,0.16)] backdrop-blur-xl">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#4f4b3b] bg-[#4f4b3b] px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save Auth Media'}
               </button>

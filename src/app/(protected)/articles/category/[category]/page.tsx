@@ -90,7 +90,10 @@ function normalizeDate(value: unknown): number {
   }
 }
 
-function mergeBySlug(staticItems: CombinedArticle[], cmsItems: CombinedArticle[]): CombinedArticle[] {
+function mergeBySlug(
+  staticItems: CombinedArticle[],
+  cmsItems: CombinedArticle[]
+): CombinedArticle[] {
   const map = new Map<string, CombinedArticle>()
 
   for (const item of staticItems) {
@@ -133,13 +136,16 @@ function mapArticleForCard(article: CombinedArticle): ArticleCardArticle {
       article.createdAt ??
       new Date().toISOString(),
     readTime: estimateReadTimeMinutes(article.content),
-    featured: (article as CombinedArticle & { featured?: boolean }).featured ?? false,
+    featured:
+      (article as CombinedArticle & { featured?: boolean }).featured ?? false,
     occasion: article.occasion ?? undefined,
     href: `/articles/${article.slug ?? ''}`,
   }
 }
 
-export default async function ArticleCategoryPage({ params }: PageProps) {
+export default async function ArticleCategoryPage({
+  params,
+}: PageProps) {
   const { category } = await params
   const normalizedCategory = normalizeCategory(category)
 
@@ -155,18 +161,25 @@ export default async function ArticleCategoryPage({ params }: PageProps) {
     ...a,
     category: normalizeCategory(a.category),
     source: 'cms',
-    normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
+    normalizedDate: normalizeDate(
+      a.publishDate ?? a.datePublished ?? a.createdAt
+    ),
   }))
 
   const staticMapped: CombinedArticle[] = (staticArticles ?? []).map((a) => ({
     ...a,
     category: normalizeCategory(a.category),
     source: 'static',
-    normalizedDate: normalizeDate(a.publishDate ?? a.datePublished ?? a.createdAt),
+    normalizedDate: normalizeDate(
+      a.publishDate ?? a.datePublished ?? a.createdAt
+    ),
   }))
 
   const merged = mergeBySlug(staticMapped, cmsMapped)
-    .filter((article) => normalizeCategory(article.category) === normalizedCategory)
+    .filter(
+      (article) =>
+        normalizeCategory(article.category) === normalizedCategory
+    )
     .sort((a, b) => b.normalizedDate - a.normalizedDate)
     .map(mapArticleForCard)
 
@@ -174,41 +187,48 @@ export default async function ArticleCategoryPage({ params }: PageProps) {
     <ProtectedRoute>
       <StructuredData pageKey="articles" />
 
-      <section className="py-16">
-        <PagePadding>
-          <Container>
-            <div className="text-center space-y-8">
-              <div className="overflow-hidden px-4">
-                <h1 className="text-3xl md:text-4xl lg:text-6xl font-semibold font-sans leading-tight">
-                  {categoryConfig.title}
-                </h1>
-              </div>
+      <div className="min-h-screen bg-[var(--color-eg-espresso)]">
+        <section className="border-b border-[rgba(243,237,226,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
+          <PagePadding>
+            <Container>
+              <div className="space-y-8 text-center">
+                <div className="overflow-hidden px-4">
+                  <h1 className="eg-editorial-heading text-5xl text-[var(--color-eg-cream)] md:text-7xl lg:text-8xl">
+                    {categoryConfig.title}
+                  </h1>
+                </div>
 
-              <p className="text-lg md:text-xl font-serif text-muted max-w-3xl mx-auto leading-relaxed px-4">
-                {categoryConfig.description}
-              </p>
-            </div>
-          </Container>
-        </PagePadding>
-      </section>
+                <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(243,237,226,0.92)] md:text-xl">
+                  {categoryConfig.description}
+                </p>
+              </div>
+            </Container>
+          </PagePadding>
+        </section>
 
-      <section className="py-16">
-        <PagePadding>
-          <Container>
-            {merged.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-600 font-serif">No articles in this category yet.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {merged.map((article) => (
-                  <ArticleCard key={article.slug} article={article} />
-                ))}
-              </div>
-            )}
-          </Container>
-        </PagePadding>
-      </section>
+        <section className="bg-[var(--color-eg-paper)] py-16 md:py-20">
+          <PagePadding>
+            <Container>
+              {merged.length === 0 ? (
+                <div className="py-12 text-center">
+                  <p className="font-serif text-[rgba(41,40,32,0.72)]">
+                    No articles in this category yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {merged.map((article) => (
+                    <ArticleCard
+                      key={article.slug}
+                      article={article}
+                    />
+                  ))}
+                </div>
+              )}
+            </Container>
+          </PagePadding>
+        </section>
+      </div>
     </ProtectedRoute>
   )
 }

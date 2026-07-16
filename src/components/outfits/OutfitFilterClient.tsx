@@ -95,15 +95,19 @@ export default function OutfitFilterClient({
   }, [activeCategory, normalizedOutfits])
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 md:space-y-14">
       <div className="flex justify-center">
-        <div className="flex gap-2 flex-wrap justify-center">
+        <div className="flex max-w-4xl flex-wrap justify-center gap-2.5">
           {categoryOptions.map((option) => (
             <Label
               key={option.id}
               variant={activeCategory === option.id ? 'inverse' : 'default'}
               onClick={() => setActiveCategory(option.id)}
-              className="cursor-pointer"
+              className={
+                activeCategory === option.id
+                  ? 'cursor-pointer border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] px-4 py-2.5 text-[var(--color-eg-espresso-deep)] transition-colors'
+                  : 'cursor-pointer border-[rgba(248,241,229,0.52)] px-4 py-2.5 text-[var(--color-eg-cream)] transition-colors hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
+              }
             >
               {option.label}
             </Label>
@@ -112,13 +116,13 @@ export default function OutfitFilterClient({
       </div>
 
       {filteredOutfits.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="font-serif text-gray-500">
+        <div className="border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] px-6 py-12 text-center md:py-16">
+          <p className="font-serif text-base leading-7 text-[var(--color-text-muted)]">
             No outfits found in this category yet.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {filteredOutfits.map((outfit) => (
             <OutfitCard key={outfit.id} outfit={outfit} />
           ))}

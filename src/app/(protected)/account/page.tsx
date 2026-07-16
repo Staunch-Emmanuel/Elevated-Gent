@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+
 import { PagePadding, Container } from '@/components/layout'
 import { Button } from '@/components/ui'
 import { useAuth } from '@/lib/firebase/auth'
 import { ProfileEditModal } from '@/components/account/ProfileEditModal'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { getUserData } from '@/lib/firebase/getUserData'
+
 import {
   getUserFavorites,
   removeFavorite,
@@ -27,13 +29,18 @@ export default function AccountPage() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+
   const [showEditProfile, setShowEditProfile] = useState(false)
-  const [accountData, setAccountData] = useState<AccountUserData | null>(null)
+  const [accountData, setAccountData] =
+    useState<AccountUserData | null>(null)
   const [favorites, setFavorites] = useState<FavoriteItem[]>([])
   const [loadingSubscription, setLoadingSubscription] = useState(true)
   const [loadingFavorites, setLoadingFavorites] = useState(true)
   const [portalLoading, setPortalLoading] = useState(false)
-  const [removingFavoriteId, setRemovingFavoriteId] = useState<string | null>(null)
+
+  const [removingFavoriteId, setRemovingFavoriteId] = useState<
+    string | null
+  >(null)
 
   const signupSuccess = useMemo(() => {
     return searchParams.get('signup') === 'success'
@@ -56,7 +63,7 @@ export default function AccountPage() {
       }
     }
 
-    loadAccountData()
+    void loadAccountData()
   }, [user?.uid])
 
   useEffect(() => {
@@ -78,7 +85,7 @@ export default function AccountPage() {
       }
     }
 
-    loadFavorites()
+    void loadFavorites()
   }, [user?.uid])
 
   const handleBookSession = () => {
@@ -120,8 +127,15 @@ export default function AccountPage() {
     setRemovingFavoriteId(favorite.id)
 
     try {
-      await removeFavorite(user.uid, favorite.type, favorite.contentId)
-      setFavorites((items) => items.filter((item) => item.id !== favorite.id))
+      await removeFavorite(
+        user.uid,
+        favorite.type,
+        favorite.contentId
+      )
+
+      setFavorites((items) =>
+        items.filter((item) => item.id !== favorite.id)
+      )
     } catch (error) {
       console.error('Remove favorite error:', error)
       alert('Unable to remove saved item. Please try again.')
@@ -149,21 +163,28 @@ export default function AccountPage() {
       const data = await response.json().catch(() => null)
 
       if (!response.ok) {
-        throw new Error(data?.error || 'Unable to open subscription portal')
+        throw new Error(
+          data?.error ||
+            'Unable to open subscription portal'
+        )
       }
 
       if (!data?.url) {
-        throw new Error('No customer portal URL returned')
+        throw new Error(
+          'No customer portal URL returned'
+        )
       }
 
       window.location.href = data.url
     } catch (error) {
       console.error('Customer portal error:', error)
+
       alert(
         error instanceof Error
           ? error.message
           : 'Unable to open subscription portal'
       )
+
       setPortalLoading(false)
     }
   }
@@ -174,25 +195,33 @@ export default function AccountPage() {
     if (status === 'active') return 'Active'
     if (status === 'past_due') return 'Past Due'
     if (status === 'inactive') return 'Inactive'
+
     return 'Not Active'
   }, [accountData?.subscriptionStatus])
 
-  const hasActiveSubscription = accountData?.subscriptionStatus === 'active'
+  const hasActiveSubscription =
+    accountData?.subscriptionStatus === 'active'
 
   return (
     <ProtectedRoute>
-      <>
-        <section className="py-16">
+      <div className="min-h-screen bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)]">
+        <section className="border-b border-[var(--color-eg-line-light)] bg-[var(--color-eg-espresso-deep)] py-20 md:py-24">
           <PagePadding>
             <Container>
-              <div className="text-center space-y-8">
+              <div className="mx-auto max-w-4xl space-y-7 text-center">
+                <p className="font-sans text-[11px] font-medium uppercase tracking-[0.34em] text-[var(--color-text-secondary)]">
+                  Member Profile
+                </p>
+
                 <div className="overflow-hidden">
-                  <h1 className="text-6xl font-semibold font-sans leading-tight">
+                  <h1 className="eg-editorial-heading text-5xl text-[var(--color-eg-cream)] sm:text-6xl md:text-7xl">
                     Your Account
                   </h1>
                 </div>
-                <p className="text-xl font-serif text-muted max-w-2xl mx-auto">
-                  Manage your profile, styling sessions, and curated collections.
+
+                <p className="mx-auto max-w-2xl font-serif text-lg leading-8 text-[var(--color-text-muted)] md:text-xl md:leading-9">
+                  Manage your profile, styling sessions,
+                  and curated collections.
                 </p>
               </div>
             </Container>
@@ -200,19 +229,29 @@ export default function AccountPage() {
         </section>
 
         {signupSuccess ? (
-          <section className="pb-4">
+          <section className="bg-[var(--color-eg-espresso)] pb-2 pt-10">
             <PagePadding>
               <Container>
-                <div className="max-w-3xl mx-auto border border-green-200 bg-green-50 rounded-lg p-6 text-center space-y-4">
-                  <h2 className="text-2xl font-semibold font-sans text-green-900">
+                <div className="mx-auto max-w-3xl space-y-5 border border-[#aebc98] bg-[#eef3e7] p-7 text-center text-[#26321d] shadow-[0_16px_40px_rgba(24,23,17,0.10)]">
+                  <h2 className="font-editorial text-3xl font-normal">
                     Account created successfully
                   </h2>
-                  <p className="font-serif text-green-800">
-                    Your account is ready. Subscribe now to unlock access to the platform and protected content.
+
+                  <p className="font-serif leading-7">
+                    Your account is ready. Subscribe now
+                    to unlock access to the platform and
+                    protected content.
                   </p>
-                  <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <Button onClick={handleSubscribe}>Subscribe Now</Button>
-                    <Button variant="outline" onClick={handleViewCollections}>
+
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <Button onClick={handleSubscribe}>
+                      Subscribe Now
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      onClick={handleViewCollections}
+                    >
                       Explore the Platform
                     </Button>
                   </div>
@@ -222,39 +261,49 @@ export default function AccountPage() {
           </section>
         ) : null}
 
-        <section className="py-16">
+        <section className="bg-[var(--color-eg-espresso)] py-16 md:py-20 lg:py-24">
           <PagePadding>
             <Container>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="border border-black p-8 space-y-6">
-                  <h3 className="text-2xl font-semibold font-sans">
-                    Profile Information
-                  </h3>
+              <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
+                <div className="space-y-7 border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] p-7 text-[var(--color-eg-ink)] shadow-[0_18px_45px_rgba(24,23,17,0.11)] md:p-8">
+                  <div className="border-b border-[var(--color-eg-line)] pb-5">
+                    <h3 className="font-editorial text-3xl font-normal">
+                      Profile Information
+                    </h3>
+                  </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-semibold font-sans uppercase mb-2">
+                      <label className="mb-2 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
                         Name
                       </label>
-                      <p className="font-serif text-lg">
-                        {user?.displayName || 'Not provided'}
+
+                      <p className="font-serif text-lg text-[var(--color-eg-ink)]">
+                        {user?.displayName ||
+                          'Not provided'}
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold font-sans uppercase mb-2">
+                      <label className="mb-2 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
                         Email
                       </label>
-                      <p className="font-serif text-lg">{user?.email}</p>
+
+                      <p className="break-words font-serif text-lg text-[var(--color-eg-ink)]">
+                        {user?.email}
+                      </p>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold font-sans uppercase mb-2">
+                      <label className="mb-2 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
                         Member Since
                       </label>
-                      <p className="font-serif text-lg">
+
+                      <p className="font-serif text-lg text-[var(--color-eg-ink)]">
                         {user?.metadata?.creationTime
-                          ? new Date(user.metadata.creationTime).toLocaleDateString(
+                          ? new Date(
+                              user.metadata.creationTime
+                            ).toLocaleDateString(
                               'en-US',
                               {
                                 year: 'numeric',
@@ -266,31 +315,36 @@ export default function AccountPage() {
                       </p>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold font-sans uppercase mb-2">
+                    <div className="border-t border-[var(--color-eg-line)] pt-5">
+                      <label className="mb-3 block font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
                         Style Preferences
                       </label>
+
                       <div className="space-y-2">
-                        <p className="font-serif text-sm text-gray-600">
+                        <p className="font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
                           • Casual Style: Not set
                         </p>
-                        <p className="font-serif text-sm text-gray-600">
+
+                        <p className="font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
                           • Work Style: Not set
                         </p>
-                        <p className="font-serif text-sm text-gray-600">
+
+                        <p className="font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
                           • Budget Range: Not set
                         </p>
-                        <p className="font-serif text-xs text-blue-600 mt-2">
-                          Click "Edit Profile" to set your preferences
+
+                        <p className="mt-3 font-serif text-xs font-semibold text-[var(--color-eg-espresso-deep)]">
+                          Click &quot;Edit Profile&quot; to
+                          set your preferences
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-3 border-t border-[var(--color-eg-line)] pt-6">
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full border-[var(--color-eg-espresso-deep)] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
                       onClick={handleEditProfile}
                     >
                       Edit Profile
@@ -298,7 +352,7 @@ export default function AccountPage() {
 
                     <Button
                       variant="outline"
-                      className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                      className="w-full border-[#a94e45] text-[#913a32] hover:bg-[#913a32] hover:text-white"
                       onClick={handleSignOut}
                     >
                       Sign Out
@@ -306,28 +360,30 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="border border-black p-8 space-y-6">
-                  <h3 className="text-2xl font-semibold font-sans">
-                    Subscription & Access
-                  </h3>
+                <div className="space-y-7 border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] p-7 text-[var(--color-eg-ink)] shadow-[0_18px_45px_rgba(24,23,17,0.11)] md:p-8">
+                  <div className="border-b border-[var(--color-eg-line)] pb-5">
+                    <h3 className="font-editorial text-3xl font-normal">
+                      Subscription & Access
+                    </h3>
+                  </div>
 
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gray-50 border border-gray-200 rounded">
-                      <div className="text-sm font-semibold font-sans uppercase mb-1">
+                  <div className="space-y-5">
+                    <div className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-6">
+                      <div className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
                         Current Status
                       </div>
 
                       {loadingSubscription ? (
-                        <p className="text-sm font-serif text-gray-600">
+                        <p className="font-serif text-sm text-[var(--color-eg-muted)]">
                           Loading subscription details...
                         </p>
                       ) : (
                         <>
-                          <div className="text-lg font-semibold font-sans">
+                          <div className="font-sans text-xl font-semibold text-[var(--color-eg-ink)]">
                             {subscriptionStatusLabel}
                           </div>
 
-                          <p className="text-sm font-serif text-gray-600 mt-2">
+                          <p className="mt-3 font-serif text-sm leading-7 text-[var(--color-eg-muted)]">
                             {hasActiveSubscription
                               ? 'Your subscription is active and your account should have access to protected content.'
                               : 'Your subscription is not currently active. Subscribe to restore full access.'}
@@ -338,7 +394,7 @@ export default function AccountPage() {
 
                     {hasActiveSubscription ? (
                       <Button
-                        className="w-full"
+                        className="w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
                         onClick={handleManageSubscription}
                         disabled={portalLoading}
                       >
@@ -347,7 +403,10 @@ export default function AccountPage() {
                           : 'Manage / Cancel Subscription'}
                       </Button>
                     ) : (
-                      <Button className="w-full" onClick={handleSubscribe}>
+                      <Button
+                        className="w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
+                        onClick={handleSubscribe}
+                      >
                         Subscribe Now
                       </Button>
                     )}
@@ -355,55 +414,70 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              <div className="mt-12 border border-black p-8 space-y-6">
-                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div className="mt-10 space-y-7 border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] p-7 text-[var(--color-eg-ink)] shadow-[0_18px_45px_rgba(24,23,17,0.11)] md:mt-12 md:p-8">
+                <div className="flex flex-col gap-5 border-b border-[var(--color-eg-line)] pb-6 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <h3 className="text-2xl font-semibold font-sans">
+                    <h3 className="font-editorial text-3xl font-normal">
                       Saved Favorites
                     </h3>
-                    <p className="font-serif text-sm text-muted mt-2">
-                      Outfits and items you save will appear here for quick access.
+
+                    <p className="mt-2 max-w-xl font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
+                      Outfits and items you save will
+                      appear here for quick access.
                     </p>
                   </div>
 
-                  <div className="flex gap-3 flex-wrap">
-                    <Button variant="outline" size="sm" onClick={handleWeeklyFinds}>
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleWeeklyFinds}
+                      className="border-[var(--color-eg-espresso-deep)] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
+                    >
                       Browse Weekly Finds
                     </Button>
-                    <Button size="sm" onClick={handleViewCollections}>
+
+                    <Button
+                      size="sm"
+                      onClick={handleViewCollections}
+                      className="border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
+                    >
                       Browse Outfits
                     </Button>
                   </div>
                 </div>
 
                 {loadingFavorites ? (
-                  <p className="font-serif text-sm text-muted">
+                  <p className="font-serif text-sm text-[var(--color-eg-muted)]">
                     Loading saved favorites...
                   </p>
                 ) : favorites.length === 0 ? (
-                  <div className="border border-gray-200 bg-gray-50 p-6 text-center">
-                    <h4 className="text-lg font-semibold font-sans mb-2">
+                  <div className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-8 text-center">
+                    <h4 className="mb-2 font-editorial text-2xl font-normal">
                       No saved favorites yet
                     </h4>
-                    <p className="font-serif text-sm text-muted">
-                      Save outfits or weekly items as you browse, then return here anytime.
+
+                    <p className="font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
+                      Save outfits or weekly items as you
+                      browse, then return here anytime.
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {favorites.map((favorite) => {
                       const targetHref =
                         favorite.href ||
                         (favorite.type === 'outfit'
                           ? `/outfit-inspiration/${favorite.contentId}`
-                          : favorite.externalUrl || '/weekly')
+                          : favorite.externalUrl ||
+                            '/weekly')
 
                       return (
                         <div
                           key={favorite.id}
-                          className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+                          className="flex h-full flex-col overflow-hidden border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] shadow-[0_10px_28px_rgba(24,23,17,0.07)]"
                         >
-                          <div className="aspect-[4/3] bg-gray-100 relative">
+                          <div className="relative aspect-[4/3] bg-[var(--color-eg-paper-soft)]">
                             {favorite.imageUrl ? (
                               <Image
                                 src={favorite.imageUrl}
@@ -414,14 +488,17 @@ export default function AccountPage() {
                             ) : null}
                           </div>
 
-                          <div className="p-5 space-y-3">
+                          <div className="flex flex-1 flex-col space-y-4 p-5">
                             <div className="flex items-center justify-between gap-3">
-                              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                {favorite.type === 'outfit' ? 'Outfit' : 'Item'}
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-espresso-deep)]">
+                                {favorite.type ===
+                                'outfit'
+                                  ? 'Outfit'
+                                  : 'Item'}
                               </span>
 
                               {favorite.category ? (
-                                <span className="text-xs font-serif text-gray-500">
+                                <span className="font-serif text-xs text-[var(--color-eg-muted)]">
                                   {favorite.category}
                                 </span>
                               ) : null}
@@ -429,42 +506,44 @@ export default function AccountPage() {
 
                             <div>
                               {favorite.brand ? (
-                                <p className="text-xs font-serif uppercase tracking-wide text-gray-500 mb-1">
+                                <p className="mb-1 font-serif text-xs uppercase tracking-[0.14em] text-[var(--color-eg-muted)]">
                                   {favorite.brand}
                                 </p>
                               ) : null}
 
-                              <h4 className="font-semibold font-sans text-lg">
+                              <h4 className="font-editorial text-2xl font-normal leading-tight">
                                 {favorite.title}
                               </h4>
 
                               {favorite.price ? (
-                                <p className="text-sm font-semibold mt-1">
+                                <p className="mt-2 text-sm font-semibold text-[var(--color-eg-espresso-deep)]">
                                   {favorite.price}
                                 </p>
                               ) : null}
                             </div>
 
                             {favorite.description ? (
-                              <p className="font-serif text-sm text-muted line-clamp-2">
+                              <p className="line-clamp-2 flex-1 font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
                                 {favorite.description}
                               </p>
                             ) : null}
 
-                            <div className="flex gap-3 pt-2">
-                              {targetHref.startsWith('http') ? (
+                            <div className="flex gap-3 border-t border-[var(--color-eg-line)] pt-4">
+                              {targetHref.startsWith(
+                                'http'
+                              ) ? (
                                 <a
                                   href={targetHref}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex-1 border border-black px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+                                  className="flex-1 border border-[var(--color-eg-espresso-deep)] px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
                                 >
                                   Open
                                 </a>
                               ) : (
                                 <Link
                                   href={targetHref}
-                                  className="flex-1 border border-black px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+                                  className="flex-1 border border-[var(--color-eg-espresso-deep)] px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
                                 >
                                   Open
                                 </Link>
@@ -473,10 +552,19 @@ export default function AccountPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleRemoveFavorite(favorite)}
-                                disabled={removingFavoriteId === favorite.id}
+                                onClick={() =>
+                                  handleRemoveFavorite(
+                                    favorite
+                                  )
+                                }
+                                disabled={
+                                  removingFavoriteId ===
+                                  favorite.id
+                                }
+                                className="border-[var(--color-eg-line)] text-[var(--color-eg-muted)] hover:border-[#913a32] hover:bg-[#913a32] hover:text-white"
                               >
-                                {removingFavoriteId === favorite.id
+                                {removingFavoriteId ===
+                                favorite.id
                                   ? 'Removing...'
                                   : 'Remove'}
                               </Button>
@@ -489,58 +577,78 @@ export default function AccountPage() {
                 )}
               </div>
 
-              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="text-center p-6 border border-gray-200 rounded-lg">
-                  <h4 className="text-lg font-semibold font-sans mb-2">
+              <div className="mt-10 grid grid-cols-1 gap-5 md:mt-12 md:grid-cols-2 lg:grid-cols-4">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                  <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Browse Collections
                   </h4>
-                  <p className="text-sm font-serif text-muted mb-4">
-                    Explore our curated affiliate collections
+
+                  <p className="mb-5 flex-1 font-serif text-sm leading-6 text-[var(--color-text-muted)]">
+                    Explore our curated affiliate
+                    collections
                   </p>
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleViewCollections}
+                    className="border-[var(--color-eg-cream)] text-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
                   >
                     View Collections
                   </Button>
                 </div>
 
-                <div className="text-center p-6 border border-gray-200 rounded-lg">
-                  <h4 className="text-lg font-semibold font-sans mb-2">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                  <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Weekly Finds
                   </h4>
-                  <p className="text-sm font-serif text-muted mb-4">
-                    Discover this week&apos;s best fashion picks
+
+                  <p className="mb-5 flex-1 font-serif text-sm leading-6 text-[var(--color-text-muted)]">
+                    Discover this week&apos;s best fashion
+                    picks
                   </p>
-                  <Button size="sm" onClick={handleWeeklyFinds}>
+
+                  <Button
+                    size="sm"
+                    onClick={handleWeeklyFinds}
+                    className="border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)] hover:bg-transparent hover:text-[var(--color-eg-cream)]"
+                  >
                     Browse Finds
                   </Button>
                 </div>
 
-                <div className="text-center p-6 border border-gray-200 rounded-lg">
-                  <h4 className="text-lg font-semibold font-sans mb-2">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                  <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Style Consultation
                   </h4>
-                  <p className="text-sm font-serif text-muted mb-4">
+
+                  <p className="mb-5 flex-1 font-serif text-sm leading-6 text-[var(--color-text-muted)]">
                     Book a 1:1 styling session
                   </p>
-                  <Button size="sm" onClick={handleBookSession}>
+
+                  <Button
+                    size="sm"
+                    onClick={handleBookSession}
+                    className="border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)] hover:bg-transparent hover:text-[var(--color-eg-cream)]"
+                  >
                     Book Now
                   </Button>
                 </div>
 
-                <div className="text-center p-6 border border-gray-200 rounded-lg">
-                  <h4 className="text-lg font-semibold font-sans mb-2">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                  <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Wardrobe Audit
                   </h4>
-                  <p className="text-sm font-serif text-muted mb-4">
+
+                  <p className="mb-5 flex-1 font-serif text-sm leading-6 text-[var(--color-text-muted)]">
                     Optimize your existing wardrobe
                   </p>
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLearnMore}
+                    className="border-[var(--color-eg-cream)] text-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
                   >
                     Learn More
                   </Button>
@@ -554,7 +662,7 @@ export default function AccountPage() {
           isOpen={showEditProfile}
           onClose={() => setShowEditProfile(false)}
         />
-      </>
+      </div>
     </ProtectedRoute>
   )
 }

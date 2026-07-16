@@ -30,6 +30,7 @@ function formatDate(value: unknown): string {
     if (typeof value === 'string' || typeof value === 'number') {
       const date = new Date(value)
       if (Number.isNaN(date.getTime())) return ''
+
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -40,6 +41,7 @@ function formatDate(value: unknown): string {
     if (typeof (value as { toDate?: () => Date })?.toDate === 'function') {
       const date = (value as { toDate: () => Date }).toDate()
       if (Number.isNaN(date.getTime())) return ''
+
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -84,15 +86,23 @@ function sanitizeArticleHtml(content: string): string {
     .replace(/<form[\s\S]*?>[\s\S]*?<\/form>/gi, '')
     .replace(/<input[^>]*>/gi, '')
     .replace(/\s(on\w+)=(".*?"|'.*?'|[^\s>]+)/gi, '')
-    .replace(/\s(href|src)=("javascript:[^"]*"|'javascript:[^']*')/gi, '')
+    .replace(
+      /\s(href|src)=("javascript:[^"]*"|'javascript:[^']*')/gi,
+      ''
+    )
 }
 
 function isFullHtmlDocument(content: string): boolean {
-  return /<!doctype|<html[\s>]|<head[\s>]|<body[\s>]/i.test(String(content || ''))
+  return /<!doctype|<html[\s>]|<head[\s>]|<body[\s>]/i.test(
+    String(content || '')
+  )
 }
 
 function extractStyleTags(content: string): string[] {
-  const matches = String(content || '').match(/<style[^>]*>[\s\S]*?<\/style>/gi)
+  const matches = String(content || '').match(
+    /<style[^>]*>[\s\S]*?<\/style>/gi
+  )
+
   return matches ?? []
 }
 
@@ -111,7 +121,10 @@ function extractBodyContent(content: string): string {
     .trim()
 }
 
-function scopeSelectorGroup(selectorGroup: string, scopeClass: string): string {
+function scopeSelectorGroup(
+  selectorGroup: string,
+  scopeClass: string
+): string {
   return selectorGroup
     .split(',')
     .map((rawSelector) => rawSelector.trim())
@@ -138,7 +151,10 @@ function scopeSelectorGroup(selectorGroup: string, scopeClass: string): string {
     .join(', ')
 }
 
-function scopeCssSelectors(css: string, scopeClass: string): string {
+function scopeCssSelectors(
+  css: string,
+  scopeClass: string
+): string {
   const input = String(css || '').trim()
   if (!input) return ''
 
@@ -150,32 +166,48 @@ function scopeCssSelectors(css: string, scopeClass: string): string {
     const supportsIndex = input.indexOf('@supports', i)
 
     let nextAtRuleIndex = -1
+
     if (mediaIndex !== -1 && supportsIndex !== -1) {
       nextAtRuleIndex = Math.min(mediaIndex, supportsIndex)
     } else {
-      nextAtRuleIndex = mediaIndex !== -1 ? mediaIndex : supportsIndex
+      nextAtRuleIndex =
+        mediaIndex !== -1 ? mediaIndex : supportsIndex
     }
 
     if (nextAtRuleIndex === -1) {
       result += input
         .slice(i)
-        .replace(/([^{}]+)\{([^{}]*)\}/g, (_, selectorGroup, declarations) => {
-          const scopedSelectors = scopeSelectorGroup(selectorGroup, scopeClass)
-          return `${scopedSelectors}{${declarations}}`
-        })
+        .replace(
+          /([^{}]+)\{([^{}]*)\}/g,
+          (_, selectorGroup, declarations) => {
+            const scopedSelectors = scopeSelectorGroup(
+              selectorGroup,
+              scopeClass
+            )
+
+            return `${scopedSelectors}{${declarations}}`
+          }
+        )
+
       break
     }
 
     const beforeAtRule = input.slice(i, nextAtRuleIndex)
+
     result += beforeAtRule.replace(
       /([^{}]+)\{([^{}]*)\}/g,
       (_, selectorGroup, declarations) => {
-        const scopedSelectors = scopeSelectorGroup(selectorGroup, scopeClass)
+        const scopedSelectors = scopeSelectorGroup(
+          selectorGroup,
+          scopeClass
+        )
+
         return `${scopedSelectors}{${declarations}}`
       }
     )
 
     const blockStart = input.indexOf('{', nextAtRuleIndex)
+
     if (blockStart === -1) {
       result += input.slice(nextAtRuleIndex)
       break
@@ -190,9 +222,17 @@ function scopeCssSelectors(css: string, scopeClass: string): string {
       j += 1
     }
 
-    const atRuleHeader = input.slice(nextAtRuleIndex, blockStart + 1)
+    const atRuleHeader = input.slice(
+      nextAtRuleIndex,
+      blockStart + 1
+    )
+
     const atRuleBody = input.slice(blockStart + 1, j - 1)
-    const scopedAtRuleBody = scopeCssSelectors(atRuleBody, scopeClass)
+
+    const scopedAtRuleBody = scopeCssSelectors(
+      atRuleBody,
+      scopeClass
+    )
 
     result += `${atRuleHeader}${scopedAtRuleBody}}`
     i = j
@@ -201,10 +241,17 @@ function scopeCssSelectors(css: string, scopeClass: string): string {
   return result
 }
 
-function extractScopedStyles(content: string, scopeClass: string): string {
+function extractScopedStyles(
+  content: string,
+  scopeClass: string
+): string {
   return extractStyleTags(content)
-    .map((tag) => tag.replace(/<\/?style[^>]*>/gi, '').trim())
-    .map((css) => scopeCssSelectors(css, scopeClass))
+    .map((tag) =>
+      tag.replace(/<\/?style[^>]*>/gi, '').trim()
+    )
+    .map((css) =>
+      scopeCssSelectors(css, scopeClass)
+    )
     .filter(Boolean)
     .join('\n')
 }
@@ -219,18 +266,29 @@ function looksLikeDarkArticle(content: string): boolean {
     '#141414',
     '#151515',
     '#1b1b1b',
+    '#24231d',
+    '#292820',
+    '#343226',
     'linear-gradient(180deg, #080808',
     'linear-gradient(180deg,#080808',
     'linear-gradient(180deg, #0b0b0b',
     'linear-gradient(180deg,#0b0b0b',
+    'linear-gradient(180deg, #24231d',
+    'linear-gradient(180deg,#24231d',
     'color:#f5f5f5',
     'color: #f5f5f5',
+    'color:#f8f1e5',
+    'color: #f8f1e5',
     'color:#fff',
     'color: #fff',
     '--bg:#0b0b0b',
     '--bg: #0b0b0b',
+    '--bg:#24231d',
+    '--bg: #24231d',
     '--panel:#141414',
     '--panel: #141414',
+    '--panel:#343226',
+    '--panel: #343226',
   ]
 
   let count = 0
@@ -252,7 +310,9 @@ function renderRichText(content: string) {
     return (
       <div
         className="article-content max-w-none"
-        dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(safe) }}
+        dangerouslySetInnerHTML={{
+          __html: sanitizeArticleHtml(safe),
+        }}
       />
     )
   }
@@ -265,7 +325,10 @@ function renderRichText(content: string) {
     }
 
     return (
-      <p key={idx} className="font-serif text-[17px] leading-relaxed text-inherit">
+      <p
+        key={idx}
+        className="font-serif text-[17px] leading-relaxed text-inherit"
+      >
         {text}
       </p>
     )
@@ -372,7 +435,7 @@ const articleContentStyles = `
   }
 
   .article-content blockquote {
-    border-left: 3px solid rgba(0, 0, 0, 0.18);
+    border-left: 3px solid rgba(79, 75, 59, 0.28);
     padding-left: 1rem;
     font-style: italic;
     opacity: 0.9;
@@ -380,7 +443,7 @@ const articleContentStyles = `
 
   .article-content hr {
     border: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    border-top: 1px solid rgba(79, 75, 59, 0.18);
     margin: 2rem 0;
   }
 
@@ -391,7 +454,7 @@ const articleContentStyles = `
 
   .article-content th,
   .article-content td {
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(79, 75, 59, 0.18);
     padding: 0.75rem;
     text-align: left;
     vertical-align: top;
@@ -434,53 +497,66 @@ const articleContentStyles = `
 
   .article-route-dark {
     background:
-      radial-gradient(circle at top, rgba(214, 178, 110, 0.08), transparent 24%),
-      linear-gradient(180deg, #080808 0%, #0b0b0b 100%);
-    color: #f5f5f5;
+      radial-gradient(
+        circle at top,
+        rgba(119, 114, 93, 0.20),
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        #24231d 0%,
+        #292820 46%,
+        #1d1c17 100%
+      );
+    color: #f8f1e5;
   }
 
   .article-route-light {
-    background: #f5f5f5;
-    color: #111111;
+    background: #f2eadf;
+    color: #24231d;
   }
 
   .article-route-dark .article-route-link {
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(248, 241, 229, 0.82);
   }
 
   .article-route-dark .article-route-link:hover {
-    color: rgba(255, 255, 255, 1);
+    color: #f8f1e5;
   }
 
   .article-route-light .article-route-link {
-    color: rgba(17, 17, 17, 0.72);
+    color: #625e53;
   }
 
   .article-route-light .article-route-link:hover {
-    color: rgba(17, 17, 17, 1);
+    color: #24231d;
   }
 
   .article-route-dark .article-route-meta {
-    color: rgba(255, 255, 255, 0.9);
+    color: #f8f1e5;
   }
 
   .article-route-light .article-route-meta {
-    color: rgba(17, 17, 17, 0.92);
+    color: #24231d;
   }
 `
 
-export default async function ArticlePage({ params }: PageProps) {
+export default async function ArticlePage({
+  params,
+}: PageProps) {
   const { slug } = await params
   const normalizedSlug = normalizeSlug(slug)
 
-  const article: ArticleDocument | null = await getArticleBySlugCMS(normalizedSlug)
+  const article: ArticleDocument | null =
+    await getArticleBySlugCMS(normalizedSlug)
 
   if (!article) {
     notFound()
   }
 
   const title = article.title ?? 'Article'
-  const heroImage = article.heroImage || '/images/Image-10.jpeg'
+  const heroImage =
+    article.heroImage || '/images/Image-10.jpeg'
 
   const category = normalizeCategory(article.category)
   const categoryLabel = getCategoryName(category)
@@ -494,33 +570,73 @@ export default async function ArticlePage({ params }: PageProps) {
   const cleanedHtml = sanitizeArticleHtml(rawContent)
   const fullHtmlMode = isFullHtmlDocument(rawContent)
 
-  const customBody = fullHtmlMode ? extractBodyContent(cleanedHtml) : ''
-  const scopedCustomStyles = fullHtmlMode
-    ? extractScopedStyles(cleanedHtml, '.article-html-render')
+  const customBody = fullHtmlMode
+    ? extractBodyContent(cleanedHtml)
     : ''
 
-  const darkArticle = fullHtmlMode ? looksLikeDarkArticle(cleanedHtml) : false
-  const routeSurfaceClass = darkArticle ? 'article-route-dark' : 'article-route-light'
+  const scopedCustomStyles = fullHtmlMode
+    ? extractScopedStyles(
+        cleanedHtml,
+        '.article-html-render'
+      )
+    : ''
+
+  const darkArticle = fullHtmlMode
+    ? looksLikeDarkArticle(cleanedHtml)
+    : false
+
+  const routeSurfaceClass = darkArticle
+    ? 'article-route-dark'
+    : 'article-route-light'
 
   return (
     <ProtectedRoute>
       <StructuredData pageKey="article" />
 
-      <style dangerouslySetInnerHTML={{ __html: articleContentStyles }} />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: articleContentStyles,
+        }}
+      />
+
       {fullHtmlMode && scopedCustomStyles ? (
-        <style dangerouslySetInnerHTML={{ __html: scopedCustomStyles }} />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: scopedCustomStyles,
+          }}
+        />
       ) : null}
 
-      <div className={`min-h-screen ${fullHtmlMode ? routeSurfaceClass : ''}`}>
-        <section className="py-16">
+      <div
+        className={`min-h-screen ${
+          fullHtmlMode
+            ? routeSurfaceClass
+            : 'bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)]'
+        }`}
+      >
+        <section
+          className={
+            fullHtmlMode
+              ? 'py-16'
+              : 'border-b border-[rgba(248,241,229,0.22)] bg-[var(--color-eg-espresso)] py-16 md:py-20'
+          }
+        >
           <PagePadding>
             <Container>
-              <div className={fullHtmlMode ? 'mx-auto max-w-7xl' : 'mx-auto max-w-3xl'}>
+              <div
+                className={
+                  fullHtmlMode
+                    ? 'mx-auto max-w-7xl'
+                    : 'mx-auto max-w-3xl'
+                }
+              >
                 <div className="mb-8">
                   <Link
                     href="/articles"
-                    className={`article-route-link text-sm font-serif transition-opacity hover:opacity-100 ${
-                      fullHtmlMode ? '' : 'opacity-70 hover:opacity-100'
+                    className={`article-route-link font-serif text-sm transition-colors ${
+                      fullHtmlMode
+                        ? ''
+                        : 'text-[rgba(248,241,229,0.84)] hover:text-[var(--color-eg-cream)]'
                     }`}
                   >
                     ← Back to Articles
@@ -531,27 +647,51 @@ export default async function ArticlePage({ params }: PageProps) {
                   className={`${
                     fullHtmlMode
                       ? 'article-route-meta mx-auto max-w-3xl space-y-6 text-center'
-                      : 'space-y-6 text-center'
+                      : 'space-y-6 text-center text-[var(--color-eg-cream)]'
                   }`}
                 >
                   {categoryLabel ? (
-                    <p className="font-sans text-xs uppercase tracking-[0.2em] opacity-70">
+                    <p
+                      className={`font-sans text-xs uppercase tracking-[0.2em] ${
+                        fullHtmlMode
+                          ? 'opacity-75'
+                          : 'text-[rgba(248,241,229,0.78)]'
+                      }`}
+                    >
                       {categoryLabel}
                     </p>
                   ) : null}
 
-                  <h1 className="font-sans text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
+                  <h1
+                    className={
+                      fullHtmlMode
+                        ? 'font-editorial text-4xl font-normal leading-tight tracking-[-0.035em] md:text-6xl'
+                        : 'eg-editorial-heading text-4xl text-[var(--color-eg-cream)] md:text-6xl lg:text-7xl'
+                    }
+                  >
                     {title}
                   </h1>
 
                   {article.excerpt ? (
-                    <p className="font-serif text-lg leading-relaxed opacity-80 md:text-xl">
+                    <p
+                      className={`font-serif text-lg leading-relaxed md:text-xl ${
+                        fullHtmlMode
+                          ? 'opacity-90'
+                          : 'text-[rgba(248,241,229,0.90)]'
+                      }`}
+                    >
                       {article.excerpt}
                     </p>
                   ) : null}
 
                   {publishedLabel ? (
-                    <div className="font-serif text-sm opacity-70">
+                    <div
+                      className={`font-serif text-sm ${
+                        fullHtmlMode
+                          ? 'opacity-75'
+                          : 'text-[rgba(248,241,229,0.72)]'
+                      }`}
+                    >
                       Published · {publishedLabel}
                     </div>
                   ) : null}
@@ -561,11 +701,29 @@ export default async function ArticlePage({ params }: PageProps) {
           </PagePadding>
         </section>
 
-        <section className="pb-10">
+        <section
+          className={
+            fullHtmlMode
+              ? 'pb-10'
+              : 'bg-[var(--color-eg-espresso-soft)] pb-10 pt-10'
+          }
+        >
           <PagePadding>
             <Container>
-              <div className={fullHtmlMode ? 'mx-auto max-w-7xl' : 'mx-auto max-w-6xl'}>
-                <div className="relative overflow-hidden rounded-lg">
+              <div
+                className={
+                  fullHtmlMode
+                    ? 'mx-auto max-w-7xl'
+                    : 'mx-auto max-w-6xl'
+                }
+              >
+                <div
+                  className={`relative overflow-hidden ${
+                    fullHtmlMode
+                      ? 'rounded-[1.5rem] border border-[rgba(248,241,229,0.16)] shadow-[0_22px_60px_rgba(16,15,12,0.30)]'
+                      : 'border border-[rgba(248,241,229,0.28)] shadow-[0_18px_45px_rgba(41,40,32,0.18)]'
+                  }`}
+                >
                   <div className="relative aspect-[16/9] w-full">
                     <Image
                       src={heroImage}
@@ -575,6 +733,10 @@ export default async function ArticlePage({ params }: PageProps) {
                       sizes="(max-width: 768px) 100vw, 1400px"
                       priority
                     />
+
+                    {fullHtmlMode ? (
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(29,28,23,0.04)_0%,rgba(29,28,23,0.24)_100%)]" />
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -582,23 +744,35 @@ export default async function ArticlePage({ params }: PageProps) {
           </PagePadding>
         </section>
 
-        <section className="py-10">
+        <section
+          className={
+            fullHtmlMode
+              ? 'py-10'
+              : 'bg-[var(--color-eg-espresso-soft)] pb-20 pt-8'
+          }
+        >
           {fullHtmlMode ? (
             <div className="article-html-shell w-full">
               <div
                 className="article-html-render w-full"
-                dangerouslySetInnerHTML={{ __html: customBody }}
+                dangerouslySetInnerHTML={{
+                  __html: customBody,
+                }}
               />
             </div>
           ) : (
             <PagePadding>
               <Container>
-                <div className="mx-auto max-w-3xl space-y-5">
-                  {article.content ? (
-                    renderRichText(article.content)
-                  ) : (
-                    <p className="font-serif opacity-70">No content yet.</p>
-                  )}
+                <div className="mx-auto max-w-3xl border border-[rgba(41,40,32,0.16)] bg-[var(--color-eg-paper)] p-7 text-[var(--color-eg-ink)] shadow-[0_18px_45px_rgba(41,40,32,0.14)] md:p-12">
+                  <div className="space-y-5">
+                    {article.content ? (
+                      renderRichText(article.content)
+                    ) : (
+                      <p className="font-serif text-[#625e53]">
+                        No content yet.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </Container>
             </PagePadding>

@@ -1,10 +1,13 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 text-[var(--color-eg-cream)]">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4" />
-        <p className="text-gray-600 font-serif">Loading...</p>
+        <div className="mx-auto mb-5 h-9 w-9 animate-spin rounded-full border-2 border-[rgba(248,241,229,0.28)] border-t-[var(--color-eg-cream)]" />
+
+        <p className="font-serif text-[var(--color-text-muted)]">
+          Loading...
+        </p>
       </div>
     </div>
-  );
+  )
 }

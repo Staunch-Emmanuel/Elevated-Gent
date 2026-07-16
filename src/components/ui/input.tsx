@@ -9,8 +9,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          // Base input styles matching Webflow design
-          'flex w-full bg-transparent border border-border-light min-h-12 px-4 py-2 text-base font-sans placeholder:text-muted focus:border-primary focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
+          'flex min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-base text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b] focus:ring-0 disabled:cursor-not-allowed disabled:bg-[#e9dfd1] disabled:text-[#625e53] disabled:opacity-70',
           className
         )}
         ref={ref}
@@ -19,6 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
+
 Input.displayName = 'Input'
 
 export { Input }
