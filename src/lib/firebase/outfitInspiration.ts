@@ -78,88 +78,111 @@ function sanitizeLinks(value: unknown): Array<string | ShoppableLink> {
 function sanitizeShopItems(value: unknown): OutfitShopItem[] {
   if (!Array.isArray(value)) return []
 
-  return value
-    .map((item, index) => {
-      if (!item || typeof item !== 'object') return null
+  const items: OutfitShopItem[] = []
 
-      const raw = item as Record<string, unknown>
+  value.forEach((item, index) => {
+    if (!item || typeof item !== 'object') return
 
-      const id =
-        typeof raw.id === 'string' && raw.id.trim()
-          ? raw.id.trim()
-          : `shop-item-${index + 1}`
+    const raw = item as Record<string, unknown>
 
-      const name =
-        typeof raw.name === 'string'
-          ? raw.name.trim()
-          : typeof raw.title === 'string'
-            ? raw.title.trim()
-            : ''
+    const id =
+      typeof raw.id === 'string' && raw.id.trim()
+        ? raw.id.trim()
+        : `shop-item-${index + 1}`
 
-      const brand =
-        typeof raw.brand === 'string'
-          ? raw.brand.trim()
-          : typeof raw.store === 'string'
-            ? raw.store.trim()
-            : ''
+    const name =
+      typeof raw.name === 'string'
+        ? raw.name.trim()
+        : typeof raw.title === 'string'
+          ? raw.title.trim()
+          : ''
 
-      const url =
-        typeof raw.url === 'string'
-          ? raw.url.trim()
-          : typeof raw.link === 'string'
-            ? raw.link.trim()
-            : ''
+    const brand =
+      typeof raw.brand === 'string'
+        ? raw.brand.trim()
+        : typeof raw.store === 'string'
+          ? raw.store.trim()
+          : ''
 
-      const imageUrl =
-        typeof raw.imageUrl === 'string'
-          ? raw.imageUrl.trim()
-          : typeof raw.image === 'string'
-            ? raw.image.trim()
-            : ''
+    const url =
+      typeof raw.url === 'string'
+        ? raw.url.trim()
+        : typeof raw.link === 'string'
+          ? raw.link.trim()
+          : ''
 
-      const category =
-        typeof raw.category === 'string'
-          ? raw.category.trim()
-          : typeof raw.type === 'string'
-            ? raw.type.trim()
-            : ''
+    const imageUrl =
+      typeof raw.imageUrl === 'string'
+        ? raw.imageUrl.trim()
+        : typeof raw.image === 'string'
+          ? raw.image.trim()
+          : ''
 
-      const price =
-        typeof raw.price === 'string'
-          ? raw.price.trim()
-          : typeof raw.price === 'number'
-            ? String(raw.price)
-            : ''
+    const category =
+      typeof raw.category === 'string'
+        ? raw.category.trim()
+        : typeof raw.type === 'string'
+          ? raw.type.trim()
+          : ''
 
-      const sortOrder =
-        typeof raw.sortOrder === 'number'
-          ? raw.sortOrder
-          : typeof raw.sortOrder === 'string'
-            ? Number(raw.sortOrder) || index
-            : index
+    const price =
+      typeof raw.price === 'string'
+        ? raw.price.trim()
+        : typeof raw.price === 'number'
+          ? String(raw.price)
+          : ''
 
-      if (!name && !url && !imageUrl) return null
+    const sortOrder =
+      typeof raw.sortOrder === 'number'
+        ? raw.sortOrder
+        : typeof raw.sortOrder === 'string'
+          ? Number(raw.sortOrder) || index
+          : index
 
-      return {
-        id,
-        name,
-        brand,
-        url,
-        imageUrl,
-        category,
-        price,
-        sortOrder,
-      }
-    })
-    .filter((item): item is OutfitShopItem => Boolean(item))
-    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    if (!name && !url && !imageUrl) return
+
+    const nextItem: OutfitShopItem = {
+      id,
+      name,
+      brand,
+      url,
+      imageUrl,
+      category,
+      sortOrder,
+    }
+
+    if (price) {
+      nextItem.price = price
+    }
+
+    items.push(nextItem)
+  })
+
+  return items.sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  )
 }
 
 function normalizeCategory(data: any): string {
-  const category = typeof data.category === 'string' ? data.category.trim() : ''
-  const occasion = typeof data.occasion === 'string' ? data.occasion.trim() : ''
-  const styleType = typeof data.styleType === 'string' ? data.styleType.trim() : ''
-  const title = typeof data.title === 'string' ? data.title.trim() : ''
+  const category =
+    typeof data.category === 'string'
+      ? data.category.trim()
+      : ''
+
+  const occasion =
+    typeof data.occasion === 'string'
+      ? data.occasion.trim()
+      : ''
+
+  const styleType =
+    typeof data.styleType === 'string'
+      ? data.styleType.trim()
+      : ''
+
+  const title =
+    typeof data.title === 'string'
+      ? data.title.trim()
+      : ''
 
   if (category) return category
 
@@ -215,11 +238,17 @@ function normalizeCategory(data: any): string {
   return ''
 }
 
-export async function getAllOutfitInspiration(): Promise<OutfitInspirationDocument[]> {
+export async function getAllOutfitInspiration(): Promise<
+  OutfitInspirationDocument[]
+> {
   let snap
 
   try {
-    const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'))
+    const q = query(
+      collection(db, COLLECTION),
+      orderBy('createdAt', 'desc')
+    )
+
     snap = await getDocs(q)
   } catch {
     snap = await getDocs(collection(db, COLLECTION))
@@ -245,11 +274,17 @@ export async function getAllOutfitInspiration(): Promise<OutfitInspirationDocume
         category: normalizeCategory(data),
         featured: Boolean(data.featured),
         slug: data.slug ?? doc.id,
-        published: typeof data.published === 'boolean' ? data.published : true,
+        published:
+          typeof data.published === 'boolean'
+            ? data.published
+            : true,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       }
     })
     .filter((item) => item.published !== false)
-    .sort((a, b) => toDateValue(b.createdAt) - toDateValue(a.createdAt))
+    .sort(
+      (a, b) =>
+        toDateValue(b.createdAt) - toDateValue(a.createdAt)
+    )
 }
