@@ -115,7 +115,7 @@ export default async function OutfitInspirationDetailPage({
 
   return (
     <ProtectedRoute>
-      <section className="bg-[var(--color-eg-paper)] py-8 text-[var(--color-eg-ink)] sm:py-10 md:py-14 lg:py-18">
+      <section className="bg-[var(--color-eg-paper)] py-8 text-[var(--color-eg-ink)] sm:py-10 md:py-14 lg:py-20">
         <PagePadding>
           <Container className="space-y-9 md:space-y-14">
             <div>
