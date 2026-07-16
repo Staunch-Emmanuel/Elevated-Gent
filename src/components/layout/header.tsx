@@ -467,7 +467,7 @@ export function Header() {
                     height={19}
                     priority
                     loading="eager"
-                    className={`h-auto w-[220px] max-w-[calc(100vw-8.5rem)] md:hidden ${logoFilterClass}`}
+                    className={`h-auto w-[205px] max-w-[calc(100vw-9.5rem)] md:hidden ${logoFilterClass}`}
                   />
 
                   <Image
@@ -695,23 +695,23 @@ export function Header() {
       </div>
 
       <div
-        className={`fixed inset-0 z-[1100] h-[100dvh] overflow-hidden bg-[var(--color-eg-espresso-deep)] transition-all duration-300 ease-in-out md:hidden ${
+        className={`fixed inset-0 z-[1100] h-[100dvh] overflow-hidden bg-transparent transition-all duration-300 ease-in-out md:hidden ${
           isMobileMenuOpen
             ? 'visible opacity-100'
             : 'invisible opacity-0'
         }`}
       >
         <div
-          className={`absolute inset-0 bg-[var(--color-eg-espresso-deep)] transition-opacity duration-300 ease-in-out ${
+          className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
             isMobileMenuOpen
-              ? 'opacity-100'
+              ? 'opacity-50'
               : 'opacity-0'
           }`}
           onClick={closeMobileMenu}
         />
 
         <div
-          className={`absolute inset-0 h-[100dvh] w-full overflow-hidden bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] shadow-2xl transition-transform duration-300 ease-in-out ${
+          className={`absolute right-0 top-0 h-[100dvh] w-[75vw] max-w-80 overflow-hidden bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] shadow-2xl transition-transform duration-300 ease-in-out ${
             isMobileMenuOpen
               ? 'translate-x-0'
               : 'translate-x-full'
