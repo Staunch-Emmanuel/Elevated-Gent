@@ -208,6 +208,21 @@ export function Header() {
     void loadArticleCategories()
   }, [])
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+
+    const previousBodyOverflow = document.body.style.overflow
+    const previousHtmlOverflow = document.documentElement.style.overflow
+
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousHtmlOverflow
+    }
+  }, [isMobileMenuOpen])
+
   const articleNavCategories = useMemo(() => {
     return articleCategories.map((item) => ({
       id: item.id,
@@ -419,10 +434,10 @@ export function Header() {
       className={
         isArticlePage
           ? 'sticky top-0 z-[1000] isolate border-b border-[rgba(248,241,229,0.24)] bg-[rgba(47,45,36,0.86)] text-[var(--color-eg-cream)] shadow-[0_14px_42px_rgba(24,23,17,0.34)]'
-          : 'sticky top-0 z-[1000] border-b border-[rgba(248,241,229,0.18)] bg-[rgba(95,91,77,0.97)] text-[var(--color-eg-cream)] shadow-[0_8px_24px_rgba(41,40,32,0.12)] backdrop-blur-md'
+          : 'sticky top-0 z-[1000] border-b border-[rgba(248,241,229,0.18)] bg-[rgba(95,91,77,0.97)] text-[var(--color-eg-cream)] shadow-[0_8px_24px_rgba(41,40,32,0.12)] md:backdrop-blur-md'
       }
       style={
-        isArticlePage
+        isArticlePage && !isMobileMenuOpen
           ? {
               WebkitBackdropFilter: 'blur(32px) saturate(115%)',
               backdropFilter: 'blur(32px) saturate(115%)',
@@ -440,10 +455,10 @@ export function Header() {
         <PagePadding>
           <Container>
             <nav className="relative z-20 flex items-center justify-between pb-5 pt-5 md:pb-6 md:pt-6">
-              <div className="flex items-center">
+              <div className="flex min-w-0 items-center">
                 <Link
                   href="/home"
-                  className="inline-block"
+                  className="inline-block min-w-0"
                 >
                   <Image
                     src="/images/The Elevated gentleman.svg"
@@ -452,7 +467,7 @@ export function Header() {
                     height={19}
                     priority
                     loading="eager"
-                    className={`h-4 w-auto md:hidden ${logoFilterClass}`}
+                    className={`h-auto w-[220px] max-w-[calc(100vw-8.5rem)] md:hidden ${logoFilterClass}`}
                   />
 
                   <Image
@@ -607,7 +622,7 @@ export function Header() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 md:hidden">
+              <div className="flex shrink-0 items-center gap-4 md:hidden">
                 <div className="flex items-center gap-3">
                   {SOCIAL_LINKS.map((social) => (
                     <Link
@@ -638,9 +653,11 @@ export function Header() {
 
                 {user ? (
                   <button
+                    type="button"
                     onClick={toggleMobileMenu}
-                    className="group relative flex h-10 w-10 cursor-pointer flex-col items-center justify-center transition-all duration-300 ease-in-out"
+                    className="group relative flex h-10 w-10 cursor-pointer touch-manipulation flex-col items-center justify-center transition-all duration-300 ease-in-out"
                     aria-label="Toggle mobile menu"
+                    aria-expanded={isMobileMenuOpen}
                   >
                     <div className="relative flex h-5 w-6 flex-col justify-between">
                       <span
@@ -678,33 +695,33 @@ export function Header() {
       </div>
 
       <div
-        className={`fixed inset-0 z-[1100] transition-all duration-300 ease-in-out md:hidden ${
+        className={`fixed inset-0 z-[1100] h-[100dvh] overflow-hidden bg-[var(--color-eg-espresso-deep)] transition-all duration-300 ease-in-out md:hidden ${
           isMobileMenuOpen
-            ? 'visible'
-            : 'invisible'
+            ? 'visible opacity-100'
+            : 'invisible opacity-0'
         }`}
       >
         <div
-          className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
+          className={`absolute inset-0 bg-[var(--color-eg-espresso-deep)] transition-opacity duration-300 ease-in-out ${
             isMobileMenuOpen
-              ? 'opacity-50'
+              ? 'opacity-100'
               : 'opacity-0'
           }`}
           onClick={closeMobileMenu}
         />
 
         <div
-          className={`absolute right-0 top-0 h-full w-80 max-w-[80vw] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] shadow-2xl transition-transform duration-300 ease-in-out ${
+          className={`absolute inset-0 h-[100dvh] w-full overflow-hidden bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] shadow-2xl transition-transform duration-300 ease-in-out ${
             isMobileMenuOpen
               ? 'translate-x-0'
               : 'translate-x-full'
           }`}
         >
           {user ? (
-            <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-[rgba(248,241,229,0.22)] p-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-eg-cream)]">
+            <div className="flex h-full min-h-0 flex-col">
+              <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[rgba(248,241,229,0.22)] px-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-eg-cream)]">
                     <span className="text-sm font-semibold text-[var(--color-eg-espresso-deep)]">
                       {(user.displayName || user.email || 'U')
                         .charAt(0)
@@ -712,20 +729,21 @@ export function Header() {
                     </span>
                   </div>
 
-                  <div>
-                    <div className="font-sans text-sm font-semibold text-[var(--color-eg-cream)]">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-sans text-sm font-semibold text-[var(--color-eg-cream)]">
                       {user.displayName || 'Welcome'}
                     </div>
 
-                    <div className="font-serif text-xs text-[rgba(248,241,229,0.78)]">
+                    <div className="truncate font-serif text-xs text-[rgba(248,241,229,0.78)]">
                       {user.email}
                     </div>
                   </div>
                 </div>
 
                 <button
+                  type="button"
                   onClick={closeMobileMenu}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-eg-cream)] transition-colors hover:bg-[rgba(248,241,229,0.12)]"
+                  className="flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full text-[var(--color-eg-cream)] transition-colors hover:bg-[rgba(248,241,229,0.12)]"
                   aria-label="Close mobile menu"
                 >
                   <svg
@@ -744,7 +762,7 @@ export function Header() {
                 </button>
               </div>
 
-              <nav className="flex-1 space-y-2 overflow-y-auto p-6">
+              <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-6">
                 {NAVIGATION_LINKS.map((link, index) => {
                   if (link.href === '/articles') {
                     return (
@@ -756,8 +774,9 @@ export function Header() {
                         }}
                       >
                         <button
+                          type="button"
                           onClick={toggleArticlesMenu}
-                          className="group flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-left transition-all duration-200 ease-in-out hover:bg-[rgba(248,241,229,0.10)]"
+                          className="group flex w-full cursor-pointer touch-manipulation items-center justify-between rounded-lg p-4 text-left transition-all duration-200 ease-in-out hover:bg-[rgba(248,241,229,0.10)]"
                         >
                           <span className="font-serif text-lg text-[var(--color-eg-cream)]">
                             {link.name}
@@ -850,7 +869,7 @@ export function Header() {
                 })}
               </nav>
 
-              <div className="space-y-4 border-t border-[rgba(248,241,229,0.22)] p-6">
+              <div className="shrink-0 space-y-4 border-t border-[rgba(248,241,229,0.22)] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
                 <div className="flex items-center justify-center gap-4">
                   {SOCIAL_LINKS.map((social) => (
                     <Link

@@ -86,8 +86,7 @@ export default function AuthMediaPanel() {
 
   const mobileMediaSrc = mobileVideo || desktopVideo
 
-  const hasMobileVideo =
-    settings.enabled && Boolean(mobileMediaSrc)
+  const hasMobileVideo = settings.enabled && Boolean(mobileMediaSrc)
 
   const fallbackPoster = poster || '/images/Image-10.jpeg'
 
@@ -102,11 +101,26 @@ export default function AuthMediaPanel() {
     return () => clearTimeout(timer)
   }, [hasMobileVideo, hasAutoOpened])
 
+  useEffect(() => {
+    if (!showMobilePopup) return
+
+    const previousBodyOverflow = document.body.style.overflow
+    const previousHtmlOverflow = document.documentElement.style.overflow
+
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousHtmlOverflow
+    }
+  }, [showMobilePopup])
+
   if (loading) {
     return (
       <>
-        <div className="hidden lg:flex lg:w-1/2 bg-gray-100" />
-        <div className="lg:hidden absolute inset-0 bg-gray-100" />
+        <div className="hidden bg-gray-100 lg:flex lg:w-1/2" />
+        <div className="absolute inset-0 bg-gray-100 lg:hidden" />
       </>
     )
   }
@@ -114,10 +128,10 @@ export default function AuthMediaPanel() {
   return (
     <>
       {/* Desktop */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+      <div className="relative hidden overflow-hidden bg-black lg:flex lg:w-1/2">
         {hasDesktopVideo ? (
           <video
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
             src={desktopVideo}
             poster={poster || undefined}
             autoPlay
@@ -125,7 +139,6 @@ export default function AuthMediaPanel() {
             loop
             playsInline
             preload="auto"
-                      
           />
         ) : (
           <Image
@@ -138,14 +151,14 @@ export default function AuthMediaPanel() {
           />
         )}
 
-        <div className="absolute inset-0 bg-black/25 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-        <div className="absolute bottom-8 left-8 right-8 text-white pointer-events-none">
-          <h2 className="text-2xl font-semibold font-sans mb-2">
+        <div className="pointer-events-none absolute bottom-8 left-8 right-8 text-white">
+          <h2 className="mb-2 font-sans text-2xl font-semibold">
             {settings.headline || 'ELEVATE YOUR STYLE'}
           </h2>
 
-          <p className="text-white/90 font-serif">
+          <p className="font-serif text-white/90">
             {settings.subheadline ||
               'Professional styling services for the modern gentleman'}
           </p>
@@ -153,7 +166,7 @@ export default function AuthMediaPanel() {
       </div>
 
       {/* Mobile Background */}
-      <div className="lg:hidden absolute inset-0 overflow-hidden bg-black">
+      <div className="absolute inset-0 overflow-hidden bg-black lg:hidden">
         <Image
           src={fallbackPoster}
           alt="The Elevated Gentleman Fashion"
@@ -169,12 +182,12 @@ export default function AuthMediaPanel() {
 
         <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/70 to-transparent" />
 
-        <div className="absolute bottom-6 left-5 right-5 text-white pointer-events-none">
-          <h2 className="text-2xl font-semibold font-sans mb-2">
+        <div className="pointer-events-none absolute bottom-6 left-5 right-5 text-white">
+          <h2 className="mb-2 font-sans text-2xl font-semibold">
             {settings.headline || 'ELEVATE YOUR STYLE'}
           </h2>
 
-          <p className="text-white/90 text-sm font-serif leading-relaxed max-w-sm">
+          <p className="max-w-sm font-serif text-sm leading-relaxed text-white/90">
             {settings.subheadline ||
               'Professional styling services for the modern gentleman'}
           </p>
@@ -182,25 +195,26 @@ export default function AuthMediaPanel() {
       </div>
 
       {/* Mobile Popup */}
-      {hasMobileVideo && showMobilePopup && (
-        <div className="lg:hidden fixed inset-0 z-[9999]">
+      {hasMobileVideo && showMobilePopup ? (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden overscroll-contain p-4 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/85"
             onClick={() => setShowMobilePopup(false)}
           />
 
-          <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 overflow-hidden rounded-3xl bg-black shadow-2xl">
+          <div className="relative z-10 w-full min-w-0 max-w-3xl overflow-hidden rounded-2xl bg-black shadow-2xl">
             <button
               type="button"
               onClick={() => setShowMobilePopup(false)}
-              className="absolute right-3 top-3 z-[10000] flex h-10 w-10 items-center justify-center rounded-full bg-black/80 text-xl text-white shadow-lg"
+              aria-label="Close video"
+              className="absolute right-2 top-2 z-[10000] flex h-11 w-11 touch-manipulation items-center justify-center rounded-full bg-black/80 text-2xl leading-none text-white shadow-lg"
             >
               ×
             </button>
 
             <video
               key={mobileMediaSrc}
-              className="aspect-video w-full"
+              className="block max-h-[calc(100dvh-2rem)] w-full object-contain"
               src={mobileMediaSrc}
               poster={poster || undefined}
               autoPlay
@@ -211,7 +225,7 @@ export default function AuthMediaPanel() {
             />
           </div>
         </div>
-      )}
+      ) : null}
     </>
   )
 }
