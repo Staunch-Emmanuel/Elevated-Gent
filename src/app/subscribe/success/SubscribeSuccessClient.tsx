@@ -78,76 +78,112 @@ export default function SubscribeSuccessClient() {
 
   if (status === "loading" || status === "activating") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-        <h1 className="text-3xl font-semibold mb-4">Payment Successful 🎉</h1>
-        <p className="text-gray-600">
-          Activating your subscription...
-        </p>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
+        <div className="w-full max-w-xl space-y-6">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-[rgba(248,241,229,0.28)] border-t-[var(--color-eg-cream)]" />
+
+          <h1 className="font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
+            Payment Successful 🎉
+          </h1>
+
+          <p className="font-serif text-lg text-[var(--color-text-muted)]">
+            Activating your subscription...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (status === "success") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-        <h1 className="text-3xl font-semibold mb-4">Subscription Activated 🎉</h1>
-        <p className="text-gray-600 mb-8">
-          Your subscription is active. Redirecting you to Personal Styling...
-        </p>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
+        <div className="w-full max-w-xl space-y-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)]">
+            <svg
+              className="h-8 w-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+
+          <h1 className="font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
+            Subscription Activated 🎉
+          </h1>
+
+          <p className="font-serif text-lg leading-8 text-[var(--color-text-muted)]">
+            Your subscription is active. Redirecting you to Personal Styling...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (status === "idle") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-        <h1 className="text-3xl font-semibold mb-4">Payment Successful 🎉</h1>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
+        <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
+          <h1 className="mb-4 font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
+            Payment Successful 🎉
+          </h1>
 
-        <p className="text-gray-600 mb-8">
-          Login to activate your subscription on this account.
-        </p>
+          <p className="mb-8 font-serif text-lg leading-8 text-[var(--color-text-muted)]">
+            Login to activate your subscription on this account.
+          </p>
 
-        <div className="space-y-4 w-full max-w-sm">
-          <Link
-            href="/auth/signup"
-            className="block w-full bg-black text-white py-3 rounded"
-          >
-            Create Account
-          </Link>
+          <div className="w-full space-y-4">
+            <Link
+              href="/auth/signup"
+              className="block w-full border border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors hover:bg-transparent hover:text-[var(--color-eg-cream)]"
+            >
+              Create Account
+            </Link>
 
-          <Link
-            href="/auth/signin"
-            className="block w-full border border-black py-3 rounded"
-          >
-            Login
-          </Link>
+            <Link
+              href="/auth/signin"
+              className="block w-full border border-[var(--color-eg-cream)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-      <h1 className="text-3xl font-semibold mb-4">Payment Successful 🎉</h1>
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
+      <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
+        <h1 className="mb-4 font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
+          Payment Successful 🎉
+        </h1>
 
-      <p className="text-red-600 mb-8">
-        {error || "Something went wrong while activating your subscription."}
-      </p>
+        <p className="mb-8 font-serif leading-7 text-[#f5cfc7]">
+          {error || "Something went wrong while activating your subscription."}
+        </p>
 
-      <div className="space-y-4 w-full max-w-sm">
-        <Link
-          href="/personal-styling"
-          className="block w-full bg-black text-white py-3 rounded"
-        >
-          Go to Personal Styling
-        </Link>
+        <div className="w-full space-y-4">
+          <Link
+            href="/personal-styling"
+            className="block w-full border border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors hover:bg-transparent hover:text-[var(--color-eg-cream)]"
+          >
+            Go to Personal Styling
+          </Link>
 
-        <Link
-          href="/subscribe"
-          className="block w-full border border-black py-3 rounded"
-        >
-          Back to Subscribe
-        </Link>
+          <Link
+            href="/subscribe"
+            className="block w-full border border-[var(--color-eg-cream)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
+          >
+            Back to Subscribe
+          </Link>
+        </div>
       </div>
     </div>
   );

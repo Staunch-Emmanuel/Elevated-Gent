@@ -11,11 +11,11 @@ const Label = React.forwardRef<HTMLSpanElement, LabelProps>(
       <span
         ref={ref}
         className={cn(
-          'inline-block px-3 py-2 text-xs font-medium uppercase tracking-[0.08em] leading-tight border rounded-full whitespace-nowrap relative overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 active:scale-95',
+          'relative inline-block cursor-pointer overflow-hidden whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold uppercase leading-tight tracking-[0.1em] transition-all duration-300 ease-in-out',
           {
-            'text-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] border-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)]':
+            'border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-paper)] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]':
               variant === 'default',
-            'text-[var(--color-eg-cream)] bg-[var(--color-eg-espresso)] border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso)]':
+            'border-[var(--color-eg-cream)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]':
               variant === 'inverse',
           },
           className

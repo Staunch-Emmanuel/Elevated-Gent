@@ -6,7 +6,11 @@ import { useRouter, useParams } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { PagePadding, Container } from '@/components/layout'
 import CMSImageUploadField from '@/components/admin/CMSImageUploadField'
-import { getWeeklyById, updateWeekly, type WeeklyItem } from '@/lib/firebase/weekly'
+import {
+  getWeeklyById,
+  updateWeekly,
+  type WeeklyItem,
+} from '@/lib/firebase/weekly'
 import {
   createContentCategory,
   getContentCategories,
@@ -91,7 +95,8 @@ export default function EditWeeklyPage() {
         setPrice(data.price)
         setOriginalPrice(data.originalPrice || '')
         setCategory(
-          data.category || (categoryDocs.length > 0 ? categoryDocs[0].name : '')
+          data.category ||
+            (categoryDocs.length > 0 ? categoryDocs[0].name : '')
         )
         setProductLink(data.productLink)
         setAffiliateLink(data.affiliateLink || '')
@@ -136,7 +141,9 @@ export default function EditWeeklyPage() {
 
       const updatedCategories = await loadWeeklyCategories()
       const created = updatedCategories.find(
-        (item) => item.name.toLowerCase() === newCategoryName.trim().toLowerCase()
+        (categoryItem) =>
+          categoryItem.name.toLowerCase() ===
+          newCategoryName.trim().toLowerCase()
       )
 
       if (created) {
@@ -165,22 +172,22 @@ export default function EditWeeklyPage() {
 
     const tags = tagsInput
       .split(',')
-      .map((t) => t.trim())
+      .map((tag) => tag.trim())
       .filter(Boolean)
 
     const sizes = sizesInput
       .split(',')
-      .map((t) => t.trim())
+      .map((size) => size.trim())
       .filter(Boolean)
 
     const colors = colorsInput
       .split(',')
-      .map((t) => t.trim())
+      .map((color) => color.trim())
       .filter(Boolean)
 
     void imagesInput
       .split(',')
-      .map((t) => t.trim())
+      .map((imageUrl) => imageUrl.trim())
       .filter(Boolean)
 
     try {
@@ -216,7 +223,11 @@ export default function EditWeeklyPage() {
       <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container>
-            <p>Loading…</p>
+            <div className="py-12">
+              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+                <p className="font-serif text-[#575348]">Loading…</p>
+              </div>
+            </div>
           </Container>
         </PagePadding>
       </ProtectedRoute>
@@ -226,171 +237,218 @@ export default function EditWeeklyPage() {
   return (
     <ProtectedRoute requireAdmin>
       <PagePadding>
-        <Container className="max-w-3xl py-10">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Edit Weekly Item</h1>
+        <Container className="max-w-4xl py-10 md:py-12">
+          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+            <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
+              Edit Weekly Item
+            </h1>
 
             <button
               type="button"
-              onClick={() => router.push('/admin/categories?section=weekly')}
-              className="rounded border border-gray-300 px-4 py-2 text-sm"
+              onClick={() =>
+                router.push('/admin/categories?section=weekly')
+              }
+              className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
             >
               Manage Categories
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-7 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+          >
             {error ? (
-              <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
+              <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
                 {error}
               </p>
             ) : null}
 
             <div>
-              <label className="mb-1 block text-sm">Title</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Title
+              </label>
+
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded border p-2"
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
+
+              <p className="mt-2 font-serif text-xs text-[#625e53]">
                 URL slug will be:
-                <span className="ml-1 font-mono">/weekly/{computedSlug}</span>
+                <span className="ml-1 font-mono text-[#4f4b3b]">
+                  /weekly/{computedSlug}
+                </span>
               </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-sm">Brand</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Brand
+              </label>
+
               <input
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="w-full rounded border p-2"
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm">Description</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Description
+              </label>
+
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[120px] w-full rounded border p-2"
+                className="min-h-[140px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 required
               />
             </div>
 
-            <CMSImageUploadField
-              label="Main Image"
-              folder="weekly"
-              documentSlug={slugify(title || brand || id)}
-              mode="single"
-              value={image}
-              onChange={(value) => setImage(typeof value === 'string' ? value : '')}
-              helpText="Replace or remove the saved weekly product image."
-              disabled={saving}
-            />
+            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+              <CMSImageUploadField
+                label="Main Image"
+                folder="weekly"
+                documentSlug={slugify(title || brand || id)}
+                mode="single"
+                value={image}
+                onChange={(value) =>
+                  setImage(typeof value === 'string' ? value : '')
+                }
+                helpText="Replace or remove the saved weekly product image."
+                disabled={saving}
+              />
+            </div>
 
             <div>
-              <label className="mb-1 block text-sm">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
                 Additional Image URLs (comma-separated)
               </label>
+
               <textarea
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
-                className="min-h-[80px] w-full rounded border p-2"
+                className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                 placeholder="Not saved yet — WeeklyItem schema currently supports only a single image URL."
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm">Price</label>
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  Price
+                </label>
+
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full rounded border p-2"
+                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm">Original Price</label>
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  Original Price
+                </label>
+
                 <input
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
-                  className="w-full rounded border p-2"
+                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                   placeholder="Optional"
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
               <div>
-                <label className="mb-1 block text-sm">Category</label>
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  Category
+                </label>
+
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full rounded border p-2"
+                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                   required
                 >
                   <option value="">Select category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.name}>
-                      {cat.name}
+
+                  {categories.map((categoryItem) => (
+                    <option
+                      key={categoryItem.id}
+                      value={categoryItem.name}
+                    >
+                      {categoryItem.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowNewCategoryForm((current) => !current)
                     setCategoryError('')
                   }}
-                  className="text-sm underline"
+                  className="font-serif text-sm font-semibold text-[#4f4b3b] underline underline-offset-4 transition-colors hover:text-[#24231d]"
                 >
-                  {showNewCategoryForm ? 'Cancel new category' : 'Add new category'}
+                  {showNewCategoryForm
+                    ? 'Cancel new category'
+                    : 'Add new category'}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => router.push('/admin/categories?section=weekly')}
-                  className="text-sm text-gray-600 underline"
+                  onClick={() =>
+                    router.push('/admin/categories?section=weekly')
+                  }
+                  className="font-serif text-sm text-[#625e53] underline underline-offset-4 transition-colors hover:text-[#24231d]"
                 >
                   Open full category manager
                 </button>
               </div>
 
               {showNewCategoryForm ? (
-                <div className="space-y-3 rounded-lg border bg-white p-4">
+                <div className="space-y-4 border border-[#c8bcaa] bg-[#f8f1e5] p-5">
                   <div>
-                    <label className="mb-1 block text-sm font-medium">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
                       New category name
                     </label>
+
                     <input
                       value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="w-full rounded-md border px-3 py-2 text-sm"
+                      onChange={(e) =>
+                        setNewCategoryName(e.target.value)
+                      }
+                      className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                       placeholder="e.g. Summer Finds"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
                       Description (optional)
                     </label>
+
                     <textarea
                       value={newCategoryDescription}
-                      onChange={(e) => setNewCategoryDescription(e.target.value)}
-                      className="min-h-[80px] w-full rounded-md border px-3 py-2 text-sm"
+                      onChange={(e) =>
+                        setNewCategoryDescription(e.target.value)
+                      }
+                      className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                     />
                   </div>
 
                   {categoryError ? (
-                    <p className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-600">
+                    <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
                       {categoryError}
                     </p>
                   ) : null}
@@ -399,7 +457,7 @@ export default function EditWeeklyPage() {
                     type="button"
                     onClick={() => void handleCreateCategory()}
                     disabled={creatingCategory}
-                    className="rounded-md bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
+                    className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {creatingCategory ? 'Creating...' : 'Create Category'}
                   </button>
@@ -408,90 +466,110 @@ export default function EditWeeklyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm">Product Link</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Product Link
+              </label>
+
               <input
                 value={productLink}
                 onChange={(e) => setProductLink(e.target.value)}
-                className="w-full rounded border p-2"
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm">Affiliate Link</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Affiliate Link
+              </label>
+
               <input
                 value={affiliateLink}
                 onChange={(e) => setAffiliateLink(e.target.value)}
-                className="w-full rounded border p-2"
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
                 placeholder="Optional"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm">Tags (comma-separated)</label>
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                Tags (comma-separated)
+              </label>
+
               <input
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
-                className="w-full rounded border p-2"
+                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm">Sizes (comma-separated)</label>
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  Sizes (comma-separated)
+                </label>
+
                 <input
                   value={sizesInput}
                   onChange={(e) => setSizesInput(e.target.value)}
-                  className="w-full rounded border p-2"
+                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm">Colors (comma-separated)</label>
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  Colors (comma-separated)
+                </label>
+
                 <input
                   value={colorsInput}
                   onChange={(e) => setColorsInput(e.target.value)}
-                  className="w-full rounded border p-2"
+                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-6 flex-wrap">
-              <label className="inline-flex items-center gap-2 text-sm">
+            <div className="flex flex-wrap items-center gap-6 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+              <label className="inline-flex items-center gap-3 font-serif text-sm text-[#24231d]">
                 <input
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
+                  className="h-4 w-4 accent-[#4f4b3b]"
                 />
                 <span>Featured</span>
               </label>
 
-              <label className="inline-flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-3 font-serif text-sm text-[#24231d]">
                 <input
                   type="checkbox"
                   checked={inStock}
                   onChange={(e) => setInStock(e.target.checked)}
+                  className="h-4 w-4 accent-[#4f4b3b]"
                 />
                 <span>In Stock</span>
               </label>
 
-              <label className="inline-flex items-center gap-2 text-sm">
+              <label className="inline-flex items-center gap-3 font-serif text-sm text-[#24231d]">
                 <input
                   type="checkbox"
                   checked={published}
                   onChange={(e) => setPublished(e.target.checked)}
+                  className="h-4 w-4 accent-[#4f4b3b]"
                 />
                 <span>Published</span>
               </label>
             </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-60"
-            >
-              {saving ? 'Saving…' : 'Save Changes'}
-            </button>
+            <div className="border-t border-[#c8bcaa] pt-6">
+              <button
+                type="submit"
+                disabled={saving}
+                className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
           </form>
         </Container>
       </PagePadding>

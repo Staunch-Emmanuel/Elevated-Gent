@@ -50,6 +50,7 @@ function sanitizeDocumentSlug(value?: string): string {
 
 function formatFileSize(size: number) {
   if (!Number.isFinite(size) || size <= 0) return ''
+
   const units = ['B', 'KB', 'MB', 'GB']
   let value = size
   let unitIndex = 0
@@ -59,7 +60,9 @@ function formatFileSize(size: number) {
     unitIndex += 1
   }
 
-  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+  return `${value.toFixed(
+    value >= 10 || unitIndex === 0 ? 0 : 1
+  )} ${units[unitIndex]}`
 }
 
 export default function CMSImageUploadField({
@@ -102,13 +105,18 @@ export default function CMSImageUploadField({
     setLocalFiles([])
   }
 
-  function handleFilesSelected(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleFilesSelected(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
     setError('')
 
     const selectedFiles = Array.from(event.target.files ?? [])
+
     if (!selectedFiles.length) return
 
-    const imageFiles = selectedFiles.filter((file) => file.type.startsWith('image/'))
+    const imageFiles = selectedFiles.filter((file) =>
+      file.type.startsWith('image/')
+    )
 
     if (!imageFiles.length) {
       setError('Please choose a valid image file.')
@@ -140,7 +148,9 @@ export default function CMSImageUploadField({
       const currentUser = auth.currentUser
 
       if (!currentUser) {
-        throw new Error('You must be signed in as an admin to upload images')
+        throw new Error(
+          'You must be signed in as an admin to upload images'
+        )
       }
 
       if (!localFiles.length) {
@@ -155,11 +165,13 @@ export default function CMSImageUploadField({
       formData.append('folder', sanitizePathSegment(folder))
 
       const safeSlug = sanitizeDocumentSlug(documentSlug)
+
       if (safeSlug) {
         formData.append('documentSlug', safeSlug)
       }
 
-      const filesToUpload = mode === 'single' ? localFiles.slice(0, 1) : localFiles
+      const filesToUpload =
+        mode === 'single' ? localFiles.slice(0, 1) : localFiles
 
       filesToUpload.forEach((item) => {
         formData.append('files', item.file)
@@ -203,7 +215,10 @@ export default function CMSImageUploadField({
     }
 
     const current = Array.isArray(value) ? value : []
-    const next = current.filter((_, currentIndex) => currentIndex !== index)
+    const next = current.filter(
+      (_, currentIndex) => currentIndex !== index
+    )
+
     onChange(next)
   }
 
@@ -227,10 +242,17 @@ export default function CMSImageUploadField({
   ]
 
   return (
-    <div className="space-y-4 rounded-3xl border border-gray-200 bg-gray-50/70 p-5">
+    <div className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
       <div>
-        <label className="block text-sm font-medium text-gray-900">{label}</label>
-        {helpText ? <p className="mt-1 text-xs text-gray-500">{helpText}</p> : null}
+        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          {label}
+        </label>
+
+        {helpText ? (
+          <p className="mt-2 font-serif text-xs leading-5 text-[#625e53]">
+            {helpText}
+          </p>
+        ) : null}
       </div>
 
       <input
@@ -247,27 +269,34 @@ export default function CMSImageUploadField({
         type="button"
         onClick={openFileDialog}
         disabled={disabled || uploading}
-        className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-8 text-center transition hover:border-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center border border-dashed border-[#9d927f] bg-[#f8f1e5] px-5 py-9 text-center transition-colors hover:border-[#4f4b3b] hover:bg-[#e9dfd1] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <div>
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-black text-white">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#4f4b3b] bg-[#4f4b3b] text-[#f8f1e5]">
             <svg
               className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.8}
+                d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1"
+              />
             </svg>
           </div>
-          <p className="text-sm font-medium text-gray-900">
+
+          <p className="font-serif text-sm font-semibold text-[#24231d]">
             {mode === 'single'
               ? remoteUrls.length || localFiles.length
                 ? 'Choose a replacement image'
                 : 'Choose an image'
               : 'Choose images'}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+
+          <p className="mt-2 font-serif text-xs text-[#625e53]">
             JPG, PNG, WEBP and other standard image formats
           </p>
         </div>
@@ -284,18 +313,23 @@ export default function CMSImageUploadField({
           {previewItems.map((item) => (
             <div
               key={item.key}
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="overflow-hidden border border-[#c8bcaa] bg-[#f8f1e5] shadow-[0_8px_22px_rgba(36,35,29,0.06)]"
             >
-              <div className="aspect-[16/9] bg-gray-100">
-                <img src={item.url} alt={label} className="h-full w-full object-cover" />
+              <div className="aspect-[16/9] bg-[#e9dfd1]">
+                <img
+                  src={item.url}
+                  alt={label}
+                  className="h-full w-full object-cover"
+                />
               </div>
 
-              <div className="space-y-3 p-4">
+              <div className="space-y-3 border-t border-[#c8bcaa] p-4">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate font-serif text-sm font-semibold text-[#24231d]">
                     {item.fileName}
                   </p>
-                  <p className="mt-1 text-xs text-gray-500">
+
+                  <p className="mt-1 font-serif text-xs text-[#625e53]">
                     {item.isLocal ? 'Selected preview' : 'Saved image'}
                     {item.fileSize ? ` • ${item.fileSize}` : ''}
                   </p>
@@ -306,7 +340,7 @@ export default function CMSImageUploadField({
                     <button
                       type="button"
                       onClick={() => removeExistingImage(item.index)}
-                      className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+                      className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={disabled || uploading}
                     >
                       Remove
@@ -318,18 +352,18 @@ export default function CMSImageUploadField({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm text-gray-500">
+        <div className="border border-dashed border-[#b9ae9d] bg-[#f8f1e5] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
           No image selected yet
         </div>
       )}
 
       {localFiles.length > 0 ? (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 border-t border-[#c8bcaa] pt-5">
           <button
             type="button"
             onClick={uploadFiles}
             disabled={disabled || uploading}
-            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {uploading ? 'Uploading...' : 'Upload Selected'}
           </button>
@@ -338,7 +372,7 @@ export default function CMSImageUploadField({
             type="button"
             onClick={clearLocalFiles}
             disabled={disabled || uploading}
-            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Clear Selection
           </button>
@@ -346,7 +380,7 @@ export default function CMSImageUploadField({
       ) : null}
 
       {error ? (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
           {error}
         </p>
       ) : null}

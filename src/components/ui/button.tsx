@@ -4,24 +4,24 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center text-center font-sans text-sm font-medium uppercase tracking-[0.08em] border transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]',
+  'relative inline-flex cursor-pointer items-center justify-center overflow-hidden border text-center font-sans text-sm font-semibold uppercase tracking-[0.1em] transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-eg-espresso-deep)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-eg-cream)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-[var(--color-eg-espresso)] text-[var(--color-eg-cream)] border-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso)] hover:shadow-lg',
+          'border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] shadow-[0_8px_22px_rgba(24,23,17,0.14)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)] hover:shadow-none',
         inverse:
-          'bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso)] border-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] hover:shadow-lg',
+          'border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_22px_rgba(24,23,17,0.14)] hover:bg-transparent hover:text-[var(--color-eg-cream)] hover:shadow-none',
         outline:
-          'border-[var(--color-eg-espresso)] bg-transparent text-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] hover:shadow-lg',
+          'border-[var(--color-eg-espresso-deep)] bg-transparent text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]',
         ghost:
-          'border-transparent bg-transparent text-[var(--color-eg-espresso)] hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] hover:shadow-md',
+          'border-transparent bg-transparent text-[var(--color-eg-espresso-deep)] hover:border-[var(--color-eg-line)] hover:bg-[var(--color-eg-paper)]',
       },
       size: {
-        default: 'px-8 py-4',
-        sm: 'px-5 py-3',
-        lg: 'px-10 py-5 text-base',
-        icon: 'h-10 w-10',
+        default: 'min-h-12 px-7 py-3',
+        sm: 'min-h-10 px-5 py-2.5 text-xs',
+        lg: 'min-h-14 px-9 py-4 text-sm',
+        icon: 'h-10 w-10 p-0',
       },
     },
     defaultVariants: {

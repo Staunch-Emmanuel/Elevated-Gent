@@ -73,57 +73,62 @@ export function ProductCard({
 
   return (
     <div
-      className={`h-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] p-4 shadow-[8px_8px_0_rgba(43,22,4,0.10)] transition-transform duration-300 hover:-translate-y-1 ${className}`}
+      className={`flex h-full flex-col border border-[var(--color-eg-line)] bg-[var(--color-eg-cream)] p-3 text-[var(--color-eg-ink)] shadow-[0_16px_42px_rgba(24,23,17,0.10)] transition-transform duration-300 hover:-translate-y-1 sm:p-4 ${className}`}
     >
-      <div className="space-y-4">
-        <div className="aspect-square bg-[var(--color-eg-paper)] border border-[var(--color-eg-espresso)] overflow-hidden relative">
+      <div className="flex h-full flex-col space-y-5">
+        <div className="relative aspect-square overflow-hidden bg-[var(--color-eg-paper-soft)]">
           <Image
             src={product.image}
             alt={product.title}
             fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-500 hover:scale-105"
           />
 
-          <div className="absolute inset-0 bg-black/5" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,23,17,0.02)_0%,rgba(24,23,17,0.12)_100%)]" />
 
-          <div className="absolute top-4 left-4">
-            <Label>{product.category}</Label>
+          <div className="absolute left-3 top-3 sm:left-4 sm:top-4">
+            <Label className="border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)]">
+              {product.category}
+            </Label>
           </div>
 
           <button
             type="button"
             onClick={handleToggleFavorite}
             disabled={favoriteLoading}
-            className="absolute bottom-4 right-4 z-10 rounded-full border border-[var(--color-eg-espresso)] bg-[var(--color-eg-paper-soft)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-eg-espresso)] shadow-sm transition-colors hover:bg-[var(--color-eg-espresso)] hover:text-[var(--color-eg-cream)] disabled:opacity-60"
+            className="absolute bottom-3 right-3 z-10 rounded-full border border-[rgba(248,241,229,0.68)] bg-[rgba(248,241,229,0.94)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] shadow-[0_6px_18px_rgba(24,23,17,0.16)] transition-colors hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:opacity-60 sm:bottom-4 sm:right-4"
           >
             {isFavorited ? 'Saved' : 'Save'}
           </button>
 
           {product.originalPrice ? (
-            <div className="absolute top-4 right-4">
-              <Label variant="inverse" className="text-xs">
+            <div className="absolute right-3 top-3 sm:right-4 sm:top-4">
+              <Label
+                variant="inverse"
+                className="border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-xs text-[var(--color-eg-cream)]"
+              >
                 SALE
               </Label>
             </div>
           ) : null}
 
           {!product.inStock ? (
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="bg-red-600 text-white text-xs px-2 py-1 text-center font-semibold uppercase tracking-wide">
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
+              <div className="bg-[#913a32] px-3 py-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white">
                 OUT OF STOCK
               </div>
             </div>
           ) : null}
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-[var(--color-eg-muted)] uppercase tracking-[0.12em]">
+        <div className="flex flex-1 flex-col space-y-4 px-1 pb-1">
+          <div className="flex items-start justify-between gap-4">
+            <span className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-muted)]">
               {product.brand}
             </span>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-lg font-semibold text-[var(--color-eg-espresso)]">
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="text-lg font-semibold text-[var(--color-eg-espresso-deep)]">
                 {product.price}
               </span>
 
@@ -135,13 +140,13 @@ export function ProductCard({
             </div>
           </div>
 
-          <h3 className="text-xl font-normal font-editorial leading-tight tracking-[-0.03em] text-[var(--color-eg-espresso)]">
+          <h3 className="font-editorial text-2xl font-normal leading-tight tracking-[-0.03em] text-[var(--color-eg-ink)]">
             {product.title}
           </h3>
 
           {showFullDetails && product.description ? (
             <p
-              className={`font-serif text-[var(--color-eg-muted)] text-sm whitespace-pre-line ${
+              className={`whitespace-pre-line font-serif text-sm leading-7 text-[var(--color-eg-muted)] ${
                 showDetails ? '' : 'line-clamp-2'
               }`}
             >
@@ -149,32 +154,34 @@ export function ProductCard({
             </p>
           ) : null}
 
-          <Button
-            size="sm"
-            onClick={handleToggleDetails}
-            disabled={!product.inStock}
-            className="w-full"
-          >
-            {showDetails ? 'Hide Details' : 'View Product'}
-          </Button>
+          <div className="mt-auto border-t border-[var(--color-eg-line)] pt-4">
+            <Button
+              size="sm"
+              onClick={handleToggleDetails}
+              disabled={!product.inStock}
+              className="w-full border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
+            >
+              {showDetails ? 'Hide Details' : 'View Product'}
+            </Button>
+          </div>
 
           {showFullDetails && showDetails ? (
-            <div className="mt-4 space-y-4 border-t border-[var(--color-eg-line)] pt-4">
-              <h4 className="font-semibold font-sans text-sm uppercase tracking-[0.08em] text-[var(--color-eg-espresso)]">
+            <div className="mt-1 space-y-5 border-t border-[var(--color-eg-line)] pt-5">
+              <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-eg-espresso-deep)]">
                 Product Details
               </h4>
 
               {Array.isArray(product.tags) && product.tags.length > 0 ? (
                 <div>
-                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                  <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-muted)]">
                     Features
                   </span>
 
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {product.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="text-xs px-2 py-1 bg-[var(--color-eg-paper)] text-[var(--color-eg-muted)] rounded-full font-serif uppercase tracking-wide"
+                        className="rounded-full border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-3 py-1.5 font-serif text-xs text-[var(--color-eg-muted)]"
                       >
                         {tag}
                       </span>
@@ -185,15 +192,15 @@ export function ProductCard({
 
               {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
                 <div>
-                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                  <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-muted)]">
                     Available Sizes
                   </span>
 
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
                       <span
                         key={size}
-                        className="text-xs px-2 py-1 border border-[var(--color-eg-line)] text-[var(--color-eg-muted)]"
+                        className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-3 py-1.5 text-xs text-[var(--color-eg-muted)]"
                       >
                         {size}
                       </span>
@@ -204,15 +211,15 @@ export function ProductCard({
 
               {Array.isArray(product.colors) && product.colors.length > 0 ? (
                 <div>
-                  <span className="text-xs font-semibold text-[var(--color-eg-muted)] uppercase tracking-[0.08em] block mb-2">
+                  <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-muted)]">
                     Available Colors
                   </span>
 
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {product.colors.map((color) => (
                       <span
                         key={color}
-                        className="text-xs px-2 py-1 border border-[var(--color-eg-line)] text-[var(--color-eg-muted)]"
+                        className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-3 py-1.5 text-xs text-[var(--color-eg-muted)]"
                       >
                         {color}
                       </span>
@@ -221,9 +228,9 @@ export function ProductCard({
                 </div>
               ) : null}
 
-              <div className="pt-3 border-t border-[var(--color-eg-line)]">
+              <div className="border-t border-[var(--color-eg-line)] pt-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-serif text-[var(--color-eg-muted)]">
+                  <span className="font-serif text-sm text-[var(--color-eg-muted)]">
                     Category: {product.category}
                   </span>
 
@@ -231,6 +238,7 @@ export function ProductCard({
                     size="sm"
                     onClick={handleBuyProduct}
                     disabled={!product.inStock}
+                    className="border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] text-[var(--color-eg-cream)] hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)]"
                   >
                     Buy Now
                   </Button>

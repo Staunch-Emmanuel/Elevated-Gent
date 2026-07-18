@@ -65,7 +65,7 @@ export default function SubscribePage() {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative min-h-screen bg-[#1d1c16]">
       <div className="absolute inset-0">
         <Image
           src="/images/Image-10.jpeg"
@@ -74,15 +74,16 @@ export default function SubscribePage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/60" />
+
+        <div className="absolute inset-0 bg-[rgba(24,23,17,0.76)]" />
       </div>
 
-      <div className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div className="bg-white rounded-lg max-w-md w-full p-8 shadow-xl relative">
-          <div className="text-center space-y-6">
-            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[rgba(24,23,17,0.76)] p-4 backdrop-blur-sm sm:p-6">
+        <div className="relative my-auto w-full max-w-lg border border-[#d3c8b8] bg-[#f8f1e5] p-6 text-[#24231d] shadow-[0_28px_80px_rgba(24,23,17,0.42)] sm:p-8">
+          <div className="space-y-6 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#24231d]">
               <svg
-                className="w-8 h-8 text-white"
+                className="h-8 w-8 text-[#f8f1e5]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -96,28 +97,29 @@ export default function SubscribePage() {
               </svg>
             </div>
 
-            <h1 className="text-3xl font-semibold font-sans">
+            <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               Welcome to The Elevated Gentleman
             </h1>
 
-            <p className="font-serif text-gray-600">
+            <p className="font-serif text-base leading-7 text-[#575348]">
               Subscribe for just {displayPrice}/month to unlock premium styling
               services, curated collections, and exclusive content.
             </p>
 
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <div className="text-4xl font-semibold mb-2">
+            <div className="border border-[#d8cdbd] bg-[#f2eadf] p-6">
+              <div className="font-editorial text-5xl font-normal text-[#4f4b3b]">
                 {displayPrice}
               </div>
-              <div className="text-sm text-gray-600 font-serif">
+
+              <div className="mt-1 font-serif text-sm text-[#575348]">
                 per month
               </div>
             </div>
 
-            <ul className="text-left space-y-3 text-sm font-serif">
+            <ul className="space-y-3 text-left font-serif text-sm leading-6 text-[#4f4b3b]">
               <li className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"
+                  className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-[#3f6f3f]"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -127,12 +129,13 @@ export default function SubscribePage() {
                     clipRule="evenodd"
                   />
                 </svg>
+
                 <span>Access to all styling services</span>
               </li>
 
               <li className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"
+                  className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-[#3f6f3f]"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -142,27 +145,29 @@ export default function SubscribePage() {
                     clipRule="evenodd"
                   />
                 </svg>
+
                 <span>Weekly curated fashion collections</span>
               </li>
 
               <li className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"
+                  className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-[#3f6f3f]"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>Exclusive wellness & grooming tips</span>
+
+                <span>Exclusive wellness &amp; grooming tips</span>
               </li>
 
               <li className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"
+                  className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-[#3f6f3f]"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -172,11 +177,12 @@ export default function SubscribePage() {
                     clipRule="evenodd"
                   />
                 </svg>
+
                 <span>Priority customer support</span>
               </li>
             </ul>
 
-            <div className="space-y-3">
+            <div className="space-y-4 border-t border-[#d8cdbd] pt-6">
               <Button
                 onClick={handleSubscribe}
                 disabled={loading}
@@ -187,13 +193,13 @@ export default function SubscribePage() {
 
               <Link
                 href="/auth/signin"
-                className="block text-sm text-gray-600 hover:text-black"
+                className="block font-serif text-sm font-medium text-[#4f4b3b] transition-colors hover:text-[#24231d]"
               >
                 Already subscribed? Login
               </Link>
             </div>
 
-            <p className="text-xs text-gray-500 font-serif">
+            <p className="font-serif text-xs text-[#625e53]">
               Cancel anytime. No long-term commitment required.
             </p>
           </div>

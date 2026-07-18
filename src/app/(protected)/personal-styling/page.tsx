@@ -174,7 +174,7 @@ export default function PersonalStylingPage() {
                     size="lg"
                     variant="outline"
                     onClick={handleLearnMore}
-                    className="border-[rgba(248,241,229,0.72)] bg-[rgba(24,23,17,0.10)] px-7 text-[var(--color-eg-cream)] hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
+                    className="border-[rgba(232,235,236,0.72)] bg-[rgba(24,23,17,0.10)] px-7 text-[var(--color-eg-cream)] hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
                   >
                     Learn More
                   </Button>
@@ -286,7 +286,7 @@ export default function PersonalStylingPage() {
                     </Button>
                   </div>
 
-                  <div className="flex h-full flex-col border border-[rgba(248,241,229,0.38)] bg-[var(--color-eg-espresso-deep)] p-7 text-[var(--color-eg-cream)] shadow-[0_20px_50px_rgba(24,23,17,0.18)] md:p-8">
+                  <div className="flex h-full flex-col border border-[rgba(232,235,236,0.38)] bg-[var(--color-eg-espresso-deep)] p-7 text-[var(--color-eg-cream)] shadow-[0_20px_50px_rgba(24,23,17,0.18)] md:p-8">
                     <div className="mb-7 space-y-4">
                       {content.gentlemensUpgrade.badge ? (
                         <Label
@@ -358,7 +358,7 @@ export default function PersonalStylingPage() {
                   {content.processSteps.map((step, index) => (
                     <div
                       key={index}
-                      className="space-y-5 border border-[rgba(248,241,229,0.28)] bg-[rgba(248,241,229,0.06)] p-7 text-center backdrop-blur-[2px] md:p-8"
+                      className="space-y-5 border border-[rgba(232,235,236,0.28)] bg-[rgba(232,235,236,0.06)] p-7 text-center backdrop-blur-[2px] md:p-8"
                     >
                       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-xl font-semibold text-[var(--color-eg-espresso-deep)]">
                         {index + 1}

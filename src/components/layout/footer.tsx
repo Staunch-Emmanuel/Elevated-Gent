@@ -128,7 +128,7 @@ export function Footer() {
                     }
                     placeholder="Enter your email"
                     required
-                    className="min-w-0 flex-1 border border-[rgba(248,241,229,0.5)] bg-[rgba(248,241,229,0.07)] px-5 py-3.5 font-serif text-[var(--color-eg-cream)] outline-none transition-colors placeholder:text-[rgba(248,241,229,0.62)] focus:border-[var(--color-eg-cream)] focus:bg-[rgba(248,241,229,0.1)]"
+                    className="min-w-0 flex-1 border border-[rgba(232,235,236,0.5)] bg-[rgba(232,235,236,0.07)] px-5 py-3.5 font-serif text-[var(--color-eg-cream)] outline-none transition-colors placeholder:text-[rgba(232,235,236,0.62)] focus:border-[var(--color-eg-cream)] focus:bg-[rgba(232,235,236,0.1)]"
                   />
 
                   <Button
@@ -190,7 +190,7 @@ export function Footer() {
                       key={social.name}
                       href={social.href}
                       target="_blank"
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(248,241,229,0.4)] text-[var(--color-eg-cream)] transition-colors duration-200 hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(232,235,236,0.4)] text-[var(--color-eg-cream)] transition-colors duration-200 hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
                       aria-label={social.name}
                     >
                       {social.icon === 'Instagram' ? (

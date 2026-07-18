@@ -143,7 +143,7 @@ export default function WeeklyPage() {
     <ProtectedRoute>
       <StructuredData pageKey="weekly" />
 
-      <section className="border-b border-[rgba(243,237,226,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
+      <section className="border-b border-[rgba(232,235,236,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
         <PagePadding>
           <Container>
             <div className="space-y-8 text-center">
@@ -153,7 +153,7 @@ export default function WeeklyPage() {
                 </h1>
               </div>
 
-              <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(243,237,226,0.92)] md:text-xl">
+              <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(232,235,236,0.92)] md:text-xl">
                 Curated weekly selections featuring the best finds, deals,
                 budget-friendly options, luxury pieces, accessories, and
                 emerging brands in men&apos;s fashion.
@@ -195,7 +195,7 @@ export default function WeeklyPage() {
                   ) : null}
                 </div>
 
-                <p className="mt-4 text-center text-sm font-medium text-[rgba(243,237,226,0.86)]">
+                <p className="mt-4 text-center text-sm font-medium text-[rgba(232,235,236,0.86)]">
                   {loadingCmsProducts
                     ? 'Loading products...'
                     : `${filteredProducts.length} ${
@@ -260,7 +260,7 @@ export default function WeeklyPage() {
                       className={
                         active
                           ? 'cursor-pointer border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] text-[var(--color-eg-espresso-deep)]'
-                          : 'cursor-pointer border-[rgba(243,237,226,0.56)] bg-transparent text-[var(--color-eg-cream)] transition hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
+                          : 'cursor-pointer border-[rgba(232,235,236,0.56)] bg-transparent text-[var(--color-eg-cream)] transition hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
                       }
                     >
                       {category.label}
@@ -271,7 +271,7 @@ export default function WeeklyPage() {
             </div>
 
             {loadingCmsProducts ? (
-              <p className="text-center font-serif text-[rgba(243,237,226,0.86)]">
+              <p className="text-center font-serif text-[rgba(232,235,236,0.86)]">
                 Loading products...
               </p>
             ) : filteredProducts.length === 0 ? (
@@ -281,7 +281,7 @@ export default function WeeklyPage() {
                 </p>
 
                 {hasSearchQuery ? (
-                  <p className="mt-2 text-[rgba(243,237,226,0.84)]">
+                  <p className="mt-2 text-[rgba(232,235,236,0.84)]">
                     No results found for{' '}
                     <span className="font-medium text-[var(--color-eg-cream)]">
                       &quot;{searchQuery}&quot;
@@ -289,7 +289,7 @@ export default function WeeklyPage() {
                     .
                   </p>
                 ) : (
-                  <p className="mt-2 text-[rgba(243,237,226,0.84)]">
+                  <p className="mt-2 text-[rgba(232,235,236,0.84)]">
                     No weekly products found.
                   </p>
                 )}

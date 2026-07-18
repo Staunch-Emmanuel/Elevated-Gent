@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
           <div className="flex min-h-screen flex-col items-center justify-center py-12">
             {/* Company Logo */}
             <div className="mb-10">
-              <div className="border border-[rgba(248,241,229,0.32)] bg-[rgba(248,241,229,0.94)] px-6 py-4 shadow-[0_12px_32px_rgba(24,23,17,0.18)]">
+              <div className="border border-[rgba(232,235,236,0.32)] bg-[rgba(232,235,236,0.94)] px-6 py-4 shadow-[0_12px_32px_rgba(24,23,17,0.18)]">
                 <Image
                   src="/images/The Elevated gentleman.svg"
                   alt="The Elevated Gentleman"
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
 
             {/* Forgot Password Form */}
             <div className="w-full max-w-md">
-              <div className="border border-[rgba(248,241,229,0.28)] bg-[var(--color-eg-cream)] p-6 text-[var(--color-eg-ink)] shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-8">
+              <div className="border border-[rgba(232,235,236,0.28)] bg-[var(--color-eg-cream)] p-6 text-[var(--color-eg-ink)] shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-8">
                 <div className="mb-8 text-center">
                   <p className="mb-3 font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-eg-muted)]">
                     Account Recovery

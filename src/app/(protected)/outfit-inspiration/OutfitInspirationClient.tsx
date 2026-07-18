@@ -111,7 +111,7 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
 
   return (
     <>
-      <div className="mb-12 flex justify-center border-b border-[rgba(248,241,229,0.18)] pb-10 md:mb-16 md:pb-12">
+      <div className="mb-12 flex justify-center border-b border-[rgba(232,235,236,0.18)] pb-10 md:mb-16 md:pb-12">
         <div className="flex max-w-5xl flex-wrap justify-center gap-3">
           {filterOptions.map((filter) => (
             <Label
@@ -121,7 +121,7 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
               className={
                 activeFilter === filter.id
                   ? 'cursor-pointer border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_22px_rgba(24,23,17,0.12)] transition-colors duration-200'
-                  : 'cursor-pointer border-[rgba(248,241,229,0.58)] bg-transparent px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors duration-200 hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
+                  : 'cursor-pointer border-[rgba(232,235,236,0.58)] bg-transparent px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors duration-200 hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
               }
             >
               {filter.label}
@@ -131,8 +131,8 @@ export default function OutfitInspirationClient({ cmsOutfits }: Props) {
       </div>
 
       {filteredOutfits.length === 0 ? (
-        <div className="border border-[rgba(248,241,229,0.3)] bg-[rgba(248,241,229,0.08)] px-6 py-14 text-center shadow-[0_16px_44px_rgba(24,23,17,0.08)] md:py-20">
-          <p className="mx-auto max-w-xl font-serif text-base leading-8 text-[rgba(248,241,229,0.88)] md:text-lg">
+        <div className="border border-[rgba(232,235,236,0.3)] bg-[rgba(232,235,236,0.08)] px-6 py-14 text-center shadow-[0_16px_44px_rgba(24,23,17,0.08)] md:py-20">
+          <p className="mx-auto max-w-xl font-serif text-base leading-8 text-[rgba(232,235,236,0.88)] md:text-lg">
             No outfits found in this category yet. Check back soon!
           </p>
         </div>

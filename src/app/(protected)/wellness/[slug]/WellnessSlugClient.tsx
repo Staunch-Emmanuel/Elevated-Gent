@@ -29,13 +29,33 @@ export default function WellnessSlugClient({ slug }: Props) {
     };
   }, [slug]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!item) return <div>Not found</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-eg-espresso)] px-6 py-20 text-center font-serif text-[var(--color-text-muted)]">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="min-h-screen bg-[var(--color-eg-espresso)] px-6 py-20 text-center font-serif text-[var(--color-text-muted)]">
+        Not found
+      </div>
+    );
+  }
 
   return (
-    <article>
-      <h1>{item.title}</h1>
-      <div>{item.content}</div>
+    <article className="min-h-screen bg-[var(--color-eg-paper)] px-6 py-16 text-[var(--color-eg-ink)] md:py-20">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="eg-editorial-heading mb-8 text-5xl text-[var(--color-eg-ink)] md:text-7xl">
+          {item.title}
+        </h1>
+
+        <div className="prose max-w-none">
+          {item.content}
+        </div>
+      </div>
     </article>
   );
 }

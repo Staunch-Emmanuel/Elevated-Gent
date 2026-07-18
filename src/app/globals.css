@@ -28,51 +28,50 @@
 :root {
   /* Base Colors */
   --color-black: #181711;
-  --color-white: #ffffff;
-  --color-primary-red: #77725d;
+  --color-white: #e8ebec;
+  --color-primary-red: #817e6c;
 
   /*
-   * Elevated Gentleman Rebrand Palette
+   * Elevated Gentleman Brand Palette
    *
-   * Primary: warm taupe / khaki with an olive undertone
-   * Text on primary: warm cream
-   * Cards and contrast surfaces: warm cream / stone
+   * Primary olive: #817E6C
+   * Cream / white: #E8EBEC
    */
-  --color-eg-espresso: #77725d;
-  --color-eg-espresso-soft: #68634f;
-  --color-eg-espresso-deep: #4f4b3b;
+  --color-eg-espresso: #817e6c;
+  --color-eg-espresso-soft: #817e6c;
+  --color-eg-espresso-deep: #817e6c;
 
-  --color-eg-cream: #f8f1e5;
-  --color-eg-paper: #f2eadf;
-  --color-eg-paper-soft: #e9dfd1;
+  --color-eg-cream: #e8ebec;
+  --color-eg-paper: #e8ebec;
+  --color-eg-paper-soft: #e8ebec;
 
   --color-eg-ink: #24231d;
   --color-eg-muted: #625e53;
 
   --color-eg-line: rgba(36, 35, 29, 0.2);
-  --color-eg-line-light: rgba(248, 241, 229, 0.34);
+  --color-eg-line-light: rgba(232, 235, 236, 0.34);
 
   /*
    * Preserved for compatibility.
-   * This is now a warm stone tone, not blue.
+   * Uses the approved cream / white brand colour.
    */
-  --color-eg-blue: #e9dfd1;
+  --color-eg-blue: #e8ebec;
 
   /* Text Colors */
-  --color-text-primary: #f8f1e5;
-  --color-text-muted: rgba(248, 241, 229, 0.88);
-  --color-text-secondary: rgba(248, 241, 229, 0.76);
+  --color-text-primary: #e8ebec;
+  --color-text-muted: rgba(232, 235, 236, 0.88);
+  --color-text-secondary: rgba(232, 235, 236, 0.76);
   --color-text-inverse: #24231d;
 
   /* Background Colors */
-  --color-background: #77725d;
-  --color-background-muted: #68634f;
-  --color-background-light: #f2eadf;
+  --color-background: #817e6c;
+  --color-background-muted: #817e6c;
+  --color-background-light: #e8ebec;
 
   /* Border Colors */
-  --color-border-light: rgba(248, 241, 229, 0.28);
-  --color-border-default: rgba(248, 241, 229, 0.5);
-  --color-line: rgba(248, 241, 229, 0.28);
+  --color-border-light: rgba(232, 235, 236, 0.28);
+  --color-border-default: rgba(232, 235, 236, 0.5);
+  --color-line: rgba(232, 235, 236, 0.28);
 
   /* Semantic Colors */
   --color-success-bg: #e4fada;
@@ -404,4 +403,10 @@ body {
   color: rgba(36, 35, 29, 0.76);
   padding-left: 1.5rem;
   font-style: italic;
+}
+
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }

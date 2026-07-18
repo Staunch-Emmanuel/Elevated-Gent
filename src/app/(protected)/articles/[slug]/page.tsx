@@ -277,8 +277,8 @@ function looksLikeDarkArticle(content: string): boolean {
     'linear-gradient(180deg,#24231d',
     'color:#f5f5f5',
     'color: #f5f5f5',
-    'color:#f8f1e5',
-    'color: #f8f1e5',
+    'color:#e8ebec',
+    'color: #e8ebec',
     'color:#fff',
     'color: #fff',
     '--bg:#0b0b0b',
@@ -435,7 +435,7 @@ const articleContentStyles = `
   }
 
   .article-content blockquote {
-    border-left: 3px solid rgba(79, 75, 59, 0.28);
+    border-left: 3px solid rgba(129, 126, 108, 0.28);
     padding-left: 1rem;
     font-style: italic;
     opacity: 0.9;
@@ -443,7 +443,7 @@ const articleContentStyles = `
 
   .article-content hr {
     border: 0;
-    border-top: 1px solid rgba(79, 75, 59, 0.18);
+    border-top: 1px solid rgba(129, 126, 108, 0.18);
     margin: 2rem 0;
   }
 
@@ -454,7 +454,7 @@ const articleContentStyles = `
 
   .article-content th,
   .article-content td {
-    border: 1px solid rgba(79, 75, 59, 0.18);
+    border: 1px solid rgba(129, 126, 108, 0.18);
     padding: 0.75rem;
     text-align: left;
     vertical-align: top;
@@ -499,7 +499,7 @@ const articleContentStyles = `
     background:
       radial-gradient(
         circle at top,
-        rgba(119, 114, 93, 0.20),
+        rgba(129, 126, 108, 0.20),
         transparent 28%
       ),
       linear-gradient(
@@ -508,11 +508,11 @@ const articleContentStyles = `
         #292820 46%,
         #1d1c17 100%
       );
-    color: #f8f1e5;
+    color: #e8ebec;
   }
 
   .article-route-light {
-    background: #f2eadf;
+    background: #e8ebec;
     color: #24231d;
   }
 
@@ -521,7 +521,7 @@ const articleContentStyles = `
   }
 
   .article-route-dark .article-route-link:hover {
-    color: #f8f1e5;
+    color: #e8ebec;
   }
 
   .article-route-light .article-route-link {
@@ -533,7 +533,7 @@ const articleContentStyles = `
   }
 
   .article-route-dark .article-route-meta {
-    color: #f8f1e5;
+    color: #e8ebec;
   }
 
   .article-route-light .article-route-meta {
@@ -618,7 +618,7 @@ export default async function ArticlePage({
           className={
             fullHtmlMode
               ? 'py-16'
-              : 'border-b border-[rgba(248,241,229,0.22)] bg-[var(--color-eg-espresso)] py-16 md:py-20'
+              : 'border-b border-[rgba(232,235,236,0.22)] bg-[var(--color-eg-espresso)] py-16 md:py-20'
           }
         >
           <PagePadding>
@@ -636,7 +636,7 @@ export default async function ArticlePage({
                     className={`article-route-link font-serif text-sm transition-colors ${
                       fullHtmlMode
                         ? ''
-                        : 'text-[rgba(248,241,229,0.84)] hover:text-[var(--color-eg-cream)]'
+                        : 'text-[rgba(232,235,236,0.84)] hover:text-[var(--color-eg-cream)]'
                     }`}
                   >
                     ← Back to Articles
@@ -655,7 +655,7 @@ export default async function ArticlePage({
                       className={`font-sans text-xs uppercase tracking-[0.2em] ${
                         fullHtmlMode
                           ? 'opacity-75'
-                          : 'text-[rgba(248,241,229,0.78)]'
+                          : 'text-[rgba(232,235,236,0.78)]'
                       }`}
                     >
                       {categoryLabel}
@@ -677,7 +677,7 @@ export default async function ArticlePage({
                       className={`font-serif text-lg leading-relaxed md:text-xl ${
                         fullHtmlMode
                           ? 'opacity-90'
-                          : 'text-[rgba(248,241,229,0.90)]'
+                          : 'text-[rgba(232,235,236,0.90)]'
                       }`}
                     >
                       {article.excerpt}
@@ -689,7 +689,7 @@ export default async function ArticlePage({
                       className={`font-serif text-sm ${
                         fullHtmlMode
                           ? 'opacity-75'
-                          : 'text-[rgba(248,241,229,0.72)]'
+                          : 'text-[rgba(232,235,236,0.72)]'
                       }`}
                     >
                       Published · {publishedLabel}
@@ -720,8 +720,8 @@ export default async function ArticlePage({
                 <div
                   className={`relative overflow-hidden ${
                     fullHtmlMode
-                      ? 'rounded-[1.5rem] border border-[rgba(248,241,229,0.16)] shadow-[0_22px_60px_rgba(16,15,12,0.30)]'
-                      : 'border border-[rgba(248,241,229,0.28)] shadow-[0_18px_45px_rgba(41,40,32,0.18)]'
+                      ? 'rounded-[1.5rem] border border-[rgba(232,235,236,0.16)] shadow-[0_22px_60px_rgba(16,15,12,0.30)]'
+                      : 'border border-[rgba(232,235,236,0.28)] shadow-[0_18px_45px_rgba(41,40,32,0.18)]'
                   }`}
                 >
                   <div className="relative aspect-[16/9] w-full">

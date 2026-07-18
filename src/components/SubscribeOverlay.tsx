@@ -49,35 +49,51 @@ export default function SubscribeOverlay() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4">
-      <div className="bg-white text-black rounded-2xl p-10 max-w-md w-full text-center space-y-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(24,23,17,0.82)] px-4 backdrop-blur-sm">
+      <div className="w-full max-w-md space-y-7 border border-[rgba(232,235,236,0.28)] bg-[var(--color-eg-cream)] p-7 text-center text-[var(--color-eg-ink)] shadow-[0_28px_80px_rgba(24,23,17,0.42)] sm:p-10">
+        <div>
+          <p className="mb-3 font-sans text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--color-eg-muted)]">
+            Premium Membership
+          </p>
 
-        <h2 className="text-3xl font-semibold">
-          The Elevated Gentleman
-        </h2>
-
-        <div className="flex items-end justify-center gap-2">
-          <span className="text-6xl font-bold">$2</span>
-          <span className="text-sm mb-2 opacity-70">one-time</span>
+          <h2 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[var(--color-eg-ink)]">
+            The Elevated Gentleman
+          </h2>
         </div>
 
-        <button
-          onClick={handleSubscribe}
-          disabled={loading}
-          className="w-full py-4 text-lg bg-black text-white rounded-xl disabled:opacity-50"
-        >
-          {loading ? 'Redirecting…' : 'Subscribe'}
-        </button>
+        <div className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-6">
+          <div className="flex items-end justify-center gap-2">
+            <span className="font-editorial text-6xl font-normal text-[var(--color-eg-espresso-deep)]">
+              $2
+            </span>
 
-        <button
-          onClick={handleLogin}
-          className="w-full py-4 text-base border-2 border-black rounded-xl"
-        >
-          Login
-        </button>
+            <span className="mb-2 font-serif text-sm text-[var(--color-eg-muted)]">
+              one-time
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={handleSubscribe}
+            disabled={loading}
+            className="w-full border border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] px-6 py-4 font-sans text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] transition-colors hover:bg-transparent hover:text-[var(--color-eg-espresso-deep)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? 'Redirecting…' : 'Subscribe'}
+          </button>
+
+          <button
+            onClick={handleLogin}
+            className="w-full border border-[var(--color-eg-espresso-deep)] bg-transparent px-6 py-4 font-sans text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
+          >
+            Login
+          </button>
+        </div>
 
         {error && (
-          <p className="text-sm text-red-600">{error}</p>
+          <div className="border border-[#d9aaa4] bg-[#fbefed] p-4">
+            <p className="font-serif text-sm text-[#913a32]">{error}</p>
+          </div>
         )}
       </div>
     </div>

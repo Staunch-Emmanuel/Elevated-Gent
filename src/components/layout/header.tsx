@@ -381,13 +381,13 @@ export function Header() {
 
     const foreground =
       headerTone === 'light'
-        ? '#f8f1e5'
-        : '#f8f1e5'
+        ? '#e8ebec'
+        : '#e8ebec'
 
     const divider =
       headerTone === 'light'
-        ? 'rgba(248,241,229,0.42)'
-        : 'rgba(248,241,229,0.42)'
+        ? 'rgba(232,235,236,0.42)'
+        : 'rgba(232,235,236,0.42)'
 
     document.documentElement.style.setProperty(
       '--header-fg',
@@ -414,13 +414,13 @@ export function Header() {
     'text-[var(--color-eg-cream)]'
 
   const subtleTextColorClass =
-    'text-[rgba(248,241,229,0.82)]'
+    'text-[rgba(232,235,236,0.82)]'
 
   const logoFilterClass =
     'brightness-0 invert'
 
   const dividerClass =
-    'bg-[rgba(248,241,229,0.42)]'
+    'bg-[rgba(232,235,236,0.42)]'
 
   const menuLineClass =
     'bg-[var(--color-eg-cream)]'
@@ -433,8 +433,8 @@ export function Header() {
       ref={headerRef}
       className={
         isArticlePage
-          ? 'sticky top-0 z-[1000] isolate border-b border-[rgba(248,241,229,0.24)] bg-[rgba(47,45,36,0.86)] text-[var(--color-eg-cream)] shadow-[0_14px_42px_rgba(24,23,17,0.34)]'
-          : 'sticky top-0 z-[1000] border-b border-[rgba(248,241,229,0.18)] bg-[rgba(95,91,77,0.97)] text-[var(--color-eg-cream)] shadow-[0_8px_24px_rgba(41,40,32,0.12)] md:backdrop-blur-md'
+          ? 'sticky top-0 z-[1000] isolate border-b border-[rgba(232,235,236,0.24)] bg-[rgba(129,126,108,0.86)] text-[var(--color-eg-cream)] shadow-[0_14px_42px_rgba(24,23,17,0.34)]'
+          : 'sticky top-0 z-[1000] border-b border-[rgba(232,235,236,0.18)] bg-[rgba(129,126,108,0.97)] text-[var(--color-eg-cream)] shadow-[0_8px_24px_rgba(41,40,32,0.12)] md:backdrop-blur-md'
       }
       style={
         isArticlePage && !isMobileMenuOpen
@@ -449,7 +449,7 @@ export function Header() {
         className={
           isArticlePage
             ? 'relative z-[1000] bg-transparent'
-            : 'relative z-[1000] bg-[rgba(95,91,77,0.97)]'
+            : 'relative z-[1000] bg-[rgba(129,126,108,0.97)]'
         }
       >
         <PagePadding>
@@ -518,10 +518,10 @@ export function Header() {
                                 </Link>
 
                                 <div className="absolute left-1/2 top-full z-[1200] hidden -translate-x-1/2 pt-4 group-hover:block">
-                                  <div className="min-w-[240px] border border-[rgba(248,241,229,0.18)] bg-[rgba(47,45,36,0.96)] p-2 text-[var(--color-eg-cream)] shadow-[0_18px_50px_rgba(24,23,17,0.36)] backdrop-blur-xl">
+                                  <div className="min-w-[240px] border border-[rgba(232,235,236,0.18)] bg-[rgba(129,126,108,0.96)] p-2 text-[var(--color-eg-cream)] shadow-[0_18px_50px_rgba(24,23,17,0.36)] backdrop-blur-xl">
                                     <Link
                                       href="/articles"
-                                      className="block px-4 py-3 font-serif text-sm transition-colors hover:bg-[rgba(248,241,229,0.10)]"
+                                      className="block px-4 py-3 font-serif text-sm transition-colors hover:bg-[rgba(232,235,236,0.10)]"
                                     >
                                       All Articles
                                     </Link>
@@ -531,7 +531,7 @@ export function Header() {
                                         <Link
                                           key={item.id}
                                           href={item.href}
-                                          className="block px-4 py-3 font-serif text-sm transition-colors hover:bg-[rgba(248,241,229,0.10)]"
+                                          className="block px-4 py-3 font-serif text-sm transition-colors hover:bg-[rgba(232,235,236,0.10)]"
                                         >
                                           {item.name}
                                         </Link>
@@ -719,7 +719,7 @@ export function Header() {
         >
           {user ? (
             <div className="flex h-full min-h-0 flex-col">
-              <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[rgba(248,241,229,0.22)] px-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+              <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[rgba(232,235,236,0.22)] px-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-eg-cream)]">
                     <span className="text-sm font-semibold text-[var(--color-eg-espresso-deep)]">
@@ -734,7 +734,7 @@ export function Header() {
                       {user.displayName || 'Welcome'}
                     </div>
 
-                    <div className="truncate font-serif text-xs text-[rgba(248,241,229,0.78)]">
+                    <div className="truncate font-serif text-xs text-[rgba(232,235,236,0.78)]">
                       {user.email}
                     </div>
                   </div>
@@ -743,7 +743,7 @@ export function Header() {
                 <button
                   type="button"
                   onClick={closeMobileMenu}
-                  className="flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full text-[var(--color-eg-cream)] transition-colors hover:bg-[rgba(248,241,229,0.12)]"
+                  className="flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full text-[var(--color-eg-cream)] transition-colors hover:bg-[rgba(232,235,236,0.12)]"
                   aria-label="Close mobile menu"
                 >
                   <svg
@@ -776,14 +776,14 @@ export function Header() {
                         <button
                           type="button"
                           onClick={toggleArticlesMenu}
-                          className="group flex w-full cursor-pointer touch-manipulation items-center justify-between rounded-lg p-4 text-left transition-all duration-200 ease-in-out hover:bg-[rgba(248,241,229,0.10)]"
+                          className="group flex w-full cursor-pointer touch-manipulation items-center justify-between rounded-lg p-4 text-left transition-all duration-200 ease-in-out hover:bg-[rgba(232,235,236,0.10)]"
                         >
                           <span className="font-serif text-lg text-[var(--color-eg-cream)]">
                             {link.name}
                           </span>
 
                           <svg
-                            className={`h-4 w-4 text-[rgba(248,241,229,0.70)] transition-all duration-200 ${
+                            className={`h-4 w-4 text-[rgba(232,235,236,0.70)] transition-all duration-200 ${
                               isArticlesMenuOpen
                                 ? 'rotate-90 text-[var(--color-eg-cream)]'
                                 : ''
@@ -812,7 +812,7 @@ export function Header() {
                             <Link
                               href="/articles"
                               onClick={closeMobileMenu}
-                              className="block rounded-lg p-3 font-serif text-base text-[rgba(248,241,229,0.86)] transition-colors hover:bg-[rgba(248,241,229,0.10)] hover:text-[var(--color-eg-cream)]"
+                              className="block rounded-lg p-3 font-serif text-base text-[rgba(232,235,236,0.86)] transition-colors hover:bg-[rgba(232,235,236,0.10)] hover:text-[var(--color-eg-cream)]"
                             >
                               All Articles
                             </Link>
@@ -823,7 +823,7 @@ export function Header() {
                                   key={item.id}
                                   href={item.href}
                                   onClick={closeMobileMenu}
-                                  className="block rounded-lg p-3 font-serif text-base text-[rgba(248,241,229,0.86)] transition-colors hover:bg-[rgba(248,241,229,0.10)] hover:text-[var(--color-eg-cream)]"
+                                  className="block rounded-lg p-3 font-serif text-base text-[rgba(232,235,236,0.86)] transition-colors hover:bg-[rgba(232,235,236,0.10)] hover:text-[var(--color-eg-cream)]"
                                 >
                                   {item.name}
                                 </Link>
@@ -840,7 +840,7 @@ export function Header() {
                       key={link.href}
                       href={link.href}
                       onClick={closeMobileMenu}
-                      className="group block cursor-pointer rounded-lg p-4 transition-all duration-200 ease-in-out hover:bg-[rgba(248,241,229,0.10)]"
+                      className="group block cursor-pointer rounded-lg p-4 transition-all duration-200 ease-in-out hover:bg-[rgba(232,235,236,0.10)]"
                       style={{
                         animationDelay: `${index * 50}ms`,
                       }}
@@ -851,7 +851,7 @@ export function Header() {
                         </span>
 
                         <svg
-                          className="h-4 w-4 text-[rgba(248,241,229,0.70)] transition-all duration-200 group-hover:translate-x-1 group-hover:text-[var(--color-eg-cream)]"
+                          className="h-4 w-4 text-[rgba(232,235,236,0.70)] transition-all duration-200 group-hover:translate-x-1 group-hover:text-[var(--color-eg-cream)]"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -869,14 +869,14 @@ export function Header() {
                 })}
               </nav>
 
-              <div className="shrink-0 space-y-4 border-t border-[rgba(248,241,229,0.22)] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
+              <div className="shrink-0 space-y-4 border-t border-[rgba(232,235,236,0.22)] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
                 <div className="flex items-center justify-center gap-4">
                   {SOCIAL_LINKS.map((social) => (
                     <Link
                       key={social.name}
                       href={social.href}
                       target="_blank"
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(248,241,229,0.34)] text-[var(--color-eg-cream)] transition-all duration-200 hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(232,235,236,0.34)] text-[var(--color-eg-cream)] transition-all duration-200 hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]"
                     >
                       {social.icon === 'Instagram' ? (
                         <svg

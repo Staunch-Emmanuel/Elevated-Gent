@@ -23,11 +23,13 @@ export default function WeeklyAdminPage() {
 
   async function load() {
     setLoading(true)
+
     try {
       const [cms, categoryDocs] = await Promise.all([
         getAllWeekly(),
         getContentCategories('weekly'),
       ])
+
       setItems(cms)
       setCategories(categoryDocs)
     } catch (err) {
@@ -43,7 +45,9 @@ export default function WeeklyAdminPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this weekly item?')) return
+
     setDeletingId(id)
+
     try {
       await deleteWeekly(id)
       await load()
@@ -73,41 +77,50 @@ export default function WeeklyAdminPage() {
 
   return (
     <PagePadding>
-      <Container className="py-10 max-w-5xl">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold">Weekly Products (Admin)</h1>
+      <Container className="max-w-5xl py-10 md:py-12">
+        <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
+              Product Management
+            </p>
 
-          <div className="flex gap-3">
+            <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
+              Weekly Products
+            </h1>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/categories?section=weekly"
-              className="px-4 py-2 border border-gray-300 rounded text-sm"
+              className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
             >
               Manage Categories
             </Link>
 
             <Link
               href="/admin/weekly/new"
-              className="px-4 py-2 bg-black text-white rounded text-sm"
+              className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
             >
               + Add Weekly Item
             </Link>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 mb-8">
+        <div className="mb-8 grid gap-4 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_12px_32px_rgba(36,35,29,0.05)] md:grid-cols-[minmax(0,1fr)_240px]">
           <input
-            className="border p-2 rounded flex-1 min-w-[200px]"
+            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
             placeholder="Search by title, brand, or description…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
           <select
-            className="border p-2 rounded min-w-[220px]"
+            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
             <option value="all">All Categories</option>
+
             {categories.map((category) => (
               <option key={category.id} value={category.name}>
                 {category.name}
@@ -117,41 +130,53 @@ export default function WeeklyAdminPage() {
         </div>
 
         {loading ? (
-          <p>Loading…</p>
+          <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <p className="font-serif text-[#575348]">Loading…</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <p>No weekly items found.</p>
+          <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <p className="font-serif text-[#575348]">
+              No weekly items found.
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="border rounded p-4 flex items-center gap-4 justify-between"
+                className="flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-20 h-20 object-cover rounded border"
+                    className="h-44 w-full border border-[#b9ae9d] object-cover sm:h-24 sm:w-24"
                   />
 
-                  <div>
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="text-sm text-gray-500">
+                  <div className="min-w-0">
+                    <h3 className="font-editorial text-2xl font-normal leading-tight text-[#24231d]">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-2 font-serif text-sm text-[#575348]">
                       {item.brand} • {item.category}
                     </p>
-                    <p className="text-sm text-gray-500">{item.price}</p>
 
-                    <div className="mt-2 flex gap-2 flex-wrap">
-                      <span className="text-xs bg-green-200 px-2 py-1 rounded">
+                    <p className="mt-1 font-serif text-sm font-semibold text-[#4f4b3b]">
+                      {item.price}
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="border border-[#9aaa83] bg-[#edf3e4] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#40512f]">
                         CMS
                       </span>
 
                       {item.published === false ? (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <span className="border border-[#b89b63] bg-[#f4ead2] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6c5428]">
                           Draft
                         </span>
                       ) : (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        <span className="border border-[#9aaa83] bg-[#edf3e4] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#40512f]">
                           Published
                         </span>
                       )}
@@ -159,10 +184,10 @@ export default function WeeklyAdminPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3 sm:justify-end">
                   <Link
                     href={`/admin/weekly/${item.id}`}
-                    className="text-yellow-600 text-sm underline"
+                    className="border border-[#77725d] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
                   >
                     Edit
                   </Link>
@@ -170,7 +195,7 @@ export default function WeeklyAdminPage() {
                   <button
                     onClick={() => handleDelete(item.id)}
                     disabled={deletingId === item.id}
-                    className="text-red-600 text-sm underline disabled:opacity-40"
+                    className="border border-[#a65a50] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {deletingId === item.id ? 'Deleting…' : 'Delete'}
                   </button>
