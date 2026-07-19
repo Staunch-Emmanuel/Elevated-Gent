@@ -7,6 +7,7 @@ export const IMAGE_UPLOAD_FOLDERS = [
   "wellness",
   "weekly",
   "outfits",
+  "outfits/shop-items",
   "auth",
   "homepage",
   "personal-styling",
@@ -49,13 +50,17 @@ function sanitizeSlug(value?: string) {
     .slice(0, 100);
 }
 
-export function isValidImageFolder(value: string): value is ImageUploadFolder {
+export function isValidImageFolder(
+  value: string
+): value is ImageUploadFolder {
   return IMAGE_UPLOAD_FOLDERS.includes(value as ImageUploadFolder);
 }
 
 export function validateImageFile(file: File) {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    throw new Error("Unsupported image type. Use JPG, PNG, WEBP, SVG, or AVIF.");
+    throw new Error(
+      "Unsupported image type. Use JPG, PNG, WEBP, SVG, or AVIF."
+    );
   }
 
   if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -92,7 +97,9 @@ export async function uploadImageToStorage(params: {
   const downloadToken = crypto.randomUUID();
   const slugPart = sanitizeSlug(documentSlug) || "image";
 
-  const storagePath = `cms/${folder}/${slugPart}/${randomId}-${safeFileName}`;
+  const storagePath =
+    `cms/${folder}/${slugPart}/${randomId}-${safeFileName}`;
+
   const storageFile = bucket.file(storagePath);
 
   await storageFile.save(optimizedBuffer, {
@@ -107,7 +114,10 @@ export async function uploadImageToStorage(params: {
   });
 
   const encodedPath = encodeURIComponent(storagePath);
-  const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media&token=${downloadToken}`;
+
+  const publicUrl =
+    `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/` +
+    `${encodedPath}?alt=media&token=${downloadToken}`;
 
   return {
     path: storagePath,
