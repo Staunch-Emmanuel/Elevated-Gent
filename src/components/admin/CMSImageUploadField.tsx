@@ -105,12 +105,13 @@ export default function CMSImageUploadField({
     setLocalFiles([])
   }
 
-  function handleFilesSelected(
+  async function handleFilesSelected(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
     setError('')
 
     const selectedFiles = Array.from(event.target.files ?? [])
+    event.target.value = ''
 
     if (!selectedFiles.length) return
 
@@ -120,25 +121,53 @@ export default function CMSImageUploadField({
 
     if (!imageFiles.length) {
       setError('Please choose a valid image file.')
-      event.target.value = ''
       return
     }
 
-    clearLocalFiles()
+    try {
+      const hydratedFiles = await Promise.all(
+        imageFiles.map(async (file) => {
+          if (!file.size) {
+            throw new Error(
+              `The selected file "${file.name}" is empty or is not available locally.`
+            )
+          }
 
-    const nextLocalFiles = imageFiles.map((file, index) => ({
-      id: `${file.name}-${file.size}-${index}`,
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }))
+          const bytes = await file.arrayBuffer()
 
-    if (mode === 'single') {
-      setLocalFiles(nextLocalFiles.slice(0, 1))
-    } else {
-      setLocalFiles(nextLocalFiles)
+          if (!bytes.byteLength) {
+            throw new Error(
+              `The selected file "${file.name}" could not be read.`
+            )
+          }
+
+          return new File([bytes], file.name, {
+            type: file.type || 'application/octet-stream',
+            lastModified: file.lastModified,
+          })
+        })
+      )
+
+      clearLocalFiles()
+
+      const nextLocalFiles = hydratedFiles.map((file, index) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}-${index}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }))
+
+      if (mode === 'single') {
+        setLocalFiles(nextLocalFiles.slice(0, 1))
+      } else {
+        setLocalFiles(nextLocalFiles)
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'The selected image could not be read. Please download it locally and try again.'
+      )
     }
-
-    event.target.value = ''
   }
 
   async function uploadFiles() {
@@ -173,8 +202,25 @@ export default function CMSImageUploadField({
       const filesToUpload =
         mode === 'single' ? localFiles.slice(0, 1) : localFiles
 
-      filesToUpload.forEach((item) => {
-        formData.append('files', item.file)
+      const readableFiles = await Promise.all(
+        filesToUpload.map(async (item) => {
+          const bytes = await item.file.arrayBuffer()
+
+          if (!bytes.byteLength) {
+            throw new Error(
+              `The selected file "${item.file.name}" is empty or could not be read.`
+            )
+          }
+
+          return new File([bytes], item.file.name, {
+            type: item.file.type || 'application/octet-stream',
+            lastModified: item.file.lastModified,
+          })
+        })
+      )
+
+      readableFiles.forEach((file) => {
+        formData.append('files', file, file.name)
       })
 
       const response = await fetch('/api/admin/upload', {
@@ -242,9 +288,9 @@ export default function CMSImageUploadField({
   ]
 
   return (
-    <div className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+    <div className="space-y-5 border border-[#817E6C] bg-[#E8EBEC] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
       <div>
-        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
           {label}
         </label>
 
@@ -269,10 +315,10 @@ export default function CMSImageUploadField({
         type="button"
         onClick={openFileDialog}
         disabled={disabled || uploading}
-        className="flex w-full items-center justify-center border border-dashed border-[#9d927f] bg-[#f8f1e5] px-5 py-9 text-center transition-colors hover:border-[#4f4b3b] hover:bg-[#e9dfd1] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center border border-dashed border-[#817E6C] bg-[#E8EBEC] px-5 py-9 text-center transition-colors hover:border-[#817E6C] hover:bg-[#E8EBEC] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <div>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#4f4b3b] bg-[#4f4b3b] text-[#f8f1e5]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#817E6C] bg-[#817E6C] text-[#E8EBEC]">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -313,9 +359,9 @@ export default function CMSImageUploadField({
           {previewItems.map((item) => (
             <div
               key={item.key}
-              className="overflow-hidden border border-[#c8bcaa] bg-[#f8f1e5] shadow-[0_8px_22px_rgba(36,35,29,0.06)]"
+              className="overflow-hidden border border-[#817E6C] bg-[#E8EBEC] shadow-[0_8px_22px_rgba(36,35,29,0.06)]"
             >
-              <div className="aspect-[16/9] bg-[#e9dfd1]">
+              <div className="aspect-[16/9] bg-[#E8EBEC]">
                 <img
                   src={item.url}
                   alt={label}
@@ -323,7 +369,7 @@ export default function CMSImageUploadField({
                 />
               </div>
 
-              <div className="space-y-3 border-t border-[#c8bcaa] p-4">
+              <div className="space-y-3 border-t border-[#817E6C] p-4">
                 <div className="min-w-0">
                   <p className="truncate font-serif text-sm font-semibold text-[#24231d]">
                     {item.fileName}
@@ -340,7 +386,7 @@ export default function CMSImageUploadField({
                     <button
                       type="button"
                       onClick={() => removeExistingImage(item.index)}
-                      className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC] disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={disabled || uploading}
                     >
                       Remove
@@ -352,18 +398,18 @@ export default function CMSImageUploadField({
           ))}
         </div>
       ) : (
-        <div className="border border-dashed border-[#b9ae9d] bg-[#f8f1e5] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
+        <div className="border border-dashed border-[#817E6C] bg-[#E8EBEC] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
           No image selected yet
         </div>
       )}
 
       {localFiles.length > 0 ? (
-        <div className="flex flex-wrap gap-3 border-t border-[#c8bcaa] pt-5">
+        <div className="flex flex-wrap gap-3 border-t border-[#817E6C] pt-5">
           <button
             type="button"
             onClick={uploadFiles}
             disabled={disabled || uploading}
-            className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+            className="border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {uploading ? 'Uploading...' : 'Upload Selected'}
           </button>
@@ -372,7 +418,7 @@ export default function CMSImageUploadField({
             type="button"
             onClick={clearLocalFiles}
             disabled={disabled || uploading}
-            className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
+            className="border border-[#817E6C] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Clear Selection
           </button>
