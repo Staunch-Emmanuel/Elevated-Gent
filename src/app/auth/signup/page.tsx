@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
 import { useAuth } from '@/lib/firebase/auth'
 import { Button } from '@/components/ui'
 import { PagePadding, Container } from '@/components/layout'
@@ -76,7 +77,7 @@ export default function SignUpPage() {
           <Container size="small">
             <div className="flex min-h-screen flex-col items-center justify-center py-12">
               <div className="w-full max-w-md">
-                <div className="border border-[rgba(248,241,229,0.28)] bg-[rgba(248,241,229,0.96)] p-6 text-[var(--color-eg-ink)] shadow-[0_24px_70px_rgba(24,23,17,0.24)] backdrop-blur-sm sm:p-8 lg:border-[var(--color-eg-line)] lg:bg-[var(--color-eg-cream)] lg:backdrop-blur-0">
+                <div className="border border-[rgba(232,235,236,0.28)] bg-[rgba(232,235,236,0.96)] p-6 text-[var(--color-eg-ink)] shadow-[0_24px_70px_rgba(24,23,17,0.24)] backdrop-blur-sm sm:p-8 lg:border-[var(--color-eg-line)] lg:bg-[var(--color-eg-cream)] lg:backdrop-blur-0">
                   <div className="mb-8 text-center">
                     <p className="mb-3 font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-eg-muted)]">
                       Become a Member
@@ -93,7 +94,7 @@ export default function SignUpPage() {
 
                   <div className="mb-8 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-5 text-center">
                     <p className="font-editorial text-2xl font-normal text-[var(--color-eg-espresso-deep)]">
-                      Membership — $10/month
+                      Membership — $15/month
                     </p>
 
                     <p className="mt-2 font-serif text-sm leading-6 text-[var(--color-eg-muted)]">
@@ -231,7 +232,7 @@ export default function SignUpPage() {
                 </div>
 
                 <div className="mt-6 text-center lg:mt-8">
-                  <p className="font-serif text-sm leading-6 text-[rgba(248,241,229,0.88)] lg:text-[var(--color-eg-muted)]">
+                  <p className="font-serif text-sm leading-6 text-[rgba(232,235,236,0.88)] lg:text-[var(--color-eg-muted)]">
                     Create your account to access personalized styling services
                     and curated products.
                   </p>
