@@ -204,7 +204,7 @@ export default async function OutfitInspirationDetailPage({
               )}
             </div>
 
-            {shopItems.length === 0 && normalizedLinks.length > 0 ? (
+            {normalizedLinks.length > 0 ? (
               <div className="space-y-7 border-t border-[var(--color-eg-line)] pt-10 md:pt-14">
                 <h2 className="font-editorial text-3xl font-normal text-[var(--color-eg-ink)] md:text-4xl">
                   Links for this look
