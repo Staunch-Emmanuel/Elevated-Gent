@@ -12,7 +12,7 @@ import {
   createContentCategory,
   getContentCategories,
 } from '@/lib/firebase/contentCategories'
-import type { OutfitDocument } from '@/lib/firebase/outfits'
+import type { OutfitDocument, OutfitShopItem } from '@/lib/firebase/outfits'
 import type { ShoppableLink, ProductCategory } from '@/lib/products/types'
 
 type AdminEditOutfitPageProps = {
@@ -66,6 +66,7 @@ export default function AdminEditOutfitPage({
   const [form, setForm] = useState<Partial<OutfitDocument>>({
     galleryImages: [],
     productLinks: [{ label: '', url: '' }],
+    shopItems: [],
     category: '',
     description: '',
   })
@@ -122,6 +123,7 @@ export default function AdminEditOutfitPage({
               normalizedLinks.length > 0
                 ? normalizedLinks
                 : [{ label: '', url: '' }],
+            shopItems: outfit.shopItems || [],
             featured: outfit.featured,
             sortWeight: outfit.sortWeight,
             published: outfit.published,
@@ -180,6 +182,69 @@ export default function AdminEditOutfitPage({
     })
   }
 
+  function addShopItem() {
+    setForm((current) => ({
+      ...current,
+      shopItems: [
+        ...(current.shopItems || []),
+        {
+          id: `shop-item-${Date.now()}`,
+          name: '',
+          brand: '',
+          url: '',
+          imageUrl: '',
+          category: '',
+          price: '',
+          sortOrder: current.shopItems?.length || 0,
+        },
+      ],
+    }))
+  }
+
+  function updateShopItem(
+    index: number,
+    field: keyof OutfitShopItem,
+    value: string | number
+  ) {
+    setForm((current) => ({
+      ...current,
+      shopItems: (current.shopItems || []).map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      ),
+    }))
+  }
+
+  function removeShopItem(index: number) {
+    setForm((current) => ({
+      ...current,
+      shopItems: (current.shopItems || []).filter(
+        (_, itemIndex) => itemIndex !== index
+      ),
+    }))
+  }
+
+  function moveShopItem(index: number, direction: -1 | 1) {
+    setForm((current) => {
+      const items = [...(current.shopItems || [])]
+      const targetIndex = index + direction
+
+      if (targetIndex < 0 || targetIndex >= items.length) {
+        return current
+      }
+
+      const [moved] = items.splice(index, 1)
+      items.splice(targetIndex, 0, moved)
+
+      return {
+        ...current,
+        shopItems: items.map((item, itemIndex) => ({
+          ...item,
+          sortOrder: itemIndex,
+        })),
+      }
+    })
+  }
+
   async function handleCreateCategory() {
     if (!newCategoryName.trim()) {
       setCategoryError('Category name is required.')
@@ -224,8 +289,14 @@ export default function AdminEditOutfitPage({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setSaving(true)
     setError('')
+
+    if (!outfitId) {
+      setError('Unable to identify this outfit. Please reload the page.')
+      return
+    }
+
+    setSaving(true)
 
     try {
       await updateOutfit(outfitId, {
@@ -235,6 +306,10 @@ export default function AdminEditOutfitPage({
         galleryImages: (form.galleryImages || []).map((x) => x.trim()),
         category: (form.category || '').trim(),
         productLinks: sanitizeLinks(form.productLinks || []),
+        shopItems: (form.shopItems || []).map((item, index) => ({
+          ...item,
+          sortOrder: index,
+        })),
         featured: Boolean(form.featured),
         sortWeight: Number(form.sortWeight) || 0,
         published:
@@ -244,10 +319,14 @@ export default function AdminEditOutfitPage({
       router.push('/admin/outfits')
     } catch (err) {
       console.error(err)
-      setError('Failed to update outfit.')
+      setError(
+        err instanceof Error
+          ? `Failed to update outfit: ${err.message}`
+          : 'Failed to update outfit.'
+      )
+    } finally {
+      setSaving(false)
     }
-
-    setSaving(false)
   }
 
   const editableLinks = (form.productLinks || []).map((item) =>
@@ -263,7 +342,7 @@ export default function AdminEditOutfitPage({
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">Loading...</p>
               </div>
             </div>
@@ -277,7 +356,7 @@ export default function AdminEditOutfitPage({
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-4xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               Edit Outfit
             </h1>
@@ -288,7 +367,7 @@ export default function AdminEditOutfitPage({
                 onClick={() =>
                   router.push('/admin/categories?section=outfits')
                 }
-                className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+                className="border border-[#817E6C] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC]"
               >
                 Manage Categories
               </button>
@@ -296,7 +375,7 @@ export default function AdminEditOutfitPage({
               <button
                 type="button"
                 onClick={() => router.push('/admin/outfits')}
-                className="border border-[#b9ae9d] bg-[#e9dfd1] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:border-[#4f4b3b] hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+                className="border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#817E6C] transition-colors hover:border-[#817E6C] hover:bg-[#817E6C] hover:text-[#E8EBEC]"
               >
                 Back to Outfits
               </button>
@@ -311,34 +390,35 @@ export default function AdminEditOutfitPage({
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-7 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+            noValidate
+            className="space-y-7 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
           >
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Title
               </label>
 
               <input
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 value={form.title || ''}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
 
               <p className="mt-2 font-serif text-xs text-[#625e53]">
                 URL slug will be:
-                <span className="ml-1 font-mono text-[#4f4b3b]">
+                <span className="ml-1 font-mono text-[#817E6C]">
                   /outfit-inspiration/{slugify(form.title || '')}
                 </span>
               </p>
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Description
               </label>
 
               <textarea
-                className="min-h-[140px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[140px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 rows={4}
                 value={form.description || ''}
                 onChange={(e) =>
@@ -347,14 +427,14 @@ export default function AdminEditOutfitPage({
               />
             </div>
 
-            <div className="space-y-4 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="space-y-4 border border-[#817E6C] bg-[#E8EBEC] p-5">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Category
                 </label>
 
                 <select
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                   value={form.category || ''}
                   onChange={(e) =>
                     setForm({ ...form, category: e.target.value })
@@ -377,7 +457,7 @@ export default function AdminEditOutfitPage({
                     setShowNewCategoryForm((current) => !current)
                     setCategoryError('')
                   }}
-                  className="font-serif text-sm font-semibold text-[#4f4b3b] underline underline-offset-4 transition-colors hover:text-[#24231d]"
+                  className="font-serif text-sm font-semibold text-[#817E6C] underline underline-offset-4 transition-colors hover:text-[#24231d]"
                 >
                   {showNewCategoryForm
                     ? 'Cancel new category'
@@ -396,22 +476,22 @@ export default function AdminEditOutfitPage({
               </div>
 
               {showNewCategoryForm ? (
-                <div className="space-y-4 border border-[#c8bcaa] bg-[#f8f1e5] p-5">
+                <div className="space-y-4 border border-[#817E6C] bg-[#E8EBEC] p-5">
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                       New category name
                     </label>
 
                     <input
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                       placeholder="e.g. Vacation"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                       Description (optional)
                     </label>
 
@@ -420,7 +500,7 @@ export default function AdminEditOutfitPage({
                       onChange={(e) =>
                         setNewCategoryDescription(e.target.value)
                       }
-                      className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-[100px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                     />
                   </div>
 
@@ -434,7 +514,7 @@ export default function AdminEditOutfitPage({
                     type="button"
                     onClick={() => void handleCreateCategory()}
                     disabled={creatingCategory}
-                    className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {creatingCategory ? 'Creating...' : 'Create Category'}
                   </button>
@@ -442,7 +522,7 @@ export default function AdminEditOutfitPage({
               ) : null}
             </div>
 
-            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] p-5">
               <CMSImageUploadField
                 label="Hero Image"
                 folder="outfits"
@@ -460,7 +540,7 @@ export default function AdminEditOutfitPage({
               />
             </div>
 
-            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] p-5">
               <CMSImageUploadField
                 label="Gallery Images"
                 folder="outfits"
@@ -481,7 +561,179 @@ export default function AdminEditOutfitPage({
             </div>
 
             <div>
-              <label className="mb-3 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
+                    Shop the Look Items
+                  </label>
+
+                  <p className="mt-2 font-serif text-xs leading-5 text-[#625e53]">
+                    Add each product image, category, brand, price, and link.
+                    These items power the categorized layout shown on the live
+                    outfit page.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addShopItem}
+                  className="shrink-0 border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C]"
+                >
+                  + Add Shop Item
+                </button>
+              </div>
+
+              {(form.shopItems || []).length === 0 ? (
+                <div className="border border-dashed border-[#817E6C] bg-[#E8EBEC] px-5 py-10 text-center font-serif text-sm text-[#625e53]">
+                  No structured shop items yet.
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  {(form.shopItems || []).map((shopItem, index) => (
+                    <div
+                      key={shopItem.id || index}
+                      className="space-y-5 border border-[#817E6C] bg-[#E8EBEC] p-5"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
+                          Shop Item {index + 1}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => moveShopItem(index, -1)}
+                            disabled={index === 0}
+                            className="border border-[#817E6C] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Up
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => moveShopItem(index, 1)}
+                            disabled={
+                              index === (form.shopItems || []).length - 1
+                            }
+                            className="border border-[#817E6C] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Down
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => removeShopItem(index)}
+                            className="border border-[#a65a50] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC]"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
+                            Product Name
+                          </label>
+                          <input
+                            value={shopItem.name}
+                            onChange={(event) =>
+                              updateShopItem(index, 'name', event.target.value)
+                            }
+                            className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none"
+                            placeholder="e.g. Cashmere Tee"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
+                            Brand
+                          </label>
+                          <input
+                            value={shopItem.brand}
+                            onChange={(event) =>
+                              updateShopItem(index, 'brand', event.target.value)
+                            }
+                            className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none"
+                            placeholder="e.g. Buck Mason"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
+                            Item Category
+                          </label>
+                          <input
+                            value={shopItem.category}
+                            onChange={(event) =>
+                              updateShopItem(
+                                index,
+                                'category',
+                                event.target.value
+                              )
+                            }
+                            className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none"
+                            placeholder="e.g. Top, Pants, Accessory"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
+                            Price
+                          </label>
+                          <input
+                            value={shopItem.price || ''}
+                            onChange={(event) =>
+                              updateShopItem(index, 'price', event.target.value)
+                            }
+                            className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none"
+                            placeholder="e.g. $98"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
+                          Product URL
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="url"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          value={shopItem.url}
+                          onChange={(event) =>
+                            updateShopItem(index, 'url', event.target.value)
+                          }
+                          className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none"
+                          placeholder="https://example.com/product"
+                        />
+                      </div>
+
+                      <CMSImageUploadField
+                        label="Product Image"
+                        folder="outfits/shop-items"
+                        documentSlug={`${slugify(form.title || 'outfit')}-${index + 1}`}
+                        mode="single"
+                        value={shopItem.imageUrl}
+                        onChange={(value) =>
+                          updateShopItem(
+                            index,
+                            'imageUrl',
+                            typeof value === 'string' ? value : ''
+                          )
+                        }
+                        helpText="Upload the individual product image."
+                        disabled={saving}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-3 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Product Links
               </label>
 
@@ -489,10 +741,10 @@ export default function AdminEditOutfitPage({
                 {displayedLinks.map((link, index) => (
                   <div
                     key={index}
-                    className="space-y-4 border border-[#c8bcaa] bg-[#e9dfd1] p-5"
+                    className="space-y-4 border border-[#817E6C] bg-[#E8EBEC] p-5"
                   >
                     <div>
-                      <label className="mb-2 block font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                      <label className="mb-2 block font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
                         Link Name
                       </label>
 
@@ -502,26 +754,29 @@ export default function AdminEditOutfitPage({
                         onChange={(e) =>
                           updateLink(index, 'label', e.target.value)
                         }
-                        className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                        className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                         placeholder="e.g. Blazer, Shoes, Watch"
                       />
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <input
-                        type="url"
+                        type="text"
+                        inputMode="url"
+                        autoCapitalize="none"
+                        autoCorrect="off"
                         value={link.url}
                         onChange={(e) =>
                           updateLink(index, 'url', e.target.value)
                         }
-                        className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                        className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                         placeholder="https://example.com/product"
                       />
 
                       <button
                         type="button"
                         onClick={() => removeLinkField(index)}
-                        className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5]"
+                        className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC]"
                       >
                         Remove
                       </button>
@@ -533,13 +788,13 @@ export default function AdminEditOutfitPage({
               <button
                 type="button"
                 onClick={addLinkField}
-                className="mt-4 font-serif text-sm font-semibold text-[#4f4b3b] underline underline-offset-4 transition-colors hover:text-[#24231d]"
+                className="mt-4 font-serif text-sm font-semibold text-[#817E6C] underline underline-offset-4 transition-colors hover:text-[#24231d]"
               >
                 + Add another link
               </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="flex flex-wrap items-center gap-6 border border-[#817E6C] bg-[#E8EBEC] p-5">
               <label className="inline-flex items-center gap-3 font-serif text-sm text-[#24231d]">
                 <input
                   type="checkbox"
@@ -547,7 +802,7 @@ export default function AdminEditOutfitPage({
                   onChange={(e) =>
                     setForm({ ...form, featured: e.target.checked })
                   }
-                  className="h-4 w-4 accent-[#4f4b3b]"
+                  className="h-4 w-4 accent-[#817E6C]"
                 />
                 <span>Featured outfit</span>
               </label>
@@ -559,20 +814,20 @@ export default function AdminEditOutfitPage({
                   onChange={(e) =>
                     setForm({ ...form, published: e.target.checked })
                   }
-                  className="h-4 w-4 accent-[#4f4b3b]"
+                  className="h-4 w-4 accent-[#817E6C]"
                 />
                 <span>Published</span>
               </label>
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Sort Weight
               </label>
 
               <input
                 type="number"
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 value={form.sortWeight || 0}
                 onChange={(e) =>
                   setForm({
@@ -583,10 +838,11 @@ export default function AdminEditOutfitPage({
               />
             </div>
 
-            <div className="border-t border-[#c8bcaa] pt-6">
+            <div className="border-t border-[#817E6C] pt-6">
               <button
+                type="submit"
                 disabled={saving}
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817E6C] bg-[#817E6C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
