@@ -34,6 +34,17 @@ interface UploadResponse {
   }>
 }
 
+const IMAGE_FILE_EXTENSIONS = new Set([
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'avif',
+  'svg',
+  'heic',
+  'heif',
+])
+
 function sanitizePathSegment(value: string): string {
   return String(value || '')
     .trim()
@@ -46,6 +57,61 @@ function sanitizeDocumentSlug(value?: string): string {
     .trim()
     .replace(/[^a-zA-Z0-9_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+function getFileExtension(fileName: string): string {
+  const normalizedName = String(fileName || '').trim().toLowerCase()
+  const lastDotIndex = normalizedName.lastIndexOf('.')
+
+  if (lastDotIndex === -1 || lastDotIndex === normalizedName.length - 1) {
+    return ''
+  }
+
+  return normalizedName.slice(lastDotIndex + 1)
+}
+
+function inferImageMimeType(file: File): string {
+  const currentType = String(file.type || '').trim().toLowerCase()
+
+  if (
+    currentType &&
+    currentType !== 'application/octet-stream' &&
+    currentType !== 'application/unknown'
+  ) {
+    return currentType
+  }
+
+  const extension = getFileExtension(file.name)
+
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    case 'png':
+      return 'image/png'
+    case 'webp':
+      return 'image/webp'
+    case 'avif':
+      return 'image/avif'
+    case 'svg':
+      return 'image/svg+xml'
+    case 'heic':
+      return 'image/heic'
+    case 'heif':
+      return 'image/heif'
+    default:
+      return currentType || 'application/octet-stream'
+  }
+}
+
+function isPotentialImageFile(file: File): boolean {
+  const mimeType = String(file.type || '').trim().toLowerCase()
+
+  if (mimeType.startsWith('image/')) {
+    return true
+  }
+
+  return IMAGE_FILE_EXTENSIONS.has(getFileExtension(file.name))
 }
 
 function formatFileSize(size: number) {
@@ -115,12 +181,12 @@ export default function CMSImageUploadField({
 
     if (!selectedFiles.length) return
 
-    const imageFiles = selectedFiles.filter((file) =>
-      file.type.startsWith('image/')
-    )
+    const imageFiles = selectedFiles.filter(isPotentialImageFile)
 
     if (!imageFiles.length) {
-      setError('Please choose a valid image file.')
+      setError(
+        'Please choose a valid JPG, PNG, WEBP, AVIF, SVG, HEIC, or HEIF image.'
+      )
       return
     }
 
@@ -142,7 +208,7 @@ export default function CMSImageUploadField({
           }
 
           return new File([bytes], file.name, {
-            type: file.type || 'application/octet-stream',
+            type: inferImageMimeType(file),
             lastModified: file.lastModified,
           })
         })
@@ -213,7 +279,7 @@ export default function CMSImageUploadField({
           }
 
           return new File([bytes], item.file.name, {
-            type: item.file.type || 'application/octet-stream',
+            type: inferImageMimeType(item.file),
             lastModified: item.file.lastModified,
           })
         })
@@ -304,7 +370,7 @@ export default function CMSImageUploadField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         multiple={mode === 'multiple'}
         className="hidden"
         onChange={handleFilesSelected}
@@ -343,7 +409,7 @@ export default function CMSImageUploadField({
           </p>
 
           <p className="mt-2 font-serif text-xs text-[#625e53]">
-            JPG, PNG, WEBP and other standard image formats
+            JPG, PNG, WEBP, AVIF, HEIC and other standard image formats
           </p>
         </div>
       </button>

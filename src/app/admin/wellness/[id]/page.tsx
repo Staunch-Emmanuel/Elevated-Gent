@@ -141,7 +141,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">Loading...</p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">
                   Wellness article not found.
                 </p>
@@ -173,7 +173,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
     <ProtectedRoute>
       <PagePadding>
         <Container className="max-w-4xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
                 Wellness Management
@@ -187,7 +187,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
             <button
               type="button"
               onClick={handleDelete}
-              className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5]"
+              className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC]"
             >
               Delete
             </button>
@@ -195,7 +195,7 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-7 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+            className="space-y-7 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
           >
             {error ? (
               <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
@@ -204,45 +204,45 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
             ) : null}
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Title
               </label>
 
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Slug
               </label>
 
               <input
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Excerpt
               </label>
 
               <textarea
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="min-h-[130px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[130px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 rows={3}
               />
             </div>
 
-            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] p-5">
               <CMSImageUploadField
                 label="Hero Image"
                 folder="wellness"
@@ -258,23 +258,23 @@ export default function AdminEditWellnessPage({ params }: PageProps) {
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Content (HTML)
               </label>
 
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[420px] w-full border border-[#b9ae9d] bg-[#24231d] px-4 py-4 font-mono text-sm leading-6 text-[#f8f1e5] outline-none placeholder:text-[#c8bcaa] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#77725d]"
+                className="min-h-[420px] w-full border border-[#817E6C] bg-[#24231d] px-4 py-4 font-mono text-sm leading-6 text-[#E8EBEC] outline-none placeholder:text-[#817E6C] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 rows={12}
               />
             </div>
 
-            <div className="border-t border-[#c8bcaa] pt-6">
+            <div className="border-t border-[#817E6C] pt-6">
               <button
                 type="submit"
                 disabled={saving}
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817E6C] bg-[#817E6C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>

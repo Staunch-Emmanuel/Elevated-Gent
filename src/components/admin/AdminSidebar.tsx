@@ -19,9 +19,9 @@ export default function AdminSidebar() {
   const path = usePathname()
 
   return (
-    <aside className="min-h-screen w-64 shrink-0 border-r border-[#68634f] bg-[#77725d] px-5 py-7 text-[#f8f1e5] shadow-[10px_0_30px_rgba(36,35,29,0.10)]">
-      <div className="mb-8 border-b border-[rgba(248,241,229,0.24)] pb-7">
-        <h2 className="font-editorial text-3xl font-normal leading-tight tracking-[-0.03em] text-[#f8f1e5]">
+    <aside className="min-h-screen w-64 shrink-0 border-r border-[#817E6C] bg-[#817E6C] px-5 py-7 text-[#E8EBEC] shadow-[10px_0_30px_rgba(36,35,29,0.10)]">
+      <div className="mb-8 border-b border-[rgba(232,235,236,0.24)] pb-7">
+        <h2 className="font-editorial text-3xl font-normal leading-tight tracking-[-0.03em] text-[#E8EBEC]">
           Admin Dashboard
         </h2>
       </div>
@@ -37,8 +37,8 @@ export default function AdminSidebar() {
               href={item.href}
               className={`block border px-4 py-3 font-serif text-sm transition-colors duration-200 ${
                 active
-                  ? 'border-[#f8f1e5] bg-[#f8f1e5] font-semibold text-[#4f4b3b] shadow-[0_8px_20px_rgba(36,35,29,0.12)]'
-                  : 'border-transparent text-[rgba(248,241,229,0.92)] hover:border-[rgba(248,241,229,0.34)] hover:bg-[rgba(248,241,229,0.10)] hover:text-[#f8f1e5]'
+                  ? 'border-[#E8EBEC] bg-[#E8EBEC] font-semibold text-[#817E6C] shadow-[0_8px_20px_rgba(36,35,29,0.12)]'
+                  : 'border-transparent text-[rgba(232,235,236,0.92)] hover:border-[rgba(232,235,236,0.34)] hover:bg-[rgba(232,235,236,0.10)] hover:text-[#E8EBEC]'
               }`}
             >
               {item.label}

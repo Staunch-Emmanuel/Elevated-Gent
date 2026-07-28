@@ -80,7 +80,7 @@ export default function SubscribeSuccessClient() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
         <div className="w-full max-w-xl space-y-6">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-[rgba(248,241,229,0.28)] border-t-[var(--color-eg-cream)]" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-[rgba(232,235,236,0.28)] border-t-[var(--color-eg-cream)]" />
 
           <h1 className="font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
             Payment Successful 🎉
@@ -129,7 +129,7 @@ export default function SubscribeSuccessClient() {
   if (status === "idle") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
-        <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
+        <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
           <h1 className="mb-4 font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
             Payment Successful 🎉
           </h1>
@@ -160,7 +160,7 @@ export default function SubscribeSuccessClient() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-eg-espresso-deep)] px-6 py-20 text-center text-[var(--color-eg-cream)]">
-      <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
+      <div className="w-full max-w-lg border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-7 shadow-[0_24px_70px_rgba(24,23,17,0.28)] sm:p-10">
         <h1 className="mb-4 font-editorial text-4xl font-normal text-[var(--color-eg-cream)] md:text-5xl">
           Payment Successful 🎉
         </h1>

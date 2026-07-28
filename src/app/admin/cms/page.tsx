@@ -34,9 +34,9 @@ export default function AdminCMS() {
 
   return (
     <AdminGuard>
-      <div className="min-h-full bg-[#f8f1e5] px-6 py-10 text-[#24231d] sm:px-8 lg:px-10 lg:py-12">
+      <div className="min-h-full bg-[#e8ebec] px-6 py-10 text-[#24231d] sm:px-8 lg:px-10 lg:py-12">
         <div className="mx-auto max-w-5xl space-y-8">
-          <div className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
+          <div className="border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
             <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
               Content Management
             </p>
@@ -46,18 +46,18 @@ export default function AdminCMS() {
             </h1>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+          <div className="border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
             <div className="flex flex-col gap-4 sm:flex-row">
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 transition-colors hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 transition-colors hover:border-[#817e6c] focus:border-[#817e6c]"
                 placeholder="New item"
               />
 
               <button
                 onClick={handleAdd}
-                className="shrink-0 border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
+                className="shrink-0 border border-[#817e6c] bg-[#817e6c] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c]"
               >
                 Add
               </button>
@@ -65,7 +65,7 @@ export default function AdminCMS() {
           </div>
 
           {loading ? (
-            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <p className="font-serif text-[#575348]">Loading…</p>
             </div>
           ) : (
@@ -73,7 +73,7 @@ export default function AdminCMS() {
               {items.map(i => (
                 <li
                   key={i.id}
-                  className="border border-[#c8bcaa] bg-[#f2eadf] px-5 py-4 font-serif text-base text-[#24231d] shadow-[0_8px_24px_rgba(36,35,29,0.04)]"
+                  className="border border-[#817e6c] bg-[#e8ebec] px-5 py-4 font-serif text-base text-[#24231d] shadow-[0_8px_24px_rgba(36,35,29,0.04)]"
                 >
                   {i.title}
                 </li>

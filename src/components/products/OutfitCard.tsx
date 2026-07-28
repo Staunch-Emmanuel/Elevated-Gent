@@ -18,6 +18,12 @@ interface OutfitCardProps {
   outfit: OutfitCardLook
 }
 
+type ShopFilter = {
+  id: string
+  label: string
+  count: number
+}
+
 function normalizeLink(
   link: string | ShoppableLink,
   index: number
@@ -33,6 +39,16 @@ function normalizeLink(
     label: typeof link.label === 'string' ? link.label.trim() : '',
     url: link.url,
   }
+}
+
+function normalizeFilterValue(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/'/g, '')
+    .replace(/[^\w/]+/g, '-')
+    .replace(/\//g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 function getReadableUrl(url: string): string {
@@ -71,17 +87,65 @@ function getFallbackLabel(url: string, index: number): string {
   }
 }
 
+function buildShopFilters(items: OutfitShopItem[]): ShopFilter[] {
+  const categoryMap = new Map<string, ShopFilter>()
+
+  items.forEach((item) => {
+    const label = String(item.category || '').trim()
+    const id = normalizeFilterValue(label)
+
+    if (!label || !id) return
+
+    const current = categoryMap.get(id)
+
+    categoryMap.set(id, {
+      id,
+      label,
+      count: (current?.count || 0) + 1,
+    })
+  })
+
+  return [
+    {
+      id: 'all',
+      label: 'All',
+      count: items.length,
+    },
+    ...Array.from(categoryMap.values()),
+  ]
+}
+
 export function OutfitCard({ outfit }: OutfitCardProps) {
   const { user } = useAuth()
   const [showLinks, setShowLinks] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const [activeShopFilter, setActiveShopFilter] = useState('all')
 
   const href = `/outfit-inspiration/${outfit.slug || outfit.id}`
 
   const shopItems = useMemo(() => {
-    return Array.isArray(outfit.shopItems) ? outfit.shopItems : []
+    const items = Array.isArray(outfit.shopItems) ? outfit.shopItems : []
+
+    return [...items].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    )
   }, [outfit.shopItems])
+
+  const shopFilters = useMemo(
+    () => buildShopFilters(shopItems),
+    [shopItems]
+  )
+
+  const visibleShopItems = useMemo(() => {
+    if (activeShopFilter === 'all') return shopItems
+
+    return shopItems.filter(
+      (item) =>
+        normalizeFilterValue(String(item.category || '')) ===
+        activeShopFilter
+    )
+  }, [activeShopFilter, shopItems])
 
   const links = useMemo(() => {
     const source = Array.isArray(outfit.productLinks) ? outfit.productLinks : []
@@ -181,26 +245,17 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
 
           {outfit.category ? (
             <div className="absolute left-4 top-4 sm:left-5 sm:top-5">
-              <Label className="border-[rgba(248,241,229,0.9)] bg-[rgba(248,241,229,0.94)] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_20px_rgba(24,23,17,0.10)] backdrop-blur-sm">
+              <Label className="border-[rgba(232,235,236,0.9)] bg-[rgba(232,235,236,0.94)] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_20px_rgba(24,23,17,0.10)] backdrop-blur-sm">
                 {outfit.category}
               </Label>
             </div>
           ) : null}
 
-          <div className="absolute right-4 top-4 sm:right-5 sm:top-5">
-            <Label
-              variant="inverse"
-              className="border-[rgba(248,241,229,0.65)] bg-[rgba(24,23,17,0.78)] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-cream)] shadow-[0_8px_20px_rgba(24,23,17,0.14)] backdrop-blur-sm"
-            >
-              Inspiration
-            </Label>
-          </div>
-
           <button
             type="button"
             onClick={handleToggleFavorite}
             disabled={favoriteLoading}
-            className="absolute bottom-4 right-4 z-10 inline-flex min-h-10 items-center justify-center border border-[rgba(248,241,229,0.78)] bg-[rgba(248,241,229,0.95)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_22px_rgba(24,23,17,0.18)] backdrop-blur-sm transition-colors duration-200 hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:cursor-not-allowed disabled:opacity-60 sm:bottom-5 sm:right-5"
+            className="absolute bottom-4 right-4 z-10 inline-flex min-h-10 items-center justify-center border border-[rgba(232,235,236,0.78)] bg-[rgba(232,235,236,0.95)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] shadow-[0_8px_22px_rgba(24,23,17,0.18)] backdrop-blur-sm transition-colors duration-200 hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:cursor-not-allowed disabled:opacity-60 sm:bottom-5 sm:right-5"
           >
             {isFavorited ? 'Saved' : 'Save'}
           </button>
@@ -246,73 +301,101 @@ export function OutfitCard({ outfit }: OutfitCardProps) {
           <div className="mt-5 space-y-5 border-t border-[var(--color-eg-line)] pt-5">
             <div className="flex items-center justify-between gap-4">
               <h4 className="font-sans text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-eg-espresso-deep)]">
-                Shop the Look ({shopItems.length || links.length})
+                Shop the Look
               </h4>
+
+              <span className="font-serif text-xs text-[var(--color-eg-muted)]">
+                {shopItems.length || links.length} items
+              </span>
             </div>
 
             {shopItems.length > 0 ? (
-              <div className="space-y-2.5">
-                {shopItems.slice(0, 4).map((shopItem, index) => (
-                  <div
-                    key={shopItem.id || `${outfit.id}-shop-${index}`}
-                    className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3 transition-colors duration-200 hover:bg-[var(--color-eg-paper-soft)]"
-                  >
-                    <div className="relative h-[72px] w-[72px] flex-shrink-0 overflow-hidden bg-[var(--color-eg-paper-soft)]">
-                      {shopItem.imageUrl ? (
-                        <Image
-                          src={shopItem.imageUrl}
-                          alt={shopItem.name || 'Shop item'}
-                          fill
-                          className="object-cover"
-                          sizes="72px"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center px-2 text-center text-[9px] uppercase tracking-[0.1em] text-[var(--color-eg-muted)]">
-                          Item
-                        </div>
-                      )}
-                    </div>
+              <>
+                <div className="flex flex-wrap gap-2">
+                  {shopFilters.map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        setActiveShopFilter(filter.id)
+                      }}
+                      className={
+                        activeShopFilter === filter.id
+                          ? 'border border-[var(--color-eg-espresso-deep)] bg-[var(--color-eg-espresso-deep)] px-3 py-2 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-cream)]'
+                          : 'border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-3 py-2 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] transition-colors hover:border-[var(--color-eg-espresso-deep)]'
+                      }
+                    >
+                      {filter.label} ({filter.count})
+                    </button>
+                  ))}
+                </div>
 
-                    <div className="min-w-0 flex-grow">
-                      {shopItem.category ? (
-                        <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--color-eg-muted)]">
-                          {shopItem.category}
-                        </p>
-                      ) : null}
-
-                      <div className="break-words text-sm font-semibold leading-snug text-[var(--color-eg-ink)]">
-                        {shopItem.name || 'Shop Item'}
+                <div className="max-h-[34rem] space-y-2.5 overflow-y-auto pr-1">
+                  {visibleShopItems.map((shopItem, index) => (
+                    <div
+                      key={shopItem.id || `${outfit.id}-shop-${index}`}
+                      className="flex items-center gap-3 border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] p-3 transition-colors duration-200 hover:bg-[var(--color-eg-paper-soft)]"
+                    >
+                      <div className="relative h-[76px] w-[76px] flex-shrink-0 overflow-hidden bg-[var(--color-eg-paper-soft)]">
+                        {shopItem.imageUrl ? (
+                          <Image
+                            src={shopItem.imageUrl}
+                            alt={shopItem.name || 'Shop item'}
+                            fill
+                            className="object-cover"
+                            sizes="76px"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center px-2 text-center text-[9px] uppercase tracking-[0.1em] text-[var(--color-eg-muted)]">
+                            Item
+                          </div>
+                        )}
                       </div>
 
-                      {shopItem.brand ? (
-                        <div className="mt-1 break-words font-serif text-xs leading-5 text-[var(--color-eg-muted)]">
-                          {shopItem.brand}
+                      <div className="min-w-0 flex-grow">
+                        <div className="mb-1.5 flex items-start justify-between gap-3">
+                          <div className="break-words text-sm font-semibold leading-snug text-[var(--color-eg-ink)]">
+                            {shopItem.name || 'Shop Item'}
+                          </div>
+
+                          {shopItem.category ? (
+                            <span className="shrink-0 text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--color-eg-muted)]">
+                              {shopItem.category}
+                            </span>
+                          ) : null}
                         </div>
+
+                        {shopItem.brand ? (
+                          <div className="break-words font-serif text-xs leading-5 text-[var(--color-eg-muted)]">
+                            {shopItem.brand}
+                          </div>
+                        ) : null}
+
+                        {shopItem.price ? (
+                          <div className="mt-1 font-serif text-xs font-semibold text-[var(--color-eg-espresso-deep)]">
+                            {shopItem.price}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {shopItem.url ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(event) =>
+                            handleOpenLink(event, shopItem.url)
+                          }
+                          className="min-h-9 flex-shrink-0 border-[var(--color-eg-espresso-deep)] px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
+                        >
+                          Open
+                        </Button>
                       ) : null}
                     </div>
-
-                    {shopItem.url ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(event) => handleOpenLink(event, shopItem.url)}
-                        className="min-h-9 flex-shrink-0 border-[var(--color-eg-espresso-deep)] px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
-                      >
-                        Open
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
-
-                {shopItems.length > 4 ? (
-                  <Link
-                    href={href}
-                    className="block border border-[var(--color-eg-espresso-deep)] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-eg-espresso-deep)] transition-colors duration-200 hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)]"
-                  >
-                    View all items
-                  </Link>
-                ) : null}
-              </div>
+                  ))}
+                </div>
+              </>
             ) : links.length === 0 ? (
               <p className="border border-[var(--color-eg-line)] bg-[var(--color-eg-paper)] px-4 py-5 text-center font-serif text-sm text-[var(--color-eg-muted)]">
                 No links added yet.

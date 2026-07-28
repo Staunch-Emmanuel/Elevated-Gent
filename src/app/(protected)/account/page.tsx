@@ -578,7 +578,7 @@ export default function AccountPage() {
               </div>
 
               <div className="mt-10 grid grid-cols-1 gap-5 md:mt-12 md:grid-cols-2 lg:grid-cols-4">
-                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-6 text-center">
                   <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Browse Collections
                   </h4>
@@ -598,7 +598,7 @@ export default function AccountPage() {
                   </Button>
                 </div>
 
-                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-6 text-center">
                   <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Weekly Finds
                   </h4>
@@ -617,7 +617,7 @@ export default function AccountPage() {
                   </Button>
                 </div>
 
-                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-6 text-center">
                   <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Style Consultation
                   </h4>
@@ -635,7 +635,7 @@ export default function AccountPage() {
                   </Button>
                 </div>
 
-                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-6 text-center">
+                <div className="flex h-full flex-col border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-6 text-center">
                   <h4 className="mb-2 font-editorial text-2xl font-normal text-[var(--color-eg-cream)]">
                     Wardrobe Audit
                   </h4>

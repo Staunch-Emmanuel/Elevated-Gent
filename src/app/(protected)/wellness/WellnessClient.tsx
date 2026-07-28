@@ -52,7 +52,7 @@ export default function WellnessClient() {
         </div>
 
         {items.length === 0 && (
-          <div className="border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] p-8 text-center">
+          <div className="border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] p-8 text-center">
             <p className="font-serif text-[var(--color-text-muted)]">
               No wellness items yet.
             </p>

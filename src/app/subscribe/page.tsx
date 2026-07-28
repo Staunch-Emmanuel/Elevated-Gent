@@ -79,11 +79,11 @@ export default function SubscribePage() {
       </div>
 
       <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[rgba(24,23,17,0.76)] p-4 backdrop-blur-sm sm:p-6">
-        <div className="relative my-auto w-full max-w-lg border border-[#d3c8b8] bg-[#f8f1e5] p-6 text-[#24231d] shadow-[0_28px_80px_rgba(24,23,17,0.42)] sm:p-8">
+        <div className="relative my-auto w-full max-w-lg border border-[#817E6C] bg-[#E8EBEC] p-6 text-[#24231d] shadow-[0_28px_80px_rgba(24,23,17,0.42)] sm:p-8">
           <div className="space-y-6 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#24231d]">
               <svg
-                className="h-8 w-8 text-[#f8f1e5]"
+                className="h-8 w-8 text-[#E8EBEC]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -106,8 +106,8 @@ export default function SubscribePage() {
               services, curated collections, and exclusive content.
             </p>
 
-            <div className="border border-[#d8cdbd] bg-[#f2eadf] p-6">
-              <div className="font-editorial text-5xl font-normal text-[#4f4b3b]">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] p-6">
+              <div className="font-editorial text-5xl font-normal text-[#817E6C]">
                 {displayPrice}
               </div>
 
@@ -116,7 +116,7 @@ export default function SubscribePage() {
               </div>
             </div>
 
-            <ul className="space-y-3 text-left font-serif text-sm leading-6 text-[#4f4b3b]">
+            <ul className="space-y-3 text-left font-serif text-sm leading-6 text-[#817E6C]">
               <li className="flex items-start">
                 <svg
                   className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-[#3f6f3f]"
@@ -157,7 +157,7 @@ export default function SubscribePage() {
                 >
                   <path
                     fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                     clipRule="evenodd"
                   />
                 </svg>
@@ -182,7 +182,7 @@ export default function SubscribePage() {
               </li>
             </ul>
 
-            <div className="space-y-4 border-t border-[#d8cdbd] pt-6">
+            <div className="space-y-4 border-t border-[#817E6C] pt-6">
               <Button
                 onClick={handleSubscribe}
                 disabled={loading}
@@ -193,7 +193,7 @@ export default function SubscribePage() {
 
               <Link
                 href="/auth/signin"
-                className="block font-serif text-sm font-medium text-[#4f4b3b] transition-colors hover:text-[#24231d]"
+                className="block font-serif text-sm font-medium text-[#817E6C] transition-colors hover:text-[#24231d]"
               >
                 Already subscribed? Login
               </Link>

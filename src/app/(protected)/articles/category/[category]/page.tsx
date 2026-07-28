@@ -188,7 +188,7 @@ export default async function ArticleCategoryPage({
       <StructuredData pageKey="articles" />
 
       <div className="min-h-screen bg-[var(--color-eg-espresso)]">
-        <section className="border-b border-[rgba(243,237,226,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
+        <section className="border-b border-[rgba(232,235,236,0.22)] bg-[var(--color-eg-espresso)] py-16 text-[var(--color-eg-cream)] md:py-20">
           <PagePadding>
             <Container>
               <div className="space-y-8 text-center">
@@ -198,7 +198,7 @@ export default async function ArticleCategoryPage({
                   </h1>
                 </div>
 
-                <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(243,237,226,0.92)] md:text-xl">
+                <p className="mx-auto max-w-3xl px-4 font-serif text-lg leading-relaxed text-[rgba(232,235,236,0.92)] md:text-xl">
                   {categoryConfig.description}
                 </p>
               </div>

@@ -224,7 +224,7 @@ export default function EditWeeklyPage() {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">Loading…</p>
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function EditWeeklyPage() {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-4xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               Edit Weekly Item
             </h1>
@@ -248,7 +248,7 @@ export default function EditWeeklyPage() {
               onClick={() =>
                 router.push('/admin/categories?section=weekly')
               }
-              className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+              className="border border-[#817E6C] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC]"
             >
               Manage Categories
             </button>
@@ -256,7 +256,7 @@ export default function EditWeeklyPage() {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-7 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+            className="space-y-7 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
           >
             {error ? (
               <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
@@ -265,52 +265,52 @@ export default function EditWeeklyPage() {
             ) : null}
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Title
               </label>
 
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
 
               <p className="mt-2 font-serif text-xs text-[#625e53]">
                 URL slug will be:
-                <span className="ml-1 font-mono text-[#4f4b3b]">
+                <span className="ml-1 font-mono text-[#817E6C]">
                   /weekly/{computedSlug}
                 </span>
               </p>
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Brand
               </label>
 
               <input
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Description
               </label>
 
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[140px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[140px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
             </div>
 
-            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] p-5">
               <CMSImageUploadField
                 label="Main Image"
                 folder="weekly"
@@ -326,56 +326,56 @@ export default function EditWeeklyPage() {
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Additional Image URLs (comma-separated)
               </label>
 
               <textarea
                 value={imagesInput}
                 onChange={(e) => setImagesInput(e.target.value)}
-                className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[100px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 placeholder="Not saved yet — WeeklyItem schema currently supports only a single image URL."
               />
             </div>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Price
                 </label>
 
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Original Price
                 </label>
 
                 <input
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                   placeholder="Optional"
                 />
               </div>
             </div>
 
-            <div className="space-y-4 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="space-y-4 border border-[#817E6C] bg-[#E8EBEC] p-5">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Category
                 </label>
 
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                   required
                 >
                   <option value="">Select category</option>
@@ -398,7 +398,7 @@ export default function EditWeeklyPage() {
                     setShowNewCategoryForm((current) => !current)
                     setCategoryError('')
                   }}
-                  className="font-serif text-sm font-semibold text-[#4f4b3b] underline underline-offset-4 transition-colors hover:text-[#24231d]"
+                  className="font-serif text-sm font-semibold text-[#817E6C] underline underline-offset-4 transition-colors hover:text-[#24231d]"
                 >
                   {showNewCategoryForm
                     ? 'Cancel new category'
@@ -417,9 +417,9 @@ export default function EditWeeklyPage() {
               </div>
 
               {showNewCategoryForm ? (
-                <div className="space-y-4 border border-[#c8bcaa] bg-[#f8f1e5] p-5">
+                <div className="space-y-4 border border-[#817E6C] bg-[#E8EBEC] p-5">
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                       New category name
                     </label>
 
@@ -428,13 +428,13 @@ export default function EditWeeklyPage() {
                       onChange={(e) =>
                         setNewCategoryName(e.target.value)
                       }
-                      className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                       placeholder="e.g. Summer Finds"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                       Description (optional)
                     </label>
 
@@ -443,7 +443,7 @@ export default function EditWeeklyPage() {
                       onChange={(e) =>
                         setNewCategoryDescription(e.target.value)
                       }
-                      className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-[100px] w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                     />
                   </div>
 
@@ -457,7 +457,7 @@ export default function EditWeeklyPage() {
                     type="button"
                     onClick={() => void handleCreateCategory()}
                     disabled={creatingCategory}
-                    className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {creatingCategory ? 'Creating...' : 'Create Category'}
                   </button>
@@ -466,76 +466,76 @@ export default function EditWeeklyPage() {
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Product Link
               </label>
 
               <input
                 value={productLink}
                 onChange={(e) => setProductLink(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-mono text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Affiliate Link
               </label>
 
               <input
                 value={affiliateLink}
                 onChange={(e) => setAffiliateLink(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                 placeholder="Optional"
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Tags (comma-separated)
               </label>
 
               <input
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
               />
             </div>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Sizes (comma-separated)
                 </label>
 
                 <input
                   value={sizesInput}
                   onChange={(e) => setSizesInput(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Colors (comma-separated)
                 </label>
 
                 <input
                   value={colorsInput}
                   onChange={(e) => setColorsInput(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="flex flex-wrap items-center gap-6 border border-[#817E6C] bg-[#E8EBEC] p-5">
               <label className="inline-flex items-center gap-3 font-serif text-sm text-[#24231d]">
                 <input
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
-                  className="h-4 w-4 accent-[#4f4b3b]"
+                  className="h-4 w-4 accent-[#817E6C]"
                 />
                 <span>Featured</span>
               </label>
@@ -545,7 +545,7 @@ export default function EditWeeklyPage() {
                   type="checkbox"
                   checked={inStock}
                   onChange={(e) => setInStock(e.target.checked)}
-                  className="h-4 w-4 accent-[#4f4b3b]"
+                  className="h-4 w-4 accent-[#817E6C]"
                 />
                 <span>In Stock</span>
               </label>
@@ -555,17 +555,17 @@ export default function EditWeeklyPage() {
                   type="checkbox"
                   checked={published}
                   onChange={(e) => setPublished(e.target.checked)}
-                  className="h-4 w-4 accent-[#4f4b3b]"
+                  className="h-4 w-4 accent-[#817E6C]"
                 />
                 <span>Published</span>
               </label>
             </div>
 
-            <div className="border-t border-[#c8bcaa] pt-6">
+            <div className="border-t border-[#817E6C] pt-6">
               <button
                 type="submit"
                 disabled={saving}
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817E6C] bg-[#817E6C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving…' : 'Save Changes'}
               </button>

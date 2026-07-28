@@ -4,7 +4,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-full px-7 py-10 lg:px-10 lg:py-12">
       <div className="mx-auto max-w-7xl">
-        <section className="border border-[#c8bcaa] bg-[#f8f1e5] p-8 shadow-[0_18px_48px_rgba(36,35,29,0.07)] sm:p-10">
+        <section className="border border-[#817E6C] bg-[#E8EBEC] p-8 shadow-[0_18px_48px_rgba(36,35,29,0.07)] sm:p-10">
           <h1 className="font-editorial text-5xl font-normal leading-tight tracking-[-0.035em] text-[#24231d]">
             Admin Dashboard
           </h1>
@@ -15,8 +15,8 @@ export default function AdminDashboardPage() {
         </section>
 
         <section className="mt-7 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Homepage
@@ -27,8 +27,8 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Articles
@@ -39,8 +39,8 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Weekly
@@ -51,8 +51,8 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Wellness
@@ -63,8 +63,8 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Outfits
@@ -75,8 +75,8 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
-            <div className="mb-5 h-px w-full bg-[#d8cdbd]" />
+          <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+            <div className="mb-5 h-px w-full bg-[#817E6C]" />
 
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Personal Styling

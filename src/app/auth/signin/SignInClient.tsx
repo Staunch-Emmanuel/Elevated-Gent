@@ -51,7 +51,7 @@ export default function SignInClient() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1d1c16] lg:flex lg:bg-[#8b8773]">
+    <div className="relative min-h-screen overflow-hidden bg-[#1d1c16] lg:flex lg:bg-[#817E6C]">
       <AuthMediaPanel />
 
       <div className="relative z-10 flex w-full flex-col justify-center lg:w-1/2">
@@ -59,7 +59,7 @@ export default function SignInClient() {
           <Container size="small">
             <div className="flex min-h-screen flex-col items-center justify-center py-12">
               <div className="w-full max-w-md">
-                <div className="border border-[#d8cdbd] bg-[#f8f1e5] p-6 text-[#24231d] shadow-[0_24px_70px_rgba(24,23,17,0.24)] sm:p-8">
+                <div className="border border-[#817E6C] bg-[#E8EBEC] p-6 text-[#24231d] shadow-[0_24px_70px_rgba(24,23,17,0.24)] sm:p-8">
                   <div className="mb-8 text-center">
                     <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
                       Welcome Back
@@ -90,7 +90,7 @@ export default function SignInClient() {
                     <div>
                       <label
                         htmlFor="email"
-                        className="mb-2 block font-serif text-sm font-medium text-[#4f4b3b]"
+                        className="mb-2 block font-serif text-sm font-medium text-[#817E6C]"
                       >
                         Email Address
                       </label>
@@ -102,7 +102,7 @@ export default function SignInClient() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         autoComplete="email"
-                        className="w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                        className="w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                         placeholder="your@email.com"
                       />
                     </div>
@@ -110,7 +110,7 @@ export default function SignInClient() {
                     <div>
                       <label
                         htmlFor="password"
-                        className="mb-2 block font-serif text-sm font-medium text-[#4f4b3b]"
+                        className="mb-2 block font-serif text-sm font-medium text-[#817E6C]"
                       >
                         Password
                       </label>
@@ -122,7 +122,7 @@ export default function SignInClient() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         autoComplete="current-password"
-                        className="w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                        className="w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-[#24231d] outline-none transition-colors placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
                         placeholder="Enter your password"
                       />
                     </div>
@@ -145,7 +145,7 @@ export default function SignInClient() {
                     </Link>
                   </div>
 
-                  <div className="mt-8 border-t border-[#d8cdbd] pt-6">
+                  <div className="mt-8 border-t border-[#817E6C] pt-6">
                     <p className="text-center font-serif text-sm text-[#575348]">
                       Don&apos;t have an account?{' '}
                       <Link

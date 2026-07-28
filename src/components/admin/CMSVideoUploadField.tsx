@@ -165,9 +165,9 @@ export default function CMSVideoUploadField({
   }
 
   return (
-    <div className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
+    <div className="space-y-5 border border-[#817E6C] bg-[#E8EBEC] p-5 text-[#24231d] shadow-[0_10px_28px_rgba(36,35,29,0.05)]">
       <div>
-        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+        <label className="block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
           {label}
         </label>
 
@@ -191,10 +191,10 @@ export default function CMSVideoUploadField({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={isBusy}
-        className="flex w-full items-center justify-center border border-dashed border-[#9d927f] bg-[#f8f1e5] px-5 py-9 text-center transition-colors hover:border-[#4f4b3b] hover:bg-[#e9dfd1] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center border border-dashed border-[#817E6C] bg-[#E8EBEC] px-5 py-9 text-center transition-colors hover:border-[#817E6C] hover:bg-[#E8EBEC] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <div>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#4f4b3b] bg-[#4f4b3b] text-[#f8f1e5]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-[#817E6C] bg-[#817E6C] text-[#E8EBEC]">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -223,7 +223,7 @@ export default function CMSVideoUploadField({
       </button>
 
       {uploading ? (
-        <div className="border border-[#c8bcaa] bg-[#f8f1e5] p-4">
+        <div className="border border-[#817E6C] bg-[#E8EBEC] p-4">
           <div className="mb-3 flex items-center justify-between font-serif text-sm">
             <span className="font-semibold text-[#24231d]">
               Uploading video
@@ -232,9 +232,9 @@ export default function CMSVideoUploadField({
             <span className="text-[#625e53]">{progress}%</span>
           </div>
 
-          <div className="h-2 w-full overflow-hidden bg-[#d8cdbd]">
+          <div className="h-2 w-full overflow-hidden bg-[#817E6C]">
             <div
-              className="h-full bg-[#4f4b3b] transition-all"
+              className="h-full bg-[#817E6C] transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -242,7 +242,7 @@ export default function CMSVideoUploadField({
       ) : null}
 
       {value ? (
-        <div className="overflow-hidden border border-[#c8bcaa] bg-[#f8f1e5] shadow-[0_8px_22px_rgba(36,35,29,0.06)]">
+        <div className="overflow-hidden border border-[#817E6C] bg-[#E8EBEC] shadow-[0_8px_22px_rgba(36,35,29,0.06)]">
           <div className="aspect-video bg-[#24231d]">
             <video
               src={value}
@@ -252,7 +252,7 @@ export default function CMSVideoUploadField({
             />
           </div>
 
-          <div className="space-y-3 border-t border-[#c8bcaa] p-4">
+          <div className="space-y-3 border-t border-[#817E6C] p-4">
             <div>
               <p className="truncate font-serif text-sm font-semibold text-[#24231d]">
                 {previewName}
@@ -268,7 +268,7 @@ export default function CMSVideoUploadField({
                 type="button"
                 onClick={handleRemove}
                 disabled={isBusy}
-                className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Remove Video
               </button>
@@ -276,7 +276,7 @@ export default function CMSVideoUploadField({
           </div>
         </div>
       ) : (
-        <div className="border border-dashed border-[#b9ae9d] bg-[#f8f1e5] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
+        <div className="border border-dashed border-[#817E6C] bg-[#E8EBEC] px-4 py-8 text-center font-serif text-sm text-[#625e53]">
           No video selected yet
         </div>
       )}

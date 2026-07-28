@@ -143,7 +143,7 @@ export default function AdminAuthMediaPage() {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">
                   Loading...
                 </p>
@@ -159,7 +159,7 @@ export default function AdminAuthMediaPage() {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-5xl py-10 md:py-12">
-          <div className="mb-8 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
+          <div className="mb-8 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
             <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[#625e53]">
               Auth Experience
             </p>
@@ -191,7 +191,7 @@ export default function AdminAuthMediaPage() {
               </div>
             ) : null}
 
-            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <div className="mb-6">
                 <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                   Playback Settings
@@ -228,7 +228,7 @@ export default function AdminAuthMediaPage() {
                 ].map((item) => (
                   <label
                     key={item.key}
-                    className="flex min-h-14 cursor-pointer items-center gap-3 border border-[#c8bcaa] bg-[#e9dfd1] px-4 py-3 font-serif text-sm text-[#24231d] transition-colors hover:border-[#77725d] hover:bg-[#f8f1e5]"
+                    className="flex min-h-14 cursor-pointer items-center gap-3 border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] transition-colors hover:border-[#817e6c] hover:bg-[#e8ebec]"
                   >
                     <input
                       type="checkbox"
@@ -239,7 +239,7 @@ export default function AdminAuthMediaPage() {
                           [item.key]: e.target.checked,
                         }))
                       }
-                      className="h-4 w-4 shrink-0 accent-[#4f4b3b]"
+                      className="h-4 w-4 shrink-0 accent-[#817e6c]"
                     />
 
                     <span>{item.label}</span>
@@ -248,7 +248,7 @@ export default function AdminAuthMediaPage() {
               </div>
             </section>
 
-            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <div className="mb-6">
                 <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                   Overlay Copy
@@ -261,7 +261,7 @@ export default function AdminAuthMediaPage() {
 
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                     Headline
                   </label>
 
@@ -273,12 +273,12 @@ export default function AdminAuthMediaPage() {
                         headline: e.target.value,
                       }))
                     }
-                    className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                    className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                  <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                     Subheadline
                   </label>
 
@@ -290,13 +290,13 @@ export default function AdminAuthMediaPage() {
                         subheadline: e.target.value,
                       }))
                     }
-                    className="min-h-[130px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                    className="min-h-[130px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <div className="mb-6">
                 <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                   Media Assets
@@ -359,11 +359,11 @@ export default function AdminAuthMediaPage() {
               </div>
             </section>
 
-            <div className="sticky bottom-4 z-20 flex justify-end border border-[#c8bcaa] bg-[rgba(242,234,223,0.96)] p-4 shadow-[0_16px_42px_rgba(36,35,29,0.16)] backdrop-blur-xl">
+            <div className="sticky bottom-4 z-20 flex justify-end border border-[#817e6c] bg-[rgba(242,234,223,0.96)] p-4 shadow-[0_16px_42px_rgba(36,35,29,0.16)] backdrop-blur-xl">
               <button
                 type="submit"
                 disabled={saving}
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817e6c] bg-[#817e6c] px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save Auth Media'}
               </button>

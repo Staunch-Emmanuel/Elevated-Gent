@@ -96,7 +96,7 @@ export function ProductCard({
             type="button"
             onClick={handleToggleFavorite}
             disabled={favoriteLoading}
-            className="absolute bottom-3 right-3 z-10 rounded-full border border-[rgba(248,241,229,0.68)] bg-[rgba(248,241,229,0.94)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] shadow-[0_6px_18px_rgba(24,23,17,0.16)] transition-colors hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:opacity-60 sm:bottom-4 sm:right-4"
+            className="absolute bottom-3 right-3 z-10 rounded-full border border-[rgba(232,235,236,0.68)] bg-[rgba(232,235,236,0.94)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-eg-espresso-deep)] shadow-[0_6px_18px_rgba(24,23,17,0.16)] transition-colors hover:border-[var(--color-eg-espresso-deep)] hover:bg-[var(--color-eg-espresso-deep)] hover:text-[var(--color-eg-cream)] disabled:opacity-60 sm:bottom-4 sm:right-4"
           >
             {isFavorited ? 'Saved' : 'Save'}
           </button>

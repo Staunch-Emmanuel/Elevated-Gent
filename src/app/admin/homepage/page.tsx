@@ -81,18 +81,18 @@ export default function AdminHomepagePage() {
     section: HomepageFeatureSection
   ) {
     return (
-      <section className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+      <section className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
         <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
           {label}
         </h2>
 
         <div>
-          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
             Eyebrow
           </label>
 
           <input
-            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+            className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
             value={section.eyebrow || ''}
             onChange={(event) =>
               setContent((current) => ({
@@ -107,12 +107,12 @@ export default function AdminHomepagePage() {
         </div>
 
         <div>
-          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
             Title
           </label>
 
           <input
-            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+            className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
             value={section.title}
             onChange={(event) =>
               setContent((current) => ({
@@ -127,12 +127,12 @@ export default function AdminHomepagePage() {
         </div>
 
         <div>
-          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
             Description
           </label>
 
           <textarea
-            className="min-h-[140px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+            className="min-h-[140px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
             value={section.description}
             onChange={(event) =>
               setContent((current) => ({
@@ -147,12 +147,12 @@ export default function AdminHomepagePage() {
         </div>
 
         <div>
-          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
             Link / Href
           </label>
 
           <input
-            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+            className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
             value={section.href}
             onChange={(event) =>
               setContent((current) => ({
@@ -167,12 +167,12 @@ export default function AdminHomepagePage() {
         </div>
 
         <div>
-          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
             CTA Label
           </label>
 
           <input
-            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+            className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
             value={section.ctaLabel}
             onChange={(event) =>
               setContent((current) => ({
@@ -186,7 +186,7 @@ export default function AdminHomepagePage() {
           />
         </div>
 
-        <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+        <div className="border border-[#817e6c] bg-[#e8ebec] p-5">
           <CMSImageUploadField
             label={`${label} Image`}
             folder="homepage"
@@ -215,7 +215,7 @@ export default function AdminHomepagePage() {
       <ProtectedRoute requireAdmin>
         <PagePadding>
           <Container className="py-10">
-            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+            <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
               <p className="font-serif text-[#575348]">
                 Loading homepage content...
               </p>
@@ -230,14 +230,14 @@ export default function AdminHomepagePage() {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-5xl py-10 md:py-12">
-          <div className="mb-8 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
+          <div className="mb-8 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
             <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               Homepage
             </h1>
 
             <p className="mt-3 max-w-3xl font-serif text-sm leading-6 text-[#575348]">
               Edit all homepage text, links, and images here. Use{' '}
-              <span className="font-mono text-[#4f4b3b]">
+              <span className="font-mono text-[#817e6c]">
                 {'{firstName}'}
               </span>{' '}
               in the welcome title to show the signed-in user&apos;s first name
@@ -258,18 +258,18 @@ export default function AdminHomepagePage() {
           ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <section className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-5 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                 Hero Section
               </h2>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Welcome Title
                 </label>
 
                 <input
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.welcomeTitle}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -281,12 +281,12 @@ export default function AdminHomepagePage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Subtitle
                 </label>
 
                 <input
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.heroSubtitle}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -298,12 +298,12 @@ export default function AdminHomepagePage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Description
                 </label>
 
                 <textarea
-                  className="min-h-[140px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-[140px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.heroDescription}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -315,7 +315,7 @@ export default function AdminHomepagePage() {
               </div>
             </section>
 
-            <section className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                 Hero Buttons
               </h2>
@@ -332,7 +332,7 @@ export default function AdminHomepagePage() {
                 return (
                   <div
                     key={buttonKey}
-                    className="border border-[#d2c6b5] bg-[#e9dfd1] p-5"
+                    className="border border-[#817e6c] bg-[#e8ebec] p-5"
                   >
                     <h3 className="mb-4 font-editorial text-xl font-normal text-[#24231d]">
                       {label}
@@ -340,12 +340,12 @@ export default function AdminHomepagePage() {
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#817e6c]">
                           Label
                         </label>
 
                         <input
-                          className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                          className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           value={button.label}
                           onChange={(event) =>
                             setContent((current) => ({
@@ -360,12 +360,12 @@ export default function AdminHomepagePage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#817e6c]">
                           Link / Href
                         </label>
 
                         <input
-                          className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                          className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           value={button.href}
                           onChange={(event) =>
                             setContent((current) => ({
@@ -384,7 +384,7 @@ export default function AdminHomepagePage() {
               })}
             </section>
 
-            <section className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <div>
                 <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                   Slideshow Images
@@ -395,7 +395,7 @@ export default function AdminHomepagePage() {
                 </p>
               </div>
 
-              <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+              <div className="border border-[#817e6c] bg-[#e8ebec] p-5">
                 <CMSImageUploadField
                   label="Homepage Slideshow Images"
                   folder="homepage"
@@ -418,13 +418,13 @@ export default function AdminHomepagePage() {
                   {content.slideshowImages.map((imageUrl, index) => (
                     <div
                       key={`${imageUrl}-${index}`}
-                      className="flex flex-col gap-4 border border-[#c8bcaa] bg-[#e9dfd1] p-4 md:flex-row md:items-center md:justify-between"
+                      className="flex flex-col gap-4 border border-[#817e6c] bg-[#e8ebec] p-4 md:flex-row md:items-center md:justify-between"
                     >
                       <div className="flex min-w-0 items-center gap-4">
                         <img
                           src={imageUrl}
                           alt={`Homepage slide ${index + 1}`}
-                          className="h-16 w-24 border border-[#b9ae9d] object-cover"
+                          className="h-16 w-24 border border-[#817e6c] object-cover"
                         />
 
                         <div className="min-w-0">
@@ -452,7 +452,7 @@ export default function AdminHomepagePage() {
                             }))
                           }
                           disabled={index === 0 || saving}
-                          className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#817e6c] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Move Up
                         </button>
@@ -473,7 +473,7 @@ export default function AdminHomepagePage() {
                             index === content.slideshowImages.length - 1 ||
                             saving
                           }
-                          className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#817e6c] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Move Down
                         </button>
@@ -490,7 +490,7 @@ export default function AdminHomepagePage() {
                             }))
                           }
                           disabled={saving}
-                          className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Remove
                         </button>
@@ -501,18 +501,18 @@ export default function AdminHomepagePage() {
               ) : null}
             </section>
 
-            <section className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                 About / Story Section
               </h2>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Eyebrow
                 </label>
 
                 <input
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.storySection.eyebrow}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -527,12 +527,12 @@ export default function AdminHomepagePage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Title
                 </label>
 
                 <input
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.storySection.title}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -547,12 +547,12 @@ export default function AdminHomepagePage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Description
                 </label>
 
                 <textarea
-                  className="min-h-[160px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-[160px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.storySection.description}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -566,7 +566,7 @@ export default function AdminHomepagePage() {
                 />
               </div>
 
-              <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+              <div className="border border-[#817e6c] bg-[#e8ebec] p-5">
                 <CMSImageUploadField
                   label="Story Section Image"
                   folder="homepage"
@@ -599,7 +599,7 @@ export default function AdminHomepagePage() {
                 return (
                   <div
                     key={buttonKey}
-                    className="border border-[#d2c6b5] bg-[#e9dfd1] p-5"
+                    className="border border-[#817e6c] bg-[#e8ebec] p-5"
                   >
                     <h3 className="mb-4 font-editorial text-xl font-normal text-[#24231d]">
                       {label}
@@ -607,12 +607,12 @@ export default function AdminHomepagePage() {
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#817e6c]">
                           Label
                         </label>
 
                         <input
-                          className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                          className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           value={button.label}
                           onChange={(event) =>
                             setContent((current) => ({
@@ -630,12 +630,12 @@ export default function AdminHomepagePage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                        <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.08em] text-[#817e6c]">
                           Link / Href
                         </label>
 
                         <input
-                          className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                          className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-mono text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           value={button.href}
                           onChange={(event) =>
                             setContent((current) => ({
@@ -657,18 +657,18 @@ export default function AdminHomepagePage() {
               })}
             </section>
 
-            <section className="space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-5 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                 Explore Intro
               </h2>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Eyebrow
                 </label>
 
                 <input
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.exploreEyebrow}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -680,12 +680,12 @@ export default function AdminHomepagePage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Title
                 </label>
 
                 <textarea
-                  className="min-h-[120px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-[120px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                   value={content.exploreTitle}
                   onChange={(event) =>
                     setContent((current) => ({
@@ -697,7 +697,7 @@ export default function AdminHomepagePage() {
               </div>
             </section>
 
-            <section className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <section className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <div>
                 <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
                   Partner Logos
@@ -708,7 +708,7 @@ export default function AdminHomepagePage() {
                 </p>
               </div>
 
-              <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+              <div className="border border-[#817e6c] bg-[#e8ebec] p-5">
                 <CMSImageUploadField
                   label="Partner Logos"
                   folder="homepage"
@@ -731,13 +731,13 @@ export default function AdminHomepagePage() {
                   {content.partnerLogos.map((imageUrl, index) => (
                     <div
                       key={`${imageUrl}-${index}`}
-                      className="flex flex-col gap-4 border border-[#c8bcaa] bg-[#e9dfd1] p-4 md:flex-row md:items-center md:justify-between"
+                      className="flex flex-col gap-4 border border-[#817e6c] bg-[#e8ebec] p-4 md:flex-row md:items-center md:justify-between"
                     >
                       <div className="flex min-w-0 items-center gap-4">
                         <img
                           src={imageUrl}
                           alt={`Partner logo ${index + 1}`}
-                          className="h-14 w-24 border border-[#b9ae9d] bg-[#f8f1e5] object-contain p-2"
+                          className="h-14 w-24 border border-[#817e6c] bg-[#e8ebec] object-contain p-2"
                         />
 
                         <p className="truncate font-mono text-xs text-[#625e53]">
@@ -759,7 +759,7 @@ export default function AdminHomepagePage() {
                             }))
                           }
                           disabled={index === 0 || saving}
-                          className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#817e6c] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Move Up
                         </button>
@@ -780,7 +780,7 @@ export default function AdminHomepagePage() {
                             index === content.partnerLogos.length - 1 ||
                             saving
                           }
-                          className="border border-[#77725d] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#817e6c] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Move Down
                         </button>
@@ -797,7 +797,7 @@ export default function AdminHomepagePage() {
                             }))
                           }
                           disabled={saving}
-                          className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="border border-[#a65a50] bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Remove
                         </button>
@@ -826,11 +826,11 @@ export default function AdminHomepagePage() {
               content.articlesFeature
             )}
 
-            <div className="sticky bottom-4 z-20 border border-[#c8bcaa] bg-[rgba(242,234,223,0.96)] p-4 shadow-[0_16px_42px_rgba(36,35,29,0.16)] backdrop-blur-xl">
+            <div className="sticky bottom-4 z-20 border border-[#817e6c] bg-[rgba(242,234,223,0.96)] p-4 shadow-[0_16px_42px_rgba(36,35,29,0.16)] backdrop-blur-xl">
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center border border-[#817e6c] bg-[#817e6c] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save Homepage'}
               </button>

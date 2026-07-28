@@ -202,7 +202,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">Loading...</p>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
         <PagePadding>
           <Container>
             <div className="py-12">
-              <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+              <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
                 <p className="font-serif text-[#575348]">Article not found.</p>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-4xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
                 Article Management
@@ -246,7 +246,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
             <button
               type="button"
               onClick={handleDelete}
-              className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5]"
+              className="border border-[#a65a50] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#e8ebec]"
             >
               Delete
             </button>
@@ -254,7 +254,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
 
           <form
             onSubmit={(e) => void handleSubmit(e, 'published')}
-            className="space-y-6 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+            className="space-y-6 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
           >
             {error ? (
               <p className="border border-[#d9aaa4] bg-[#fbefed] px-4 py-3 font-serif text-sm text-[#913a32]">
@@ -263,48 +263,48 @@ export default function AdminEditArticlePage({ params }: PageProps) {
             ) : null}
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                 Title
               </label>
 
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                 required
               />
 
               <p className="mt-2 font-serif text-xs text-[#625e53]">
                 URL slug will be:
-                <span className="ml-1 font-mono text-[#4f4b3b]">
+                <span className="ml-1 font-mono text-[#817e6c]">
                   /articles/{slugify(title)}
                 </span>
               </p>
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                 Excerpt
               </label>
 
               <textarea
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="min-h-[120px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[120px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                 rows={3}
               />
             </div>
 
-            <div className="space-y-4 border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="space-y-4 border border-[#817e6c] bg-[#e8ebec] p-5">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                   Category
                 </label>
 
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817e6c] focus:border-[#817e6c]"
                 >
                   <option value="">Select category</option>
 
@@ -323,7 +323,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
                     setShowNewCategoryForm((current) => !current)
                     setCategoryError('')
                   }}
-                  className="font-serif text-sm font-semibold text-[#4f4b3b] underline underline-offset-4 transition-colors hover:text-[#24231d]"
+                  className="font-serif text-sm font-semibold text-[#817e6c] underline underline-offset-4 transition-colors hover:text-[#24231d]"
                 >
                   {showNewCategoryForm
                     ? 'Cancel new category'
@@ -342,22 +342,22 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               </div>
 
               {showNewCategoryForm ? (
-                <div className="space-y-4 border border-[#c8bcaa] bg-[#f8f1e5] p-5">
+                <div className="space-y-4 border border-[#817e6c] bg-[#e8ebec] p-5">
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                       New category name
                     </label>
 
                     <input
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                       placeholder="e.g. Fitness"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                    <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                       Description (optional)
                     </label>
 
@@ -366,7 +366,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
                       onChange={(e) =>
                         setNewCategoryDescription(e.target.value)
                       }
-                      className="min-h-[100px] w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                      className="min-h-[100px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                     />
                   </div>
 
@@ -380,7 +380,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
                     type="button"
                     onClick={() => void handleCreateCategory()}
                     disabled={creatingCategory}
-                    className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="border border-[#817e6c] bg-[#817e6c] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {creatingCategory ? 'Creating...' : 'Create Category'}
                   </button>
@@ -388,7 +388,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               ) : null}
             </div>
 
-            <div className="border border-[#d2c6b5] bg-[#e9dfd1] p-5">
+            <div className="border border-[#817e6c] bg-[#e8ebec] p-5">
               <CMSImageUploadField
                 label="Hero Image"
                 folder="articles"
@@ -404,26 +404,26 @@ export default function AdminEditArticlePage({ params }: PageProps) {
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                 Content (HTML)
               </label>
 
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[420px] w-full border border-[#b9ae9d] bg-[#24231d] px-4 py-4 font-mono text-sm leading-6 text-[#f8f1e5] outline-none placeholder:text-[#c8bcaa] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#77725d]"
+                className="min-h-[420px] w-full border border-[#817e6c] bg-[#24231d] px-4 py-4 font-mono text-sm leading-6 text-[#e8ebec] outline-none placeholder:text-[#817e6c] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                 rows={12}
               />
             </div>
 
-            <div className="flex flex-wrap gap-3 border-t border-[#c8bcaa] pt-6">
+            <div className="flex flex-wrap gap-3 border-t border-[#817e6c] pt-6">
               <button
                 type="button"
                 disabled={saving}
                 onClick={(e) =>
                   void handleSubmit(e as unknown as FormEvent, 'draft')
                 }
-                className="border border-[#77725d] bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817e6c] bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Save as Draft'}
               </button>
@@ -431,7 +431,7 @@ export default function AdminEditArticlePage({ params }: PageProps) {
               <button
                 type="submit"
                 disabled={saving}
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="border border-[#817e6c] bg-[#817e6c] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Publish Article'}
               </button>

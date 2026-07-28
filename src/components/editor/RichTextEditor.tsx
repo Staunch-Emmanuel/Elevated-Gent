@@ -72,7 +72,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   }, [value]);
 
   return (
-    <div className="editor-wrapper border rounded-md bg-white p-3 min-h-[160px]">
+    <div className="editor-wrapper min-h-[160px] rounded-md border border-[#817E6C] bg-[#E8EBEC] p-3">
       <div ref={holderRef} />
     </div>
   );

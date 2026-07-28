@@ -72,7 +72,7 @@ export default function AdminWellnessPage() {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
+        <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.06)]">
           <p className="font-serif text-[#575348]">Loading…</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function AdminWellnessPage() {
     <ProtectedRoute>
       <PagePadding>
         <Container className="py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
                 Editorial Management
@@ -96,7 +96,7 @@ export default function AdminWellnessPage() {
 
             <Link
               href="/admin/wellness/new"
-              className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
+              className="border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C]"
             >
               + New Article
             </Link>
@@ -120,7 +120,7 @@ export default function AdminWellnessPage() {
           ) : null}
 
           {!error && articles.length === 0 ? (
-            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
               <p className="font-serif text-[#575348]">
                 No wellness articles yet.
               </p>
@@ -130,7 +130,7 @@ export default function AdminWellnessPage() {
               {articles.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <h3 className="font-editorial text-2xl font-normal leading-tight text-[#24231d]">
@@ -149,14 +149,14 @@ export default function AdminWellnessPage() {
                       onClick={() =>
                         router.push(`/admin/wellness/${item.id}`)
                       }
-                      className="border border-[#77725d] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+                      className="border border-[#817E6C] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC]"
                     >
                       Edit
                     </button>
 
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="border border-[#a65a50] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5]"
+                      className="border border-[#a65a50] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#E8EBEC]"
                     >
                       Delete
                     </button>

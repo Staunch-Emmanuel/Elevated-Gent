@@ -23,14 +23,14 @@ export default function AdminTopbar() {
   }
 
   return (
-    <header className="border-b border-[rgba(248,241,229,0.22)] bg-[#77725d] text-[#f8f1e5] shadow-[0_8px_24px_rgba(36,35,29,0.12)]">
+    <header className="border-b border-[rgba(232,235,236,0.22)] bg-[#817E6C] text-[#E8EBEC] shadow-[0_8px_24px_rgba(36,35,29,0.12)]">
       <div className="flex flex-col gap-5 px-7 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-10">
         <div>
-          <p className="mb-1 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-[rgba(248,241,229,0.72)]">
+          <p className="mb-1 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-[rgba(232,235,236,0.72)]">
             Elevated Gentleman Admin
           </p>
 
-          <h1 className="font-editorial text-2xl font-normal leading-tight tracking-[-0.02em] text-[#f8f1e5]">
+          <h1 className="font-editorial text-2xl font-normal leading-tight tracking-[-0.02em] text-[#E8EBEC]">
             Manage content and jump back to the live site
           </h1>
         </div>
@@ -45,8 +45,8 @@ export default function AdminTopbar() {
                 href={link.href}
                 className={`border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.07em] transition-colors duration-200 ${
                   active
-                    ? 'border-[#f8f1e5] bg-[#f8f1e5] text-[#4f4b3b]'
-                    : 'border-[rgba(248,241,229,0.42)] bg-transparent text-[#f8f1e5] hover:border-[#f8f1e5] hover:bg-[#f8f1e5] hover:text-[#4f4b3b]'
+                    ? 'border-[#E8EBEC] bg-[#E8EBEC] text-[#817E6C]'
+                    : 'border-[rgba(232,235,236,0.42)] bg-transparent text-[#E8EBEC] hover:border-[#E8EBEC] hover:bg-[#E8EBEC] hover:text-[#817E6C]'
                 }`}
               >
                 {link.label}

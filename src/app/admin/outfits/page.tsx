@@ -78,7 +78,7 @@ export default function AdminOutfitsPage() {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-5xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-6 border border-[#c8bcaa] bg-[#f8f1e5] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mb-8 flex flex-col gap-6 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
                 Content Management
@@ -96,34 +96,34 @@ export default function AdminOutfitsPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/admin/categories?section=outfits"
-                className="border border-[#77725d] bg-[#f2eadf] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+                className="border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC]"
               >
                 Manage Categories
               </Link>
 
               <Link
                 href="/admin/outfits/new"
-                className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
+                className="border border-[#817E6C] bg-[#817E6C] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C]"
               >
                 + New Outfit
               </Link>
             </div>
           </div>
 
-          <div className="mb-8 border border-[#c8bcaa] bg-[#f8f1e5] p-5 shadow-[0_12px_30px_rgba(36,35,29,0.05)]">
+          <div className="mb-8 border border-[#817E6C] bg-[#E8EBEC] p-5 shadow-[0_12px_30px_rgba(36,35,29,0.05)]">
             <div className="space-y-4">
               <input
                 placeholder="Search outfits..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817E6C] focus:border-[#817E6C]"
               />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="min-h-12 border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817E6C] focus:border-[#817E6C]"
                 >
                   <option value="all">All Categories</option>
 
@@ -134,7 +134,7 @@ export default function AdminOutfitsPage() {
                   ))}
                 </select>
 
-                <div className="flex min-h-12 items-center border border-[#b9ae9d] bg-[#f2eadf] px-4 py-3 font-serif text-sm text-[#575348]">
+                <div className="flex min-h-12 items-center border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#575348]">
                   {filtered.length}{' '}
                   {filtered.length === 1 ? 'outfit' : 'outfits'}
                 </div>
@@ -143,13 +143,13 @@ export default function AdminOutfitsPage() {
           </div>
 
           {loading ? (
-            <div className="border border-[#c8bcaa] bg-[#f8f1e5] px-6 py-12 text-center">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center">
               <p className="font-serif text-[#575348]">
                 Loading outfits...
               </p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="border border-[#c8bcaa] bg-[#f8f1e5] px-6 py-12 text-center">
+            <div className="border border-[#817E6C] bg-[#E8EBEC] px-6 py-12 text-center">
               <p className="font-serif text-[#575348]">
                 No outfits found.
               </p>
@@ -159,7 +159,7 @@ export default function AdminOutfitsPage() {
               {filtered.map((outfit) => (
                 <div
                   key={outfit.id}
-                  className="flex flex-col gap-5 border border-[#c8bcaa] bg-[#f8f1e5] p-4 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center"
+                  className="flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-4 shadow-[0_10px_28px_rgba(36,35,29,0.05)] sm:flex-row sm:items-center"
                 >
                   <img
                     src={
@@ -167,7 +167,7 @@ export default function AdminOutfitsPage() {
                       '/images/placeholder-outfit.jpg'
                     }
                     alt={outfit.title}
-                    className="h-48 w-full border border-[#b9ae9d] object-cover sm:h-28 sm:w-28"
+                    className="h-48 w-full border border-[#817E6C] object-cover sm:h-28 sm:w-28"
                   />
 
                   <div className="min-w-0 flex-1">
@@ -186,7 +186,7 @@ export default function AdminOutfitsPage() {
                     ) : null}
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-[#b9ae9d] bg-[#f2eadf] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4f4b3b]">
+                      <span className="rounded-full border border-[#817E6C] bg-[#E8EBEC] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#817E6C]">
                         {outfit.productLinks.length}{' '}
                         {outfit.productLinks.length === 1
                           ? 'link'
@@ -208,7 +208,7 @@ export default function AdminOutfitsPage() {
                   <div className="flex flex-wrap gap-3 sm:justify-end">
                     <Link
                       href={`/admin/outfits/${outfit.id}`}
-                      className="border border-[#4f4b3b] bg-[#4f4b3b] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b]"
+                      className="border border-[#817E6C] bg-[#817E6C] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C]"
                     >
                       Edit
                     </Link>

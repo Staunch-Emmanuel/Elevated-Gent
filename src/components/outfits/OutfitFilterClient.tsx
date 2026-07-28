@@ -106,7 +106,7 @@ export default function OutfitFilterClient({
               className={
                 activeCategory === option.id
                   ? 'cursor-pointer border-[var(--color-eg-cream)] bg-[var(--color-eg-cream)] px-4 py-2.5 text-[var(--color-eg-espresso-deep)] transition-colors'
-                  : 'cursor-pointer border-[rgba(248,241,229,0.52)] px-4 py-2.5 text-[var(--color-eg-cream)] transition-colors hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
+                  : 'cursor-pointer border-[rgba(232,235,236,0.52)] px-4 py-2.5 text-[var(--color-eg-cream)] transition-colors hover:border-[var(--color-eg-cream)] hover:bg-[var(--color-eg-cream)] hover:text-[var(--color-eg-espresso-deep)]'
               }
             >
               {option.label}
@@ -116,7 +116,7 @@ export default function OutfitFilterClient({
       </div>
 
       {filteredOutfits.length === 0 ? (
-        <div className="border border-[var(--color-eg-line-light)] bg-[rgba(248,241,229,0.06)] px-6 py-12 text-center md:py-16">
+        <div className="border border-[var(--color-eg-line-light)] bg-[rgba(232,235,236,0.06)] px-6 py-12 text-center md:py-16">
           <p className="font-serif text-base leading-7 text-[var(--color-text-muted)]">
             No outfits found in this category yet.
           </p>

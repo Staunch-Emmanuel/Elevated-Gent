@@ -57,9 +57,9 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
   }
 
   return (
-    <article className="group flex h-full flex-col border border-[#b9ae9d] bg-[#f8f1e5] p-3 text-[#24231d] shadow-[0_14px_36px_rgba(24,23,17,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:p-4">
+    <article className="group flex h-full flex-col border border-[#817E6C] bg-[#E8EBEC] p-3 text-[#24231d] shadow-[0_14px_36px_rgba(24,23,17,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:p-4">
       <Link href={href} className="block">
-        <div className="relative flex aspect-video items-center justify-center overflow-hidden border border-[#b9ae9d] bg-[#e9dfd1]">
+        <div className="relative flex aspect-video items-center justify-center overflow-hidden border border-[#817E6C] bg-[#E8EBEC]">
           {hasHeroImage ? (
             <Image
               src={article.heroImage}
@@ -68,7 +68,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#f2eadf] px-6 text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-[#E8EBEC] px-6 text-center">
               <span className="font-serif text-sm leading-6 text-[#575348]">
                 {article.title}
               </span>
@@ -81,7 +81,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
             <div className="absolute right-3 top-3 sm:right-4 sm:top-4">
               <Label
                 variant="inverse"
-                className="border-[#4f4b3b] bg-[#4f4b3b] text-[#f8f1e5]"
+                className="border-[#817E6C] bg-[#817E6C] text-[#E8EBEC]"
               >
                 Featured
               </Label>
@@ -92,12 +92,12 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
 
       <div className="flex flex-1 flex-col space-y-4 px-1 pb-1 pt-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Label className="border-[#77725d] bg-[#f2eadf] text-[#4f4b3b]">
+          <Label className="border-[#817E6C] bg-[#E8EBEC] text-[#817E6C]">
             {getCategoryName(article.category)}
           </Label>
 
           {article.occasion ? (
-            <span className="rounded-full border border-[#c8bcaa] bg-[#f2eadf] px-3 py-1.5 font-serif text-xs uppercase tracking-[0.1em] text-[#575348]">
+            <span className="rounded-full border border-[#817E6C] bg-[#E8EBEC] px-3 py-1.5 font-serif text-xs uppercase tracking-[0.1em] text-[#575348]">
               {article.occasion}
             </span>
           ) : null}
@@ -113,7 +113,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
           {article.excerpt}
         </p>
 
-        <div className="border-t border-[#d8cdbd] pt-4">
+        <div className="border-t border-[#817E6C] pt-4">
           <div className="mb-4 flex items-center justify-between font-serif text-xs text-[#625e53]">
             <span>
               {article.readTime} min read • {publishDate}
@@ -124,7 +124,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
             <Button
               variant="outline"
               size="sm"
-              className="w-full border-[#4f4b3b] text-[#4f4b3b] hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+              className="w-full border-[#817E6C] text-[#817E6C] hover:bg-[#817E6C] hover:text-[#E8EBEC]"
             >
               Read Article
             </Button>

@@ -11,13 +11,13 @@ export default function AdminLayout({
 }) {
   return (
     <ProtectedRoute requireAdmin>
-      <div className="flex min-h-screen bg-[#f8f1e5] text-[#24231d]">
+      <div className="flex min-h-screen bg-[#E8EBEC] text-[#24231d]">
         <AdminSidebar />
 
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col bg-[#f8f1e5] text-[#24231d]">
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col bg-[#E8EBEC] text-[#24231d]">
           <AdminTopbar />
 
-          <main className="flex-1 bg-[#f8f1e5] text-[#24231d]">
+          <main className="flex-1 bg-[#E8EBEC] text-[#24231d]">
             {children}
           </main>
         </div>

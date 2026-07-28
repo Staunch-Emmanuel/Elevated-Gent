@@ -179,7 +179,7 @@ export default function AdminCategoriesPage() {
     <ProtectedRoute requireAdmin>
       <PagePadding>
         <Container className="max-w-5xl py-10 md:py-12">
-          <div className="mb-8 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
+          <div className="mb-8 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8">
             <p className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#625e53]">
               Content Organisation
             </p>
@@ -193,8 +193,8 @@ export default function AdminCategoriesPage() {
             </p>
           </div>
 
-          <div className="mb-8 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
-            <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+          <div className="mb-8 border border-[#817e6c] bg-[#e8ebec] p-5 shadow-[0_12px_32px_rgba(36,35,29,0.05)]">
+            <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
               Section
             </label>
 
@@ -203,7 +203,7 @@ export default function AdminCategoriesPage() {
               onChange={(e) =>
                 handleSectionChange(e.target.value as ContentCategorySection)
               }
-              className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#77725d] focus:border-[#4f4b3b] sm:min-w-[280px] sm:max-w-sm"
+              className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none hover:border-[#817e6c] focus:border-[#817e6c] sm:min-w-[280px] sm:max-w-sm"
             >
               {SECTION_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -221,55 +221,55 @@ export default function AdminCategoriesPage() {
 
           <form
             onSubmit={handleCreateCategory}
-            className="mb-8 space-y-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_14px_36px_rgba(36,35,29,0.06)]"
+            className="mb-8 space-y-5 border border-[#817e6c] bg-[#e8ebec] p-6 shadow-[0_14px_36px_rgba(36,35,29,0.06)]"
           >
             <h2 className="font-editorial text-2xl font-normal text-[#24231d]">
               Add Category
             </h2>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                 Name
               </label>
 
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                 placeholder="e.g. Summer Finds"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                 Description (optional)
               </label>
 
               <textarea
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                className="min-h-[110px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-[110px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
               />
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-50"
+              className="border border-[#817e6c] bg-[#817e6c] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Add Category'}
             </button>
           </form>
 
           {loading ? (
-            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center">
+            <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center">
               <p className="font-serif text-[#575348]">
                 Loading categories...
               </p>
             </div>
           ) : categories.length === 0 ? (
-            <div className="border border-[#c8bcaa] bg-[#f2eadf] px-6 py-12 text-center">
+            <div className="border border-[#817e6c] bg-[#e8ebec] px-6 py-12 text-center">
               <p className="font-serif text-[#575348]">
                 No categories found.
               </p>
@@ -282,24 +282,24 @@ export default function AdminCategoriesPage() {
                 return (
                   <div
                     key={category.id}
-                    className="space-y-4 border border-[#c8bcaa] bg-[#f2eadf] p-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)]"
+                    className="space-y-4 border border-[#817e6c] bg-[#e8ebec] p-5 shadow-[0_10px_28px_rgba(36,35,29,0.05)]"
                   >
                     {isEditing ? (
                       <>
                         <div>
-                          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                             Name
                           </label>
 
                           <input
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
-                            className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                            className="min-h-12 w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           />
                         </div>
 
                         <div>
-                          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                          <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c]">
                             Description
                           </label>
 
@@ -308,7 +308,7 @@ export default function AdminCategoriesPage() {
                             onChange={(e) =>
                               setEditingDescription(e.target.value)
                             }
-                            className="min-h-[110px] w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#77725d] focus:border-[#4f4b3b]"
+                            className="min-h-[110px] w-full border border-[#817e6c] bg-[#e8ebec] px-4 py-3 font-serif text-sm leading-6 text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 hover:border-[#817e6c] focus:border-[#817e6c]"
                           />
                         </div>
 
@@ -317,7 +317,7 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={() => void saveEditing(category.id)}
                             disabled={saving}
-                            className="border border-[#4f4b3b] bg-[#4f4b3b] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border border-[#817e6c] bg-[#817e6c] px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#e8ebec] transition-colors hover:bg-transparent hover:text-[#817e6c] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {saving ? 'Saving...' : 'Save'}
                           </button>
@@ -326,7 +326,7 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={cancelEditing}
                             disabled={saving}
-                            className="border border-[#77725d] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border border-[#817e6c] bg-transparent px-4 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             Cancel
                           </button>
@@ -355,7 +355,7 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={() => startEditing(category)}
                             disabled={saving}
-                            className="border border-[#77725d] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border border-[#817e6c] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#817e6c] transition-colors hover:bg-[#817e6c] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             Edit
                           </button>
@@ -366,7 +366,7 @@ export default function AdminCategoriesPage() {
                               void handleDeleteCategory(category.id)
                             }
                             disabled={saving}
-                            className="border border-[#a65a50] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#f8f1e5] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border border-[#a65a50] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#913a32] transition-colors hover:bg-[#913a32] hover:text-[#e8ebec] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             Delete
                           </button>

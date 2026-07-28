@@ -61,7 +61,7 @@ export default function NewUserPage() {
     <ProtectedRoute>
       <PagePadding>
         <Container className="max-w-4xl py-10 md:py-12">
-          <div className="mb-8 flex flex-col gap-5 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
+          <div className="mb-8 flex flex-col gap-5 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.07)] sm:p-8 md:flex-row md:items-center md:justify-between">
             <h1 className="font-editorial text-4xl font-normal leading-tight tracking-[-0.03em] text-[#24231d]">
               New User
             </h1>
@@ -69,7 +69,7 @@ export default function NewUserPage() {
             <button
               type="button"
               onClick={() => router.push('/admin/users')}
-              className="inline-flex min-h-12 items-center justify-center border border-[#77725d] bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#4f4b3b] transition-colors hover:bg-[#4f4b3b] hover:text-[#f8f1e5]"
+              className="inline-flex min-h-12 items-center justify-center border border-[#817E6C] bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#817E6C] transition-colors hover:bg-[#817E6C] hover:text-[#E8EBEC]"
             >
               Back
             </button>
@@ -83,10 +83,10 @@ export default function NewUserPage() {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-7 border border-[#c8bcaa] bg-[#f2eadf] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
+            className="space-y-7 border border-[#817E6C] bg-[#E8EBEC] p-6 shadow-[0_16px_42px_rgba(36,35,29,0.06)] sm:p-8"
           >
             <div>
-              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+              <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                 Email
               </label>
 
@@ -98,14 +98,14 @@ export default function NewUserPage() {
                     email: e.target.value,
                   }))
                 }
-                className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 transition-colors hover:border-[#77725d] focus:border-[#4f4b3b]"
+                className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none placeholder:text-[#6b675b] placeholder:opacity-100 transition-colors hover:border-[#817E6C] focus:border-[#817E6C]"
                 placeholder="user@example.com"
               />
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Role
                 </label>
 
@@ -117,7 +117,7 @@ export default function NewUserPage() {
                       role: e.target.value as UserRole,
                     }))
                   }
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none transition-colors hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none transition-colors hover:border-[#817E6C] focus:border-[#817E6C]"
                 >
                   <option value="subscriber">Subscriber</option>
                   <option value="admin">Admin</option>
@@ -125,7 +125,7 @@ export default function NewUserPage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#4f4b3b]">
+                <label className="mb-2 block font-sans text-xs font-semibold uppercase tracking-[0.1em] text-[#817E6C]">
                   Subscription Status
                 </label>
 
@@ -141,7 +141,7 @@ export default function NewUserPage() {
                         e.target.value as SubscriptionStatus,
                     }))
                   }
-                  className="min-h-12 w-full border border-[#b9ae9d] bg-[#f8f1e5] px-4 py-3 font-serif text-sm text-[#24231d] outline-none transition-colors hover:border-[#77725d] focus:border-[#4f4b3b]"
+                  className="min-h-12 w-full border border-[#817E6C] bg-[#E8EBEC] px-4 py-3 font-serif text-sm text-[#24231d] outline-none transition-colors hover:border-[#817E6C] focus:border-[#817E6C]"
                 >
                   <option value="trialing">Trialing</option>
                   <option value="active">Active</option>
@@ -151,11 +151,11 @@ export default function NewUserPage() {
               </div>
             </div>
 
-            <div className="border-t border-[#c8bcaa] pt-6">
+            <div className="border-t border-[#817E6C] pt-6">
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex min-h-12 items-center justify-center border border-[#4f4b3b] bg-[#4f4b3b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#f8f1e5] transition-colors hover:bg-transparent hover:text-[#4f4b3b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center border border-[#817E6C] bg-[#817E6C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E8EBEC] transition-colors hover:bg-transparent hover:text-[#817E6C] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Saving...' : 'Create User'}
               </button>
